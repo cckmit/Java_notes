@@ -1,8 +1,8 @@
 
 
-# 黑马程序员
+> 黑马程序员
 
-## 服务框架学习路线
+# 服务框架学习路线
 
 **完整微服务技术栈：微服务技术 + 持续集成**
 
@@ -42,13 +42,13 @@
 
 
 
-## springcloud实用篇一
+# springcloud实用篇一
 
 > 注册中心、负载均衡器
 
-### 一、认识微服务
+## 一、认识微服务
 
-#### 服务框架演变
+### 服务框架演变
 
 **1、单体架构：将业务的所有功能集中在一个项目中开发，打成一个包部署。**
 **2、分布式架构：根据业务功能对系统进行拆分，每个业务模块作为独立项目开发，称为一个服务。**
@@ -59,7 +59,7 @@
 > 自治：团队独立、技术独立、数据独立、部署独立
 > 隔离性强：服务调用做好隔离、容错、降级，避免出现级联问题
 
-#### 微服务技术对比
+### 微服务技术对比
 
 微服务这种方案需要技术框架来落地，全球的互联网公司都在积极尝试自己的微服务落地技术。在国内最知名的就是SpringCloud和阿里巴巴的Dubbo。
 
@@ -69,7 +69,7 @@
 
 
 
-#### SpringCloud<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211130153930.png" alt="image-20211211130153930" style="zoom:5%;" />
+### SpringCloud<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211130153930.png" alt="image-20211211130153930" style="zoom:5%;" />
 
 SpringCloud是目前国内使用最广泛的微服务框架。官网地址：https://spring.io/projects/spring-cloud。
 SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了这些**组件的自动装配**，从而提供了良好的开箱即用体验：
@@ -82,9 +82,9 @@ SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了�
 
 
 
-### 二、微服务拆分案例
+## 二、微服务拆分案例
 
-#### 服务拆分
+### 服务拆分
 
 父工程：定义版本
 
@@ -94,7 +94,7 @@ SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了�
 > 数据独立：不要访问其它微服务的数据库
 > 面向服务：将自己的业务暴露为接口，供其它微服务调用
 
-#### 案例cloud-demo
+### 案例cloud-demo
 
 **微服务远程调用--查询订单**
 
@@ -153,7 +153,7 @@ public class OrderService {
 基于RestTemplate发起的http请求实现远程调用
 http请求做远程调用是与语言无关的调用，只要知道对方的ip、端口、接口路径、请求参数即可。
 
-#### 概念：提供者与消费者
+### 概念：提供者与消费者
 
 服务提供者：一次业务中，被其它微服务调用的服务。（提供接口给其它微服务）
 服务消费者：一次业务中，调用其它微服务的服务。（调用其它微服务提供的接口）
@@ -166,9 +166,9 @@ http请求做远程调用是与语言无关的调用，只要知道对方的ip�
 
 一个服务既可以是提供者，也可以是消费者。
 
-### 三、erreka注册中心
+## 三、erreka注册中心
 
-#### 远程调用的问题（一堆问题）
+### 远程调用的问题（一堆问题）
 
 服务消费者该如何获取服务提供者的地址信息？
 
@@ -188,13 +188,13 @@ http请求做远程调用是与语言无关的调用，只要知道对方的ip�
 
 
 
-#### eureka原理
+### eureka原理
 
 <img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211165752560.png" alt="image-20211211165752560" style="zoom: 40%;" />
 
 
 
-#### 搭建EurekaServer注册中心
+### 搭建EurekaServer注册中心
 
 创建项目，引入spring-cloud-starter-netflix-eureka-server的依赖
 
@@ -228,7 +228,7 @@ eureka:
 
 
 
-#### 服务注册
+### 服务注册
 
 引入spring-cloud-starter-netflix-eureka-client的依赖
 
@@ -256,7 +256,7 @@ eureka:
 
 ![image-20211211172410982](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211172410982.png)
 
-#### 服务发现
+### 服务发现
 
 在order-service完成服务拉取
 
@@ -280,15 +280,15 @@ public RestTemplate restTemplate() {
 
 
 
-### 四、Ribbon负载均衡原理
+## 四、Ribbon负载均衡原理
 
-#### 负载均衡原理
+### 负载均衡原理
 
 ![image-20211211174139422](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211174139422.png)
 
 
 
-#### 负载均衡策略
+### 负载均衡策略
 
 Ribbon的负载均衡规则是一个叫做IRule的接口来定义的，每一个子接口都是一种规则：
 
@@ -319,7 +319,7 @@ userservice:
 
 
 
-#### 懒加载
+### 懒加载
 
 Ribbon默认是采用懒加载，即第一次访问时才会去创建LoadBalanceClient，请求时间会很长。
 而饥饿加载则会在项目启动时创建，降低第一次访问的耗时，通过下面配置开启饥饿加载：
@@ -342,9 +342,9 @@ ribbon:
 > 		开启饥饿加载
 > 		指定饥饿加载的微服务名称
 
-### 五、nacos注册中心
+## 五、nacos注册中心
 
-#### 1、认识和安装
+### 1、认识和安装
 
 Nacos是阿里巴巴的产品，现在是SpringCloud中的一个组件。相比Eureka功能更加丰富，在国内受欢迎程度较高。
 
@@ -352,7 +352,7 @@ Nacos是阿里巴巴的产品，现在是SpringCloud中的一个组件。相比E
 
 
 
-#### 2、快速入门
+### 2、快速入门
 
 在cloud-demo父工程中添加spring-cloud-alilbaba的管理依赖：
 
@@ -391,7 +391,7 @@ spring:
 
 ![image-20211211191456264](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211191456264.png)
 
-#### 3、服务分级存储模型
+### 3、服务分级存储模型
 
 ![image-20211211194746398](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211194746398.png)
 
@@ -474,11 +474,11 @@ Nacos提供了权重配置来控制访问频率，权重越大则访问频率越
 > 		同集群内的多个实例，权重越高被访问的频率越高
 > 		权重设置为<font color=red>0</font>则完全不会被访问
 
-#### 4、环境隔离namespace
+### 4、环境隔离namespace
 
 
 
-##### 如何修改一个服务的命名空间：
+#### 如何修改一个服务的命名空间：
 
 **1）在Nacos控制台可以创建namespace，用来隔离不同环境**
 
@@ -521,7 +521,7 @@ spring:
 
 
 
-##### 总结
+#### 总结
 
 Nacos环境隔离
 1）每个namespace都有唯一id
@@ -530,7 +530,7 @@ Nacos环境隔离
 
 
 
-##### 临时实例和非临时实例
+#### 临时实例和非临时实例
 
 **好好理解**
 
@@ -566,17 +566,17 @@ spring:
 
 
 
-## springcloud实用篇二
+# springcloud实用篇二
 
-### 一、Nacos配置管理
+## 一、Nacos配置管理
 
-#### 1、统一配置管理
+### 1、统一配置管理
 
 
 
 <img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211212093955308.png" alt="image-20211212093955308" style="zoom:33%;" />
 
-##### Nacos实现配置管理
+#### Nacos实现配置管理
 
 在Nacos中添加配置信息：
 
@@ -586,7 +586,7 @@ spring:
 
 <img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211212094447628.png" alt="image-20211212094447628" style="zoom:33%;" />
 
-##### 微服务配置拉取
+#### 微服务配置拉取
 
 ![image-20211212094829855](https://gitee.com/code0002/blog-img/raw/master/img/image-20211212094829855.png)
 
@@ -645,7 +645,7 @@ public class UserController {
 
 
 
-#### 2、配置热更新
+### 2、配置热更新
 
 Nacos中的配置文件变更后，微服务无需重启就可以感知。不过需要通过下面两种配置实现：
 
@@ -682,7 +682,7 @@ public class PatternProperties {
 > 		不是所有的配置都适合放到配置中心，维护起来比较麻烦
 > 		建议将一些关键参数，需要运行时调整的参数放到nacos配置中心，一般都是自定义配置
 
-#### 3、配置共享
+### 3、配置共享
 
 多环境配置共享
 
@@ -734,7 +734,7 @@ public class PatternProperties {
 
 
 
-#### 4、搭建Nacos集群
+### 4、搭建Nacos集群
 
 
 
@@ -742,7 +742,7 @@ public class PatternProperties {
 
 
 
-##### 搭建集群的基本步骤：
+#### 搭建集群的基本步骤：
 
 - 搭建数据库，初始化数据库表结构
 - 下载nacos安装包
@@ -1056,7 +1056,7 @@ server {
 
 
 
-### 二、Feign远程调用（HTTP客户端Feign）
+## 二、Feign远程调用（HTTP客户端Feign）
 
 ```java
 // vaule和name 其实是一个属性
@@ -1076,9 +1076,9 @@ public interface IBaseDataFeignClient extends IBaseDataFeignController {
 
 
 
-#### 1、Feign替代RestTemplate
+### 1、Feign替代RestTemplate
 
-##### 1.1 RestTemplate方式调用存在的问题
+#### 1.1 RestTemplate方式调用存在的问题
 
 ```java
 String url = "http://userservice/user/" + order.getUserId();
@@ -1089,7 +1089,7 @@ User user = restTemplate.getForObject(url, User.class);
 
 
 
-##### 1.2 Feign的介绍
+#### 1.2 Feign的介绍
 
 官方地址：https://github.com/OpenFeign/feign
 Feign是一个声明式的http客户端，其作用就是帮助我们优雅的实现http请求的发送，解决上面提到的问题。
@@ -1102,7 +1102,7 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 
 
-##### 1.3 定义和使用Feign客户端
+#### 1.3 定义和使用Feign客户端
 
 引入依赖
 
@@ -1132,9 +1132,9 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 
 
-#### 2、自定义配置
+### 2、自定义配置
 
-##### 配置Feign日志有两种方式：
+#### 配置Feign日志有两种方式：
 
 **方式一：配置文件方式**
 
@@ -1146,7 +1146,7 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 
 
-#### 3、Figen使用优化（性能调优）
+### 3、Figen使用优化（性能调优）
 
 **Feign底层的客户端实现：**
 		URLConnection：默认实现，不支持连接池
@@ -1159,7 +1159,7 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 
 
-##### 连接池配置
+#### 连接池配置
 
 Feign添加HttpClient的支持：
 
@@ -1197,9 +1197,9 @@ feign:
 
 
 
-#### 4、最佳实践
+### 4、最佳实践
 
-##### Feign的最佳实践
+#### Feign的最佳实践
 
 > 所谓继承：让controller和FeignClient继承同一接口
 > 所谓抽取：将FeignClient、POJO、Feign的默认配置都定义到一个项目中，供所有消费者使用
@@ -1216,7 +1216,7 @@ feign:
 
 
 
-##### 实现Feign最佳实践
+#### 实现Feign最佳实践
 
 **实现最佳实践方式二的步骤如下：**
 （1）首先创建一个module，命名为feign-api，然后引入feign的starter依赖
@@ -1233,9 +1233,9 @@ feign:
 
 
 
-### 三、Gateway服务网关
+## 三、Gateway服务网关
 
-#### 1、为什么需要网关
+### 1、为什么需要网关
 
 ![image-20211213234142351](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213234142351.png)
 
@@ -1247,9 +1247,9 @@ feign:
 
 
 
-#### 2、gateway快速入门
+### 2、gateway快速入门
 
-##### 搭建服务网关
+#### 搭建服务网关
 
 1）创建新的module，引入SpringCloudGateway的依赖和nacos的服务发现依赖：
 
@@ -1308,7 +1308,7 @@ spring:
 
 
 
-#### 3、断言工厂
+### 3、断言工厂
 
 **predicates：路由断言，判断请求是否符合要求，符合则转发到路由目的地**
 
@@ -1344,15 +1344,15 @@ spring:
         - After=2017-01-20T17:42:47.789-07:00[America/Denver]
 ```
 
-#### 4、全局过滤器
+### 4、全局过滤器
 
-##### 路由过滤器 GatewayFilter
+#### 路由过滤器 GatewayFilter
 
 **GatewayFilter是网关中提供的一种过滤器，可以对进入网关的请求和微服务返回的响应做处理：**
 
 ![image-20211214002520861](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214002520861.png)
 
-##### 过滤器工厂 GatewayFilterFactory
+#### 过滤器工厂 GatewayFilterFactory
 
 **Spring提供了31种不同的路由过滤器工厂。例如：**
 
@@ -1360,7 +1360,7 @@ spring:
 
 
 
-##### 案例：给所有进入userservice的请求添加一个请求头：Truth=itcast is freaking awesome!
+#### 案例：给所有进入userservice的请求添加一个请求头：Truth=itcast is freaking awesome!
 
 实现方式：在gateway中修改application.yml文件，给userservice的路由添加过滤器：
 
@@ -1382,7 +1382,7 @@ spring:
 
 
 
-##### 全局过滤器 GlobalFilter
+#### 全局过滤器 GlobalFilter
 
 > 全局过滤器的作用也是处理一切进入网关的请求和微服务响应，与GatewayFilter的作用一样。
 > 区别在于GatewayFilter通过配置定义，处理逻辑是固定的。而GlobalFilter的逻辑需要自己写代码实现。
@@ -1392,7 +1392,7 @@ spring:
 
 
 
-##### 案例：定义全局过滤器，拦截并判断用户身份
+#### 案例：定义全局过滤器，拦截并判断用户身份
 
 > 需求：定义全局过滤器，拦截请求，判断请求的参数是否满足下面条件：
 > 		参数中是否有authorization，
@@ -1458,7 +1458,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 
 
 
-##### 过滤器执行顺序
+#### 过滤器执行顺序
 
 请求进入网关会碰到三类过滤器：当前路由的过滤器、DefaultFilter、GlobalFilter
 请求路由后，会将当前路由过滤器和DefaultFilter、GlobalFilter，合并到一个过滤器链（集合）中（设计模式之适配器模式），排序后依次执行每个过滤器
@@ -1484,7 +1484,7 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 
 
 
-#### 5、跨域问题处理
+### 5、跨域问题处理
 
 跨域：域名不一致就是跨域，主要包括：
 		域名不同： www.taobao.com 和 www.taobao.org 和 www.jd.com 和 miaosha.jd.com
@@ -1500,11 +1500,11 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 
 
 
-## Docker
+# Docker
 
 
 
-## 
+##
 
 ```sh
 # 概念和命令总结一下
@@ -1623,9 +1623,9 @@ docker-compose logs -f userservice # 查看某个服务的日志
 
 
 
-### 一、初识Docker
+## 一、初识Docker
 
-#### 1、什么是Docker
+### 1、什么是Docker
 
 **项目部署的问题**
 
@@ -1674,7 +1674,7 @@ Docker如何解决开发、测试、生产环境有差异的问题
 > 		**运行时利用沙箱机制形成隔离容器，各个应用互不干扰**
 > 		**启动、移除都可以通过一行命令完成，方便快捷**
 
-#### 2、Docker和虚拟机的区别
+### 2、Docker和虚拟机的区别
 
 虚拟机（virtual machine）是在操作系统中模拟硬件设备，然后运行另一个操作系统，比如在 Windows 系统里面运行 Ubuntu 系统，这样就可以运行任意的Ubuntu应用了。
 
@@ -1686,9 +1686,9 @@ Docker如何解决开发、测试、生产环境有差异的问题
 
 
 
-#### 3、Docker架构
+### 3、Docker架构
 
-##### 镜像和容器
+#### 镜像和容器
 
 **镜像（Image）：**Docker将应用程序及其所需的依赖、函数库、环境、配置等文件打包在一起，称为镜像。
 **容器（Container）：**镜像中的应用程序运行后形成的进程就是容器，只是Docker会给容器做隔离，对外不可见。
@@ -1697,7 +1697,7 @@ Docker如何解决开发、测试、生产环境有差异的问题
 
 
 
-##### Docker和DockerHub
+#### Docker和DockerHub
 
 DockerHub：DockerHub是一个Docker镜像的托管平台。这样的平台称为Docker Registry。
 国内也有类似于DockerHub 的公开服务，比如 网易云镜像服务、阿里云镜像库等。
@@ -1706,7 +1706,7 @@ DockerHub：DockerHub是一个Docker镜像的托管平台。这样的平台称�
 
 
 
-##### docker架构
+#### docker架构
 
 **Docker是一个CS架构的程序，由两部分组成：**
 **服务端(server)：Docker守护进程，负责处理Docker指令，管理镜像、容器等**
@@ -1728,7 +1728,7 @@ DockerHub：DockerHub是一个Docker镜像的托管平台。这样的平台称�
 
 
 
-#### 4、安装Docker
+### 4、安装Docker
 
 企业部署一般都是采用Linux操作系统，而其中又数CentOS发行版占比最多，因此我们在CentOS下安装Docker。参考课前资料中的文档。
 
@@ -1736,7 +1736,7 @@ Docker 分为 CE 和 EE 两大版本。CE 即社区版（免费，支持周期 7
 Docker CE 分为 `stable` `test` 和 `nightly` 三个更新频道。
 官方网站上有各种环境下的 [安装指南](https://docs.docker.com/install/)，这里主要介绍 Docker CE 在 CentOS上的安装。
 
-##### 1.CentOS安装Docker
+#### 1.CentOS安装Docker
 
 > Docker CE 支持 64 位版本 CentOS 7，并且要求内核版本不低于 3.10， CentOS 7 满足最低内核的要求，所以我们在CentOS 7安装Docker。
 
@@ -1876,7 +1876,7 @@ sudo systemctl restart docker
 
 
 
-##### 2.CentOS7安装DockerCompose
+#### 2.CentOS7安装DockerCompose
 
 
 
@@ -1886,11 +1886,11 @@ sudo systemctl restart docker
 
 
 
-### 二、Docker的基本操作
+## 二、Docker的基本操作
 
-#### 1、镜像操作
+### 1、镜像操作
 
-##### 镜像相关命令
+#### 镜像相关命令
 
 镜像名称一般分两部分组成：[repository]:[tag]。
 在没有指定tag时，默认是latest，代表最新版本的镜像
@@ -1899,7 +1899,7 @@ sudo systemctl restart docker
 
 
 
-##### 镜像操作命令
+#### 镜像操作命令
 
 ![image-20211214153517303](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214153517303.png)
 
@@ -1911,7 +1911,7 @@ sudo systemctl restart docker
 
 
 
-##### 案例：从DockerHub中拉取一个nginx镜像并查看
+#### 案例：从DockerHub中拉取一个nginx镜像并查看
 
 首先去镜像仓库搜索nginx镜像，比如DockerHub:
 
@@ -1974,11 +1974,11 @@ docker pull nginx
 
 
 
-#### 2、容器操作
+### 2、容器操作
 
 ![image-20211214161316687](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214161316687.png)
 
-##### 案例：创建运行一个Nginx容器
+#### 案例：创建运行一个Nginx容器
 
 去docker hub查看Nginx的容器运行命令
 
@@ -2021,7 +2021,7 @@ docker run --name containerName -p 80:80 -d nginx
 
 
 
-##### 案例：进入Nginx容器，修改HTML文件内容，添加“传智教育欢迎您”
+#### 案例：进入Nginx容器，修改HTML文件内容，添加“传智教育欢迎您”
 
 步骤一：进入容器。进入我们刚刚创建的nginx容器的命令为：
 
@@ -2066,7 +2066,7 @@ sed -i 's#<head>#<head><meta charset="utf-8">#g' index.html
 
 
 
-##### 练习：创建并运行一个redis容器，并且支持数据持久化
+#### 练习：创建并运行一个redis容器，并且支持数据持久化
 
 步骤一：到DockerHub搜索Redis镜像
 步骤二：查看Redis镜像文档中的帮助信息
@@ -2094,7 +2094,7 @@ docker execi -t mrr edis-cli
 
 
 
-##### 练习：进入redis容器，并执行redis-cli客户端命令，存入num=666
+#### 练习：进入redis容器，并执行redis-cli客户端命令，存入num=666
 
 ![image-20211214180732083](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214180732083.png)
 
@@ -2112,7 +2112,7 @@ docker execi -t mrr edis-cli
 
 
 
-##### 操作数据卷
+#### 操作数据卷
 
 基本语法如下：
 
@@ -2129,7 +2129,7 @@ docker volume [COMMAND]
 
 
 
-##### 案例：创建一个数据卷，并查看数据卷在宿主机的目录位置
+#### 案例：创建一个数据卷，并查看数据卷在宿主机的目录位置
 
 创建数据卷
 
@@ -2166,13 +2166,13 @@ docker volume inspect html
 
 
 
-##### 挂载数据卷
+#### 挂载数据卷
 
 我们在创建容器时，可以通过 -v 参数来挂载一个数据卷到某个容器目录
 
 ![image-20211214214121382](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214214121382.png)
 
-##### 案例：创建一个nginx容器，修改容器内的html目录内的index.html内容
+#### 案例：创建一个nginx容器，修改容器内的html目录内的index.html内容
 
 需求说明：上个案例中，我们进入nginx容器内部，已经知道nginx的html目录所在位置/usr/share/nginx/html ，我们需要把这个目录挂载到html这个数据卷上，方便操作其中的内容。
 提示：运行容器时使用 -v 参数挂载数据卷
@@ -2193,7 +2193,7 @@ docker volume inspect html
 
 
 
-##### 案例：创建并运行一个MySQL容器，将宿主机目录直接挂载到容器
+#### 案例：创建并运行一个MySQL容器，将宿主机目录直接挂载到容器
 
 <img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214221907832.png" alt="image-20211214221907832" style="zoom:50%;" />
 
@@ -2260,13 +2260,13 @@ docker run的命令中通过 -v 参数挂载文件或目录到容器中：
 
 
 
-### 三、DockerFile自定义镜像
+## 三、DockerFile自定义镜像
 
 > 已经学习：如何去拉取一个镜像，如何基于镜像去创建并运行容器；
 >
 > 自己写的微服务代码，官方不可能帮我们制作镜像，自己的微服务自己制作镜像。
 
-#### 1、镜像结构
+### 1、镜像结构
 
 镜像是将应用程序及其需要的系统函数库、环境、配置、依赖打包而成。
 
@@ -2285,7 +2285,7 @@ docker run的命令中通过 -v 参数挂载文件或目录到容器中：
 > 		Entrypoint：入口，是镜像中应用启动的命令
 > 		其它：在BaseImage基础上添加依赖、安装程序、完成整个应用的安装和配置
 
-#### 2、DockerFile语法
+### 2、DockerFile语法
 
 `Dockerfile`就是一个文本文件，其中包含一个个的指令(Instruction)，用指令来说明要执行什么操作来构建镜像。每一个指令都会形成一层Layer。
 
@@ -2293,7 +2293,7 @@ docker run的命令中通过 -v 参数挂载文件或目录到容器中：
 
 更新详细语法说明，请参考官网文档： https://docs.docker.com/engine/reference/builder
 
-##### [自定义镜像-Dockerfile]案例：基于Ubuntu镜像构建一个新镜像，运行一个java项目
+#### [自定义镜像-Dockerfile]案例：基于Ubuntu镜像构建一个新镜像，运行一个java项目
 
 步骤1：新建一个空文件夹docker-demo
 步骤2：拷贝课前资料中的docker-demo.jar文件到docker-demo这个目录
@@ -2355,7 +2355,7 @@ ENTRYPOINT java -jar /tmp/app.jar
 >
 > 事实上，java:8-alpine镜像已经帮我们做好了。
 
-##### 案例：基于java:8-alpine镜像，将一个Java项目构建为镜像
+#### 案例：基于java:8-alpine镜像，将一个Java项目构建为镜像
 
 可以将上面Dockerfile中的命令简化如下
 
@@ -2385,23 +2385,23 @@ ENTRYPOINT java -jar /tmp/app.jar
 
 
 
-#### 3、构建Java项目（如上构建的javaweb1.0和javaweb2.0）
+### 3、构建Java项目（如上构建的javaweb1.0和javaweb2.0）
 
 
 
-### 四、Docker-Compose
+## 四、Docker-Compose
 
 > 实际生产环境下，微服务的数量可是非常多的，集群部署的手段。
 
-#### 1、初识Docker-Compose
+### 1、初识Docker-Compose
 
-##### 介绍
+#### 介绍
 
 ![image-20211215012032022](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215012032022.png)
 
 DockerCompose的详细语法参考官网：https://docs.docker.com/compose/compose-file/
 
-##### 安装
+#### 安装
 
 1）下载
 
@@ -2437,9 +2437,9 @@ echo "199.232.68.133 raw.githubusercontent.com" >> /etc/hosts
 
 
 
-#### 2、部署微服务集群
+### 2、部署微服务集群
 
-##### 案例：将之前学习的cloud-demo微服务集群利用DockerCompose部署
+#### 案例：将之前学习的cloud-demo微服务集群利用DockerCompose部署
 
 <img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211215023346516.png" alt="image-20211215023346516" style="zoom: 33%;" />
 
@@ -2463,11 +2463,11 @@ echo "199.232.68.133 raw.githubusercontent.com" >> /etc/hosts
 
 
 
-### 五、Docker镜像仓库
+## 五、Docker镜像仓库
 
-#### 1、搭建私有镜像仓库
+### 1、搭建私有镜像仓库
 
-##### 常见镜像仓库服务
+#### 常见镜像仓库服务
 
 **镜像仓库（ Docker Registry ）有公共的和私有的两种形式：**
 
@@ -2476,11 +2476,11 @@ echo "199.232.68.133 raw.githubusercontent.com" >> /etc/hosts
 
 
 
-##### 搭建
+#### 搭建
 
 > 搭建镜像仓库可以基于Docker官方提供的DockerRegistry来实现。官网地址：https://hub.docker.com/_/registry
 
-##### 1）搭建简化版镜像仓库
+#### 1）搭建简化版镜像仓库
 
 Docker官方的Docker Registry是一个基础版本的Docker镜像仓库，具备仓库管理的完整功能，但是没有图形化界面。
 
@@ -2501,7 +2501,7 @@ docker run -d \
 
 访问http://YourIp:5000/v2/_catalog 可以查看当前私有镜像服务中包含的镜像
 
-##### 2）搭建带有图形化界面版本
+#### 2）搭建带有图形化界面版本
 
 使用DockerCompose部署带有图象界面的DockerRegistry，命令如下：
 
@@ -2525,7 +2525,7 @@ services:
 
 
 
-##### 3）配置Docker信任地址
+#### 3）配置Docker信任地址
 
 我们的私服采用的是http协议，默认不被Docker信任，所以需要做一个配置：
 
@@ -2550,11 +2550,11 @@ systemctl restart docker
 
 
 
-#### 2、向镜像仓库推送镜像
+### 2、向镜像仓库推送镜像
 
-#### 3、从镜像仓库拉取镜像
+### 3、从镜像仓库拉取镜像
 
-##### 在私有镜像仓库推送或拉取镜像
+#### 在私有镜像仓库推送或拉取镜像
 
 ![image-20211215030715398](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215030715398.png)
 
