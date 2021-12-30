@@ -180,7 +180,7 @@
 
 
 
-### SpringCloud<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211130153930.png" alt="image-20211211130153930" style="zoom:5%;" />
+### SpringCloud
 
 SpringCloud是目前国内使用最广泛的微服务框架。官网地址：https://spring.io/projects/spring-cloud。
 SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了这些**组件的自动装配**，从而提供了良好的开箱即用体验：
