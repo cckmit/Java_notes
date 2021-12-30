@@ -89,6 +89,28 @@ git push Github master:main
 
 
 
+万分感谢！！！
+
+https://www.runoob.com/git/git-remote-repo.html
+
+```bash
+git add .
+git commit -m "添加 README.md 文件"
+git remote add origin git@github.com:cat0501/Java_notes.git
+git push -u origin master
+```
+
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211230210913202.png" alt="image-20211230210913202" style="zoom: 33%;" />
+
+
+
+github设置默认分支
+
+```bash
+```
+
+
+
 
 
 
