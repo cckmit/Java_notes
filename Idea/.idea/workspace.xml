@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="bfbfc89e-c51a-419b-9214-5e9da54007c5" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../4.数据结构与算法/Java_test/test1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../1.Java基础/.keep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../3.分布式&amp;微服务/SpringCloud_2黑马.md" beforeDir="false" afterPath="$PROJECT_DIR$/../3.分布式&amp;微服务/SpringCloud_2黑马.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.en.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.en.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="localRepository" value="$USER_HOME$/environment/repo" />
+        <option name="mavenHome" value="$USER_HOME$/environment/apache-maven-3.8.2" />
+        <option name="userSettingsFile" value="$USER_HOME$/environment/apache-maven-3.8.2/conf/settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="22rEHiRWWJ6WegJL777upXL6wAX" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.16270699" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="leetcode.id" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bfbfc89e-c51a-419b-9214-5e9da54007c5" name="Default Changelist" comment="" />
+      <created>1640587219574</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1640587219574</updated>
+      <workItem from="1640587221596" duration="3514000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="256" y="25" width="1280" height="1034" key="SettingsEditor" timestamp="1640587440853">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="256" y="25" width="1280" height="1034" key="SettingsEditor/0.25.1792.1034@0.25.1792.1034" timestamp="1640587440853" />
+  </component>
+</project>
