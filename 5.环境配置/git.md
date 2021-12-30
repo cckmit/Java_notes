@@ -84,6 +84,22 @@ git push gitee master
 
 ![img](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/gitee8.png)
 
+
+
+## 最终效果
+
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211230222742330.png" alt="image-20211230222742330" style="zoom:33%;" />
+
+
+
+![image-20211230222850270](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211230222850270.png)
+
+
+
+![image-20211230222954724](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211230222954724.png)
+
+
+
 ## 其它
 
 ### Github 如何设置 master 为默认分支？
