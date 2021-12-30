@@ -27,3 +27,6 @@ git remote rm origin
 git remote add GitHub git@github.com:xcalan/learn_git.git
 git remote add Gitee git@gitee.com:xcalan/learn_git.git
 
+
+
+测试
