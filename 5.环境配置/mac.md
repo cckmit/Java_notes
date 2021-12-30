@@ -107,8 +107,8 @@ git --version
 10.创建git用户并且修改权限
 
 ```bash
-adduser fuchen 
-passwd fuchen 
+adduser admin
+passwd admin
 chmod 740 /etc/sudoers 
 vim /etc/sudoers 
 
