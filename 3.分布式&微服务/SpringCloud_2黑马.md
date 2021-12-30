@@ -10,7 +10,7 @@
   - [一、认识微服务](#一认识微服务)
     - [服务框架演变](#服务框架演变)
     - [微服务技术对比](#微服务技术对比)
-    - [SpringCloud<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211130153930.png" alt="image-20211211130153930" style="zoom:5%;" />](#springcloud)
+    - [SpringCloud](#springcloud)
   - [二、微服务拆分案例](#二微服务拆分案例)
     - [服务拆分](#服务拆分)
     - [案例cloud-demo](#案例cloud-demo)
