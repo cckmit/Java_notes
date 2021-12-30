@@ -18,3 +18,12 @@ origin	https://gitee.com/code0002/Java_notes.git (push)
 
 可以看到，目前仅有`https://gitee.com/code0002/Java_notes.git`这个远程库地址
 
+
+
+git remote rm origin
+
+
+
+git remote add GitHub git@github.com:xcalan/learn_git.git
+git remote add Gitee git@gitee.com:xcalan/learn_git.git
+
