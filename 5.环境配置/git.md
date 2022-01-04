@@ -24,6 +24,8 @@ ssh-keygen -t rsa -C "pxzjl123@icloud.com"
 <img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211230214938954.png" alt="image-20211230214938954" style="zoom:33%;" />
 
 > 注：根据runoob官网，只用在本地~/下.ssh 文件夹中生成一个秘钥就好，但是我根据[思否博主建议](https://segmentfault.com/a/1190000016269686)对每个账户（GitHub、Gitee）生成了一个秘钥然后改名并分别配置到了GitHub和Gitee中，秘钥文件如上图。
+>
+> id_rsa是私钥 id_rsa.pub是公钥
 
 
 
@@ -77,7 +79,7 @@ git push github master
 如果要推送到 Gitee，使用命令：
 
 ```bash
-git push gitee master
+
 ```
 
 这样一来，我们的本地库就可以同时与多个远程库互相同步：
@@ -220,3 +222,63 @@ git push Github master:main
 git remote add gitee git@gitee.com:code0002/Java_notes.git
 ```
 
+
+
+秘钥
+
+https://www.jianshu.com/p/be58fa27a704
+
+Git配置多个用户
+
+https://blog.csdn.net/Jumping_code/article/details/108775927
+
+https://blog.csdn.net/weixin_33725515/article/details/86250140?spm=1001.2101.3001.6650.4&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-4.no_search_link&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-4.no_search_link&utm_relevant_index=9
+
+https://blog.csdn.net/cicibi6696/article/details/100686299
+
+https://blog.csdn.net/weixin_47518343/article/details/109047689?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-2.no_search_link&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-2.no_search_link&utm_relevant_index=5
+
+https://blog.csdn.net/weixin_47518343/article/details/109047689?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-5.no_search_link&spm=1001.2101.3001.4242.4&utm_relevant_index=8
+
+https://blog.csdn.net/zixiao217/article/details/82939654?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0.no_search_link&spm=1001.2101.3001.4242.1&utm_relevant_index=3
+
+
+
+https://blog.csdn.net/xiecheng1995/article/details/106570059?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-1.no_search_link&spm=1001.2101.3001.4242.2&utm_relevant_index=4
+
+https://blog.csdn.net/COCO56/article/details/103818543?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-5.no_search_link&spm=1001.2101.3001.4242.4&utm_relevant_index=8
+
+
+
+# git命令
+
+
+
+分支
+
+https://blog.csdn.net/guo_qiangqiang/article/details/88020656
+
+# 终端配置
+更新完 zsh 说我目录权限问题的解决   https://www.jianshu.com/p/f2545c1feaec
+
+报错内容如下：
+```bash
+[oh-my-zsh] For safety, we will not load completions from these directories until
+[oh-my-zsh] you fix their permissions and ownership and restart zsh.
+[oh-my-zsh] See the above list for directories with group or other writability.
+
+[oh-my-zsh] To fix your permissions you can do so by disabling
+[oh-my-zsh] the write permission of "group" and "others" and making sure that the
+[oh-my-zsh] owner of these directories is either root or your current user.
+[oh-my-zsh] The following command may help:
+[oh-my-zsh] compaudit | xargs chmod g-w,o-w
+
+[oh-my-zsh] If the above didn't help or you want to skip the verification of
+[oh-my-zsh] insecure directories you can set the variable ZSH_DISABLE_COMPFIX to
+[oh-my-zsh] "true" before oh-my-zsh is sourced in your zshrc file.
+```
+解决方案
+```bash
+chmod 755 /usr/local/share/zsh
+chmod 755 /usr/local/share/zsh/site-functions
+```
