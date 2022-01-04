@@ -79,7 +79,7 @@ git push github master
 如果要推送到 Gitee，使用命令：
 
 ```bash
-
+git push gitee master
 ```
 
 这样一来，我们的本地库就可以同时与多个远程库互相同步：
