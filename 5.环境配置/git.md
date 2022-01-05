@@ -102,7 +102,9 @@ git push gitee master
 
 
 
-## 其它
+## 其它问题
+
+
 
 ### Github 如何设置 master 为默认分支？
 
@@ -166,6 +168,14 @@ git push -u origin master
 <img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211230210913202.png" alt="image-20211230210913202" style="zoom: 33%;" />
 
 
+
+### git中提示 please tell me who you are
+
+需要你登录一下，确认你的身份。
+
+先输入命令`git config user.name "username"`，换行输入`git config user.email "email"`
+
+输入正确的之后就能使用 git add 、commit等命令进行版本控制了。
 
 
 
