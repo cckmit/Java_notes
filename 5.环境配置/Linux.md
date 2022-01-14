@@ -1,6 +1,8 @@
 [toc]
 
+# 工作使用记录
 
+## Linux服务器上更新服务
 
 > 脚本启停服务
 >
@@ -37,9 +39,25 @@
 
 
 
+## mac端口号被占用
+
+命令 lsof -i tcp:port （port替换成端口号，比如8081）可以查看该端口被什么程序占用，并显示PID，方便KILL
+
+```sh
+$ lsof -i tcp:9502
+```
+
+看到进程的PID，可以将进程杀死。使用kill  pid
+
+```sh
+kill  pid
+```
 
 
-## Linux系统
+
+
+
+# Linux系统
 
 目前市面上较知名的发行版有：Ubuntu、RedHat、CentOS、Debian、Fedora、SuSE、OpenSUSE、Arch Linux、SolusOS 等。
 
@@ -239,6 +257,14 @@ chown [-R] 属主名：属组名 文件名
 ```bash
 chmod [-R] xyz 文件或目录
 ```
+
+
+
+
+
+<hr>
+
+
 
 
 
