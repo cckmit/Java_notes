@@ -61,7 +61,7 @@ kill  pid
 
 目前市面上较知名的发行版有：Ubuntu、RedHat、CentOS、Debian、Fedora、SuSE、OpenSUSE、Arch Linux、SolusOS 等。
 
-![image-20211208113912602](https://gitee.com/code0002/blog-img/raw/master/img/image-20211208113912602.png)
+![image-20211208113912602](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208113912602.png)
 
 
 
@@ -89,7 +89,7 @@ Linux的安装步骤比较繁琐，其实云服务器挺普遍的，而且价格
 
 ### 系统目录结构
 
-![image-20211207142241892](https://gitee.com/code0002/blog-img/raw/master/img/image-20211207142241892.png)
+![image-20211207142241892](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211207142241892.png)
 
 
 
@@ -144,7 +144,7 @@ Linux的安装步骤比较繁琐，其实云服务器挺普遍的，而且价格
 **-a ：全部的文件，连同隐藏文件( 开头为 . 的文件) 一起列出来(常用)**
 **-l ：长数据串列出，包含文件的属性与权限等等数据；(常用)**
 
-![image-20211207145103938](https://gitee.com/code0002/blog-img/raw/master/img/image-20211207145103938.png)
+![image-20211207145103938](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211207145103938.png)
 
 
 
@@ -178,7 +178,7 @@ newPt  openoffice4  pt
 
 
 
-![image-20211207145644741](https://gitee.com/code0002/blog-img/raw/master/img/image-20211207145644741.png)
+![image-20211207145644741](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211207145644741.png)
 
 #### 基本属性（权限）
 
@@ -207,9 +207,9 @@ newPt  openoffice4  pt
 
 
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211208111432441.png" alt="image-20211208111432441" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208111432441.png" alt="image-20211208111432441" style="zoom: 33%;" />
 
-![image-20211208111121039](https://gitee.com/code0002/blog-img/raw/master/img/image-20211208111121039.png)
+![image-20211208111121039](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208111121039.png)
 
 
 
@@ -341,11 +341,11 @@ o Z ：该程序应该已经终止，但是其父程序却无法正常的终止�
 
 
 
-![image-20211208104744502](https://gitee.com/code0002/blog-img/raw/master/img/image-20211208104744502.png)
+![image-20211208104744502](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208104744502.png)
 
 
 
-![image-20211208110021468](https://gitee.com/code0002/blog-img/raw/master/img/image-20211208110021468.png)
+![image-20211208110021468](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208110021468.png)
 
 
 
