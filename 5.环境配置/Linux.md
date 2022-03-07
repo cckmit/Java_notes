@@ -1,6 +1,311 @@
-[toc]
+---
+title: Linxu
+tags:
+  - Linux
+categories: 5.环境配置
+abbrlink: 688e
+date: 2022-02-12 16:24:54
+---
 
-# 工作使用记录
+
+
+# Linxu
+
+
+
+```sh
+# 查看端口占用情况（用kill pid来杀掉进程）
+$ lsof -i tcp:port
+
+# 创建空文件夹
+$ mkdir test
+
+# 压缩文件与解压缩
+$ tar -czvf dist.tar.gz dist
+$ tar -xzvf dist.tar.gz
+
+
+# 正在运行的java应用
+$ ps -aux | grep java
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+> https://www.runoob.com/linux/linux-tutorial.html
+
+
+
+<hr>
+
+## 一、简介
+
+Linux 的发行版说简单点就是将 Linux 内核与应用软件做一个打包。
+
+目前市面上较知名的发行版有：Ubuntu、RedHat、CentOS、Debian、Fedora、SuSE、OpenSUSE、Arch Linux、SolusOS 等。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211208113912602.png)
+
+
+
+## 二、安装、启动过程与关机
+
+Linux 的安装步骤比较繁琐，现在其实云服务器挺普遍的，价格也便宜，如果自己不想搭建，也可以直接买一台学习用用，参考[各大云服务器比较](https://www.runoob.com/linux/linux-cloud-server.html)。
+
+虚拟机安装后占用空间，也会有些卡顿，我们作为程序员其实可以选择购买一台自己的服务器，这样的话更加接近真实线上工作。
+
+
+
+### 安装VMware虚拟机来安装Linux系统
+
+https://www.runoob.com/w3cnote/vmware-install-centos7.html
+
+安装 VMware 虚拟机软件，然后使用镜像，配置网卡！
+
+### 购买云服务器(Elastic Compute Service, ECS)
+
+```sh
+1、阿里云购买服务器：https://www.aliyun.com/minisite/goods?userCode=0phtycgr
+2、购买完毕后，获取服务器的ip地址，重置服务器密码，就可以远程登录了
+3、下载 xShell 工具，进行远程连接使用！
+注意事项：
+如果要打开端口，需要在阿里云的安全组面板中开启对应的出入规则，不然的话会被阿里拦截！
+```
+
+
+
+### 启动过程
+
+
+
+### 关机
+
+在linux领域内大多用在服务器上，很少遇到关机的操作。毕竟服务器上跑一个服务是永无止境的，除非特殊情况下，不得已才会关机。
+
+正确的关机流程为：sync > shutdown > reboot > halt
+
+最后总结一下，不管是重启系统还是关闭系统，首先要运行 **sync** 命令，把内存中的数据写到磁盘中。
+
+```bash
+# 将数据由内存同步到硬盘中
+sync
+# 关机指令
+shutdown
+```
+
+
+
+## 三、Linux系统目录结构
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211207142241892-20220212171125315.png)
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220212171804813.png)
+
+
+
+```sh
+# 在 Linux 系统中，有几个目录是比较重要的，平时需要注意不要误删除或者随意更改内部文件。
+/etc：上边也提到了，这个是系统中的配置文件，如果你更改了该目录下的某个文件可能会导致系统不能启动。
+/bin, /sbin, /usr/bin, /usr/sbin: 这是系统预设的执行文件的放置目录，比如 ls 就是在 /bin/ls 目录下的。
+值得提出的是，/bin, /usr/bin 是给系统用户使用的指令（除root外的通用户），而/sbin, /usr/sbin 则是给 root 使用的指令。
+
+/var： 这是一个非常重要的目录，系统上跑了很多程序，那么每个程序都会有相应的日志产生，而这些日志就被记录到这个目录下，具体在 /var/log 目录下，另外 mail 的预设放置也是在这里。
+
+# 在Linux文件系统中有两个特殊的目录
+一个用户所在的工作目录，也叫当前目录，可以使用一个点 . 来表示；
+另一个是当前目录的上一级目录，也叫父目录，可以使用两个点 .. 来表示。
+```
+
+
+
+
+
+```sh
+# binary缩写，存放着最经常使用的命令。
+/bin
+
+/boot: 启动Linux时使用的一些核心文件，包括一些连接文件以及镜像文件。
+/dev: Device（设备）的缩写，存放的是Linux的外部设备。在Linux中访问设备的方式和访问文件的方式是相同的。
+
+# 所有的系统管理所需要的配置文件和子目录。
+/etc
+# 用户的主目录。Linux中每个用户都有一个自己的目录，一般该目录名是以用户的账号命名的。
+/home
+
+/lib: 存放系统最基本的动态连接共享库，作用类似于windows的DLL文件。
+/lost+found: 一般为空，系统非法关机后存放一些文件。
+/media: Linux系统会自动识别一些设备，例如U盘、光驱等等。识别后Linux会把识别的设备挂载到这个目录下。
+/mnt: 系统提供该目录是为了让用户临时挂载别的文件系统的，我们可以将光驱挂载在 /mnt/ 上，然后进入该目录就可以查看光驱里的内容了。
+
+# 给主机额外安装软件的目录。比如你安装一个Oracle数据库就可以放到这个目录下，默认为空。
+/opt
+
+/proc: 存储的是当前内核运行状态的一系列特殊文件
+
+# 系统管理员，也称作超级权限者的用户主目录。
+/root
+
+/sbin: 存放的是系统管理员使用的系统管理程序。
+/srv: 存放一些服务启动之后需要提取的数据。
+/sys: 该目录下安装了 2.6 内核中新出现的一个文件系统 sysfs 。
+/tmp: 存放一些临时文件。
+
+# 这是一个非常重要的目录，用户的很多应用程序和文件都放在这个目录下，类似于windows下的program files目录。
+/usr
+
+/usr/src: 内核源代码默认的放置目录。
+/var: 这个目录中存放着在不断扩充着的东西，我们习惯将那些经常被修改的目录放在这个目录下。包括各种日志文件。
+```
+
+
+
+
+
+## 四、Linux远程登录
+
+> Linux 系统中是通过 ssh 服务实现的远程登录功能，默认 ssh 服务端口号为 22。
+
+Window 系统上 Linux 远程登录客户端有 SecureCRT, Putty, SSH Secure Shell 等，本文以 Putty 为例来登录远程服务器。
+
+
+
+## 五、Linux文件
+
+### 基本属性
+
+> Linux 系统是一种典型的多用户系统，不同的用户处于不同的地位，拥有不同的权限。为了保护系统的安全性，Linux 系统对不同的用户访问同一文件（包括目录文件）的权限做了不同的规定。
+
+```sh
+# 显示一个文件的属性以及文件所属的用户和组
+$ ls -l
+```
+
+
+
+> 第一个字符代表这个文件是目录、文件或链接文件等等。当为 **d** 则是目录；当为 **-** 则是文件；若是 **l** 则表示为链接文档(link file)。
+
+> 接下来的字符以三个为一组，且均为 **rwx** 的组合。其中， **r** 代表可读(read)、 **w** 代表可写(write)、 **x** 代表可执行(execute)。 要注意的是，这三个权限的位置不会改变，如果没有权限，就会出现减号 **-** 而已。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220212180836310.png)
+
+
+
+#### Linux文件属主和属组
+
+Linux系统按文件所有者、文件所有者同组用户和其他用户来规定了不同的文件访问权限。
+
+对于 root 用户来说，一般情况下，文件的权限对其不起作用。
+
+#### 更改文件属性
+
+```sh
+# 当权限为-rwxrwx---
+chmod 777 文件或目录
+chmod [-R] 777 文件或目录
+```
+
+
+
+### 文件和目录管理
+
+```sh
+# 列出目录（可能是最常被运行的）
+ls -a
+# 切换目录
+cd [相对路径或绝对路径]
+# 显示目前所在的目录
+pwd
+
+# 创建新目录
+mkdir test
+# 删除空的目录
+rmdir test
+rmdir -p test1/test2/test3/test4
+# 你可以使用 rm 命令来删除非空目录
+rm [-fir] 文件或目录
+    -f ：就是 force 的意思，忽略不存在的文件，不会出现警告信息；
+    -i ：互动模式，在删除前会询问使用者是否动作
+    -r ：递归删除啊！最常用在目录的删除了！这是非常危险的选项！！！
+
+# 移动文件与目录，或修改名称
+mv [-fiu] source destination
+    -f ：force 强制的意思，如果目标文件已经存在，不会询问而直接覆盖；
+    -i ：若目标文件 (destination) 已经存在时，就会询问是否覆盖！
+    -u ：若目标文件已经存在，且 source 比较新，才会升级 (update)
+
+# 文件内容查看
+cat -b 文件名
+
+```
+
+
+
+## 六、Linux用户（组）管理
+
+### 添加用户
+
+```sh
+useradd 选项 用户名
+```
+
+
+
+## 七、Linux磁盘管理
+
+> Linux 磁盘管理常用三个命令为 **df**、**du** 和 **fdisk**。
+>
+> - **df**（英文全称：disk full）：列出文件系统的整体磁盘使用量
+> - **du**（英文全称：disk used）：检查磁盘空间使用量
+> - **fdisk**：用于磁盘分区
+
+
+
+```sh
+# 对文件和目录磁盘使用的空间的查看
+du [-ahskm] 文件或目录名称
+    -a ：列出所有的文件与目录容量，因为默认仅统计目录底下的文件量而已。
+    -h ：以人们较易读的容量格式 (G/M) 显示；
+    -s ：列出总量而已，而不列出每个各别的目录占用容量；
+    -S ：不包括子目录下的总计，与 -s 有点差别。
+    -k ：以 KBytes 列出容量显示；
+    -m ：以 MBytes 列出容量显示；
+```
+
+
+
+## 八、Linux yum/apt 命令
+
+
+
+
+
+
+
+
+
+
+
+
+
+<hr>
+
 
 ## Linux服务器上更新服务
 
@@ -39,101 +344,17 @@
 
 
 
-## mac端口号被占用
-
-命令 lsof -i tcp:port （port替换成端口号，比如8081）可以查看该端口被什么程序占用，并显示PID，方便KILL
-
-```sh
-$ lsof -i tcp:9502
-```
-
-看到进程的PID，可以将进程杀死。使用kill  pid
-
-```sh
-kill  pid
-```
 
 
 
 
 
-# Linux系统
-
-目前市面上较知名的发行版有：Ubuntu、RedHat、CentOS、Debian、Fedora、SuSE、OpenSUSE、Arch Linux、SolusOS 等。
-
-![image-20211208113912602](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208113912602.png)
 
 
 
-### 环境搭建
-
-Linux的安装步骤比较繁琐，其实云服务器挺普遍的，而且价格也便宜，如果不想搭建，也可以直接买一台学习使用！
-
-#### 安装CentOS
-
-安装 VMware 虚拟机软件，然后使用镜像，配置网卡！
-
-#### 购买云服务器
-
-虚拟机安装后占用空间，也会有些卡顿，我们作为程序员其实可以选择购买一台自己的服务器，这样的话更加接近真实线上工作；
-
-```bash
-1、阿里云购买服务器：https://www.aliyun.com/minisite/goods?userCode=0phtycgr
-2、购买完毕后，获取服务器的ip地址，重置服务器密码，就可以远程登录了
-3、下载 xShell 工具，进行远程连接使用！
-注意事项：
-如果要打开端口，需要在阿里云的安全组面板中开启对应的出入规则，不然的话会被阿里拦截！
-```
 
 
-
-### 系统目录结构
-
-![image-20211207142241892](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211207142241892.png)
-
-
-
-**/bin:**  binary缩写，存放着最经常使用的命令。
-
-**/boot:** 启动Linux时使用的一些核心文件，包括一些连接文件以及镜像文件。
-
-**/dev:** Device（设备）的缩写，存放的是Linux的外部设备。在Linux中访问设备的方式和访问文件的方式是相同的。
-
-**/etc:** 所有的系统管理所需要的配置文件和子目录。
-
-**/home:** 用户的主目录。Linux中每个用户都有一个自己的目录，一般该目录名是以用户的账号命名的。
-
-**/lib:** 存放系统最基本的动态连接共享库，作用类似于windows的DLL文件。
-
-**/lost+found:** 一般为空，系统非法关机后存放一些文件。
-
-**/media:** Linux系统会自动识别一些设备，例如U盘、光驱等等。识别后Linux会把识别的设备挂载到这个目录下。
-
-**/mnt:** 
-
-**/opt:** 给主机额外安装软件所摆放的目录。比如你安装一个Oracle数据库就可以放到这个目录下，默认为空。
-
-**/proc:**
-
-**/root:** 系统管理员，也称作超级权限者的用户主目录。
-
-/sbin:
-
-/srv:
-
-/sys:
-
-/tmp: 存放一些临时文件
-
-**/usr:** 这是一个非常重要的目录，**用户的很多应用程序和文件**都放在这个目录下，类似于windows下的program files目录。
-
-/usr/src: 内核源代码默认的放置目录。
-
-/var: 这个目录中存放着在不断扩充着的东西，我们习惯将那些经常被修改的目录放在这个目录下。包括各种日志文件。
-
-
-
-### 常用基本命令
+## 常用基本命令
 
 #### 目录管理
 
@@ -144,7 +365,7 @@ Linux的安装步骤比较繁琐，其实云服务器挺普遍的，而且价格
 **-a ：全部的文件，连同隐藏文件( 开头为 . 的文件) 一起列出来(常用)**
 **-l ：长数据串列出，包含文件的属性与权限等等数据；(常用)**
 
-![image-20211207145103938](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211207145103938.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211207145103938.png)
 
 
 
@@ -178,7 +399,7 @@ newPt  openoffice4  pt
 
 
 
-![image-20211207145644741](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211207145644741.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211207145644741.png)
 
 #### 基本属性（权限）
 
@@ -207,9 +428,9 @@ newPt  openoffice4  pt
 
 
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208111432441.png" alt="image-20211208111432441" style="zoom: 33%;" />
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211208111432441.png" alt="image-20211208111432441" style="zoom: 33%;" />
 
-![image-20211208111121039](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208111121039.png)
+![image-20211208111121039](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211208111121039.png)
 
 
 
@@ -268,6 +489,7 @@ chmod [-R] xyz 文件或目录
 
 
 
+
 #### 文件内容查看
 
 > **cat**
@@ -279,7 +501,7 @@ chmod [-R] xyz 文件或目录
 
 
 
-![image-20211208093224787](https://gitee.com/code0002/blog-img/raw/master/img/image-20211208093224787.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208093224787.png)
 
 
 
@@ -341,21 +563,96 @@ o Z ：该程序应该已经终止，但是其父程序却无法正常的终止�
 
 
 
-![image-20211208104744502](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208104744502.png)
+![image-20211208104744502](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211208104744502.png)
 
 
 
-![image-20211208110021468](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211208110021468.png)
+![image-20211208110021468](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211208110021468.png)
 
 
 
-> **kill 终止进程**
 
-```bash
-# 杀死进程
-# 常用选项： -9 :表示强迫进程立即停止
-kill -9 PID
+
+
+
+安装nginx并且进行相关配置
+
+
+
+
+
+```sh
+# 安装nginx,在make编译时报错：make: *** No rule to make target `build', needed by `default'. Stop.
+# 解决：
+
+# 更新yum
+yum update
+# 安装前置库 
+yum install -y gcc pcre pcre-devel openssl openssl-devel gd gd-devel
+# 进入nginx目录重新编译一次参数：
+./configure \
+
+--prefix=/usr/local/nginx \
+
+--pid-path=/usr/local/nginx/run \
+
+--user=nginx \
+
+--group=nginx \
+
+--with-http_ssl_module \
+
+--with-http_flv_module \
+
+--with-http_stub_status_module \
+
+--with-http_gzip_static_module \
+
+--with-pcre \
+
+--with-http_image_filter_module \
+
+--with-debug \
+
+# 再次 
+make && make install 
 ```
+
+
+
+dist文件夹压缩成.tar文件
+
+```
+tar -czvf dist.tar.gz dist
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
