@@ -31,8 +31,9 @@ $ ps -aux | grep java
 
 
 
-
-
+# linux批量替换文件夹及子文件夹中文件的内容
+# 上述命令把当前目录以及子目录中的所有文件的 old 替换为 new 
+find -type f -name "*.py" | xargs sed 's#old#new#g' -i
 
 
 

@@ -185,7 +185,7 @@ docker-compose logs -f userservice # 查看某个服务的日志
 
 **Docker如何解决依赖的兼容问题的？**
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214013817441.png" alt="image-20211214013817441" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214013817441.png" alt="image-20211214013817441" style="zoom: 33%;" />
 
 不同环境的操作系统不同，Docker如何解决？我们先来了解下操作系统结构
 
@@ -196,7 +196,7 @@ docker-compose logs -f userservice # 查看某个服务的日志
 
 Ubuntu和CentOS都是基于Linux内核，只是系统应用不同，提供的函数库有差异
 
-![WechatIMG612](https://gitee.com/code0002/blog-img/raw/master/img/WechatIMG612.png)
+![WechatIMG612](https://gitee.com/lemonade19/blog-img/raw/master/img/WechatIMG612.png)
 
 
 
@@ -226,7 +226,7 @@ Docker如何解决开发、测试、生产环境有差异的问题
 
 虚拟机（virtual machine）是在操作系统中模拟硬件设备，然后运行另一个操作系统，比如在 Windows 系统里面运行 Ubuntu 系统，这样就可以运行任意的Ubuntu应用了。
 
-![image-20211214015419915](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214015419915.png)
+![image-20211214015419915](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214015419915.png)
 
 > **Docker和虚拟机的差异：**
 > 		**docker是一个系统进程；虚拟机是在操作系统中的操作系统**
@@ -241,7 +241,7 @@ Docker如何解决开发、测试、生产环境有差异的问题
 **镜像（Image）：**Docker将应用程序及其所需的依赖、函数库、环境、配置等文件打包在一起，称为镜像。
 **容器（Container）：**镜像中的应用程序运行后形成的进程就是容器，只是Docker会给容器做隔离，对外不可见。
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214123821346.png" alt="image-20211214123821346" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214123821346.png" alt="image-20211214123821346" style="zoom: 33%;" />
 
 
 
@@ -250,7 +250,7 @@ Docker如何解决开发、测试、生产环境有差异的问题
 DockerHub：DockerHub是一个Docker镜像的托管平台。这样的平台称为Docker Registry。
 国内也有类似于DockerHub 的公开服务，比如 网易云镜像服务、阿里云镜像库等。
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214124015659.png" alt="image-20211214124015659" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214124015659.png" alt="image-20211214124015659" style="zoom:33%;" />
 
 
 
@@ -260,7 +260,7 @@ DockerHub：DockerHub是一个Docker镜像的托管平台。这样的平台称�
 **服务端(server)：Docker守护进程，负责处理Docker指令，管理镜像、容器等**
 **客户端(client)：通过命令或RestAPI向Docker服务端发送指令。可以在本地或远程向服务端发送指令。**
 
-![image-20211214124457505](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214124457505.png)
+![image-20211214124457505](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214124457505.png)
 
 
 
@@ -306,7 +306,7 @@ yum remove docker \
                   docker-ce
 ```
 
-![image-20211214145853175](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214145853175.png)
+![image-20211214145853175](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214145853175.png)
 
 
 
@@ -320,7 +320,7 @@ yum install -y yum-utils \
            lvm2 --skip-broken
 ```
 
-![image-20211214150645950](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214150645950.png)
+![image-20211214150645950](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214150645950.png)
 
 然后更新本地镜像源：（直接复制粘贴）
 
@@ -335,7 +335,7 @@ sed -i 's/download.docker.com/mirrors.aliyun.com\/docker-ce/g' /etc/yum.repos.d/
 yum makecache fast
 ```
 
-![image-20211214150818679](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214150818679.png)
+![image-20211214150818679](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214150818679.png)
 
 <font color=red>然后输入命令：</font>
 
@@ -345,9 +345,9 @@ yum install -y docker-ce
 
 docker-ce为社区免费版本。稍等片刻，docker即可安装成功。
 
-![image-20211214151418402](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214151418402.png)
+![image-20211214151418402](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214151418402.png)
 
-![image-20211214151446667](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214151446667.png)
+![image-20211214151446667](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214151446667.png)
 
 
 
@@ -386,7 +386,7 @@ systemctl restart docker  # 重启docker服务
 
 > 启动成功
 
-![image-20211214151925745](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214151925745.png)
+![image-20211214151925745](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214151925745.png)
 
 
 
@@ -396,7 +396,7 @@ systemctl restart docker  # 重启docker服务
 docker -v
 ```
 
-![image-20211214152122014](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214152122014.png)
+![image-20211214152122014](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214152122014.png)
 
 **配置镜像加速**
 
@@ -420,7 +420,7 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 ```
 
-![image-20211214152835303](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214152835303.png)
+![image-20211214152835303](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214152835303.png)
 
 
 
@@ -443,13 +443,13 @@ sudo systemctl restart docker
 镜像名称一般分两部分组成：[repository]:[tag]。
 在没有指定tag时，默认是latest，代表最新版本的镜像
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214153317751.png" alt="image-20211214153317751" style="zoom:25%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214153317751.png" alt="image-20211214153317751" style="zoom:25%;" />
 
 
 
 #### 镜像操作命令
 
-![image-20211214153517303](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214153517303.png)
+![image-20211214153517303](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214153517303.png)
 
 >会看帮助文档：
 >
@@ -465,7 +465,7 @@ sudo systemctl restart docker
 
 https://registry.hub.docker.com/search?q=nginx&type=image
 
-![image-20211214154158866](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214154158866.png)
+![image-20211214154158866](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214154158866.png)
 
 根据查看到的镜像名称，拉取自己需要的镜像，通过命令：docker pull nginx
 
@@ -473,11 +473,11 @@ https://registry.hub.docker.com/search?q=nginx&type=image
 docker pull nginx
 ```
 
-![image-20211214154509820](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214154509820.png)
+![image-20211214154509820](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214154509820.png)
 
 通过命令：docker images 查看拉取到的镜像
 
-![image-20211214154732316](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214154732316.png)
+![image-20211214154732316](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214154732316.png)
 
 >以上熟悉了拉取和查看命令
 >
@@ -489,13 +489,13 @@ docker pull nginx
 
 步骤二：使用docker save导出镜像到磁盘 
 
-![image-20211214155519832](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214155519832.png)
+![image-20211214155519832](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214155519832.png)
 
 步骤三：使用docker load加载镜像
 
 > 镜像删除、查看、加载
 
-![image-20211214160105010](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214160105010.png)
+![image-20211214160105010](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214160105010.png)
 
 
 
@@ -524,7 +524,7 @@ docker pull nginx
 
 ### 2、容器操作
 
-![image-20211214161316687](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214161316687.png)
+![image-20211214161316687](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214161316687.png)
 
 #### 案例：创建运行一个Nginx容器
 
@@ -541,19 +541,19 @@ docker run --name containerName -p 80:80 -d nginx
 > 		-d：后台运行容器
 > 		nginx：镜像名称，例如nginx
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214162310530.png" alt="image-20211214162310530" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214162310530.png" alt="image-20211214162310530" style="zoom:33%;" />
 
-![image-20211214162517371](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214162517371.png)
+![image-20211214162517371](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214162517371.png)
 
-![image-20211214162907310](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214162907310.png)
+![image-20211214162907310](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214162907310.png)
 
 >查看日志
 
-![image-20211214163001699](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214163001699.png)
+![image-20211214163001699](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214163001699.png)
 
 > 持续日志输出
 
-![image-20211214163226926](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214163226926.png)
+![image-20211214163226926](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214163226926.png)
 
 
 
@@ -596,7 +596,7 @@ sed -i 's#Welcome to nginx#Welcome to nginx!!!传智教育欢迎您#g' index.htm
 sed -i 's#<head>#<head><meta charset="utf-8">#g' index.html
 ```
 
-![image-20211214165429798](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214165429798.png)
+![image-20211214165429798](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214165429798.png)
 
 
 
@@ -610,7 +610,7 @@ sed -i 's#<head>#<head><meta charset="utf-8">#g' index.html
 > 		命令是docker exec -it [容器名] [要执行的命令]
 > 		exec命令可以进入容器修改文件，但是在容器内修改文件是不推荐的
 
-![image-20211214170109661](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214170109661.png)
+![image-20211214170109661](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214170109661.png)
 
 
 
@@ -624,13 +624,13 @@ sed -i 's#<head>#<head><meta charset="utf-8">#g' index.html
 docker run --name redis -p 6379:6379 -d redis redis-server --appendonly yes
 ```
 
-![image-20211214173315655](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214173315655.png)
+![image-20211214173315655](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214173315655.png)
 
 
 
 访问它，打开一个Redis的客户端
 
-![image-20211214180611822](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214180611822.png)
+![image-20211214180611822](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214180611822.png)
 
 
 
@@ -644,7 +644,7 @@ docker execi -t mrr edis-cli
 
 #### 练习：进入redis容器，并执行redis-cli客户端命令，存入num=666
 
-![image-20211214180732083](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214180732083.png)
+![image-20211214180732083](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214180732083.png)
 
 
 
@@ -652,11 +652,11 @@ docker execi -t mrr edis-cli
 
 容器与数据耦合的问题
 
-![image-20211214211434187](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214211434187.png)
+![image-20211214211434187](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214211434187.png)
 
 数据卷（volume）是一个虚拟目录，指向宿主机文件系统中的某个目录。
 
-![image-20211214211815944](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214211815944.png)
+![image-20211214211815944](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214211815944.png)
 
 
 
@@ -701,7 +701,7 @@ docker volume ls
 docker volume inspect html
 ```
 
-![image-20211214213456120](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214213456120.png)
+![image-20211214213456120](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214213456120.png)
 
 > 数据卷的作用：
 > 		将容器与数据分离，解耦合，方便操作容器内数据，保证数据安全
@@ -718,22 +718,22 @@ docker volume inspect html
 
 我们在创建容器时，可以通过 -v 参数来挂载一个数据卷到某个容器目录
 
-![image-20211214214121382](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214214121382.png)
+![image-20211214214121382](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214214121382.png)
 
 #### 案例：创建一个nginx容器，修改容器内的html目录内的index.html内容
 
 需求说明：上个案例中，我们进入nginx容器内部，已经知道nginx的html目录所在位置/usr/share/nginx/html ，我们需要把这个目录挂载到html这个数据卷上，方便操作其中的内容。
 提示：运行容器时使用 -v 参数挂载数据卷
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214220924303.png" alt="image-20211214220924303" style="zoom: 33% float:left;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214220924303.png" alt="image-20211214220924303" style="zoom: 33% float:left;" />
 
 
 
-![image-20211214220312195](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214220312195.png)
+![image-20211214220312195](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214220312195.png)
 
-![image-20211214220214267](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214220214267.png)
+![image-20211214220214267](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214220214267.png)
 
-![image-20211214220340170](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214220340170.png)
+![image-20211214220340170](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214220340170.png)
 
 > 数据卷挂载方式：
 > 		-v volumeName: /targetContainerPath
@@ -743,7 +743,7 @@ docker volume inspect html
 
 #### 案例：创建并运行一个MySQL容器，将宿主机目录直接挂载到容器
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214221907832.png" alt="image-20211214221907832" style="zoom:50%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214221907832.png" alt="image-20211214221907832" style="zoom:50%;" />
 
 > 值得挂载的内容就2个：数据data和配置文件conf
 >
@@ -763,9 +763,9 @@ docker run \
 
 
 
-![image-20211214224314094](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214224314094.png)
+![image-20211214224314094](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214224314094.png)
 
-![image-20211214224343930](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214224343930.png)
+![image-20211214224343930](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214224343930.png)
 
 
 
@@ -794,7 +794,7 @@ mkdir -p mysql/conf
 >
 > 一种是自动化但是隐藏了细节，一种是细节自己实现但是没有自动化；
 
-![image-20211214224825040](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214224825040.png)
+![image-20211214224825040](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214224825040.png)
 
 
 
@@ -818,7 +818,7 @@ docker run的命令中通过 -v 参数挂载文件或目录到容器中：
 
 镜像是将应用程序及其需要的系统函数库、环境、配置、依赖打包而成。
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214225525656.png" alt="image-20211214225525656" style="zoom:25%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214225525656.png" alt="image-20211214225525656" style="zoom:25%;" />
 
 > 底层函数库、环境配置、依赖安装、应用安装、应用配置
 >
@@ -826,7 +826,7 @@ docker run的命令中通过 -v 参数挂载文件或目录到容器中：
 
 
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214230046084.png" alt="image-20211214230046084" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214230046084.png" alt="image-20211214230046084" style="zoom: 33%;" />
 
 > 镜像是分层结构，每一层称为一个Layer
 > 		BaseImage层：包含基本的系统函数库、环境变量、文件系统
@@ -837,7 +837,7 @@ docker run的命令中通过 -v 参数挂载文件或目录到容器中：
 
 `Dockerfile`就是一个文本文件，其中包含一个个的指令(Instruction)，用指令来说明要执行什么操作来构建镜像。每一个指令都会形成一层Layer。
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214230303095.png" alt="image-20211214230303095" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214230303095.png" alt="image-20211214230303095" style="zoom:33%;" />
 
 更新详细语法说明，请参考官网文档： https://docs.docker.com/engine/reference/builder
 
@@ -858,13 +858,13 @@ docker build -t javaweb:1.0 .
 
 
 
-![image-20211214231412970](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214231412970.png)
+![image-20211214231412970](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214231412970.png)
 
-![image-20211214231444454](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214231444454.png)
+![image-20211214231444454](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214231444454.png)
 
 
 
-![image-20211214231903459](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214231903459.png)
+![image-20211214231903459](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214231903459.png)
 
 > 如上：已成功构建镜像并部署到docker上去
 
@@ -921,7 +921,7 @@ ENTRYPOINT java -jar /tmp/app.jar
 
 
 
-![image-20211214232947091](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214232947091.png)
+![image-20211214232947091](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214232947091.png)
 
 > 只需要4步就可以完成。
 
@@ -945,7 +945,7 @@ ENTRYPOINT java -jar /tmp/app.jar
 
 #### 介绍
 
-![image-20211215012032022](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215012032022.png)
+![image-20211215012032022](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215012032022.png)
 
 DockerCompose的详细语法参考官网：https://docs.docker.com/compose/compose-file/
 
@@ -989,25 +989,25 @@ echo "199.232.68.133 raw.githubusercontent.com" >> /etc/hosts
 
 #### 案例：将之前学习的cloud-demo微服务集群利用DockerCompose部署
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211215023346516.png" alt="image-20211215023346516" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215023346516.png" alt="image-20211215023346516" style="zoom: 33%;" />
 
 
 
-![image-20211215023529096](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215023529096.png)
+![image-20211215023529096](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215023529096.png)
 
 查看日志：docker-compose logs -f userservice
 
-![image-20211215023715085](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215023715085.png)
+![image-20211215023715085](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215023715085.png)
 
 
 
 测试：
 
-![image-20211215024005558](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215024005558.png)
+![image-20211215024005558](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215024005558.png)
 
 
 
-![image-20211215024156027](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215024156027.png)
+![image-20211215024156027](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215024156027.png)
 
 
 
@@ -1088,13 +1088,13 @@ systemctl daemon-reload
 systemctl restart docker
 ```
 
-![image-20211215030300597](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215030300597.png)
+![image-20211215030300597](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215030300597.png)
 
-![image-20211215030444085](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215030444085.png)
+![image-20211215030444085](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215030444085.png)
 
 
 
-![image-20211215030515158](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215030515158.png)
+![image-20211215030515158](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215030515158.png)
 
 
 
@@ -1104,7 +1104,7 @@ systemctl restart docker
 
 #### 在私有镜像仓库推送或拉取镜像
 
-![image-20211215030715398](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215030715398.png)
+![image-20211215030715398](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215030715398.png)
 
 
 
@@ -1117,15 +1117,15 @@ systemctl restart docker
 
 推送：
 
-![image-20211215031243981](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215031243981.png)
+![image-20211215031243981](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215031243981.png)
 
 
 
-![image-20211215031312728](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215031312728.png)
+![image-20211215031312728](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215031312728.png)
 
 
 
-![image-20211215031418472](https://gitee.com/code0002/blog-img/raw/master/img/image-20211215031418472.png)
+![image-20211215031418472](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211215031418472.png)
 
 > 推送本地镜像到仓库前都必须重命名(docker tag)镜像，以镜像仓库地址为前缀
 > 镜像仓库推送前需要把仓库地址配置到docker服务的daemon.json文件中，被docker信任
