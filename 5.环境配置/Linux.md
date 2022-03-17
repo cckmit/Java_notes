@@ -36,8 +36,9 @@ $ ps -aux | grep java
 find -type f -name "*.py" | xargs sed 's#old#new#g' -i
 
 
-
-
+# linux将多个文件的内容合并
+cat b1.sql b2.sql b3.sql > b_all.sql
+cat *.sql > merge.sql
 
 
 
