@@ -19,6 +19,8 @@ $ lsof -i tcp:port
 
 # 创建空文件夹
 $ mkdir test
+# 创建一个文件
+touch .gitattrbutes
 
 # 压缩文件与解压缩
 $ tar -czvf dist.tar.gz dist
