@@ -30,7 +30,7 @@ tags:
 
 ## 核心技术篇
 
-### Spring Boot 是什么？
+### 1. Spring Boot 是什么？
 
 [Spring Boot](https://github.com/spring-projects/spring-boot) 是 Spring 的**子项目**，正如其名字，提供 Spring 的引导( **Boot** )的功能。
 
