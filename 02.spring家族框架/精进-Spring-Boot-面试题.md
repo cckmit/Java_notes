@@ -68,7 +68,7 @@ Spring Boot 可以选择内嵌 Tomcat、Jetty 或者 Undertow，这样我们无�
 
 Spring 提供了一系列的 starter pom 来简化 Maven 的依赖加载。例如，当你使用了 `spring-boot-starter-web` ，会自动加入如下依赖：
 
-![`spring-boot-starter-web` 的 pom 文件](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/01.jpeg)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/01.jpeg)
 
 
 
@@ -110,7 +110,7 @@ Spring 的完整名字，应该是 Spring Framework 。它提供了多个模块�
 
 总结说来，如下图所示：
 
-![Spring Boot 对比 Spring MVC 对比 Spring ？](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/02.jpeg)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/02.jpeg)
 
 
 
@@ -122,7 +122,7 @@ Spring 的完整名字，应该是 Spring Framework 。它提供了多个模块�
 >
 > 比如我们要在 Spring Boot 中引入 Web MVC 的支持时，我们通常会引入这个模块 `spring-boot-starter-web` ，而这个模块如果解压包出来会发现里面什么都没有，只定义了一些 **POM** 依赖。如下图所示：
 >
-> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/03.jpeg)
+> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/03.jpeg?w=900)
 >
 > 经过研究，Starter 主要用来简化依赖用的。比如我们之前做MVC时要引入日志组件，那么需要去找到log4j的版本，然后引入，现在有了Starter之后，直接用这个之后，log4j就自动引入了，也不用关心版本这些问题。
 
