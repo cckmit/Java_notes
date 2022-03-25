@@ -2,9 +2,13 @@
 
 
 
-## Spring 整体
+## 一、Spring 整体
 
 ### 什么是 Spring Framework？
+
+
+
+
 
 ### Spring Framework 中有多少个模块，它们分别是什么？
 
@@ -20,7 +24,7 @@
 
 
 
-## Spring IoC
+## 二、Spring IoC
 
 ### 什么是 Spring IoC 容器？
 
@@ -221,25 +225,164 @@ Spring 提供了以下五种标准的事件：
 
 
 
-## Spring Bean
+## 三、Spring Bean
 
-什么是 Spring Bean ？
-Spring 有哪些配置方式
-Spring 支持几种 Bean Scope ？
-Spring Bean 在容器的生命周期是什么样的？
-什么是 Spring 的内部 bean？
-什么是 Spring 装配？
-解释什么叫延迟加载？
-Spring 框架中的单例 Bean 是线程安全的么？
-Spring Bean 怎么解决循环依赖的问题？
+### 1. 什么是 Spring Bean ？
+
+- Bean 由 Spring IoC 容器实例化，配置，装配和管理。
+- Bean 是基于用户提供给 IoC 容器的配置元数据 Bean Definition 创建。
 
 
 
+这个问题，胖友可以在回过头看 [「什么是 Spring IoC 容器？」](http://svip.iocoder.cn/Spring/Interview/#) 问题，相互对照。
+
+### 2. Spring 有哪些配置方式
+
+单纯从 Spring Framework 提供的方式，一共有三种：
+
+
+
+- 1、XML 配置文件。
+
+Bean 所需的依赖项和服务在 XML 格式的配置文件中指定。这些配置文件通常包含许多 bean 定义和特定于应用程序的配置选项。它们通常以 bean 标签开头。例如：
+
+
+
+- 2、注解配置。
+
+您可以通过在相关的类，方法或字段声明上使用注解，将 Bean 配置为组件类本身，而不是使用 XML 来描述 Bean 装配。默认情况下，Spring 容器中未打开注解装配。因此，您需要在使用它之前在 Spring 配置文件中启用它。例如：
+
+```xml
+<beans>
+<context:annotation-config/>
+<!-- bean definitions go here -->
+</beans>
+```
+
+- 3、Java Config 配置。
+
+Spring 的 Java 配置是通过使用 @Bean 和 @Configuration 来实现。
+
+- `@Bean` 注解扮演与 `<bean />` 元素相同的角色。
+- `@Configuration` 类允许通过简单地调用同一个类中的其他 `@Bean` 方法来定义 Bean 间依赖关系。
+
+```java
+@Configuration
+public class StudentConfig {
+    
+    @Bean
+    public StudentBean myStudent() {
+        return new StudentBean();
+    }
+    
+}
+```
+
+
+
+目前主要使用 **Java Config** 配置为主。当然，三种配置方式是可以混合使用的。例如说：
+
+- Dubbo 服务的配置，喜欢使用 XML 。
+- Spring MVC 请求的配置，喜欢使用 `@RequestMapping` 注解。
+- Spring MVC 拦截器的配置，喜欢 Java Config 配置。
+
+<hr>
+
+另外，现在已经是 Spring Boot 的天下，所以更加是 **Java Config** 配置为主。
 
 
 
 
-## Spring 注解
+
+### 3. Spring 支持几种 Bean Scope ？
+
+> 这个是一个比较小众的题目，简单了解即可。
+
+
+
+Spring Bean 支持 5 种 Scope ，分别如下：
+
+- Singleton - 每个 Spring IoC 容器仅有一个单 Bean 实例。**默认**
+- Prototype - 每次请求都会产生一个新的实例。
+- Request - 每一次 HTTP 请求都会产生一个新的 Bean 实例，并且该 Bean 仅在当前 HTTP 请求内有效。
+- Session - 每一个的 Session 都会产生一个新的 Bean 实例，同时该 Bean 仅在当前 HTTP Session 内有效。
+- Application - 每一个 Web Application 都会产生一个新的 Bean ，同时该 Bean 仅在当前 Web Application 内有效。
+
+> 另外，网络上很多文章说有 Global-session 级别，它是 Portlet 模块独有，目前已经废弃，在 Spring5 中是找不到的。
+
+
+
+仅当用户使用支持 Web 的 ApplicationContext 时，**最后三个才可用**。
+
+再补充一点，开发者是可以**自定义** Bean Scope ，具体可参见 [《Spring（10）—— Bean 作用范围（二）—— 自定义 Scope》](https://blog.csdn.net/elim168/article/details/75581670) 。
+
+不错呢，还是那句话，这个题目简单了解下即可，实际常用的只有 Singleton 和 Prototype 两种级别，甚至说，只有 Singleton 级别。😈
+
+
+
+### 4. Spring Bean 在容器的生命周期是什么样的？
+
+> 这是一个比较高级的 Spring 的面试题，非常常见，并且答对比较加分。当然，如果实际真正弄懂，需要对 Spring Bean 的源码，有比较好的理解，所以 [《精尽 Spring 源码》](http://svip.iocoder.cn/categories/Spring/) 系列，该读还是读吧。
+
+
+
+
+
+> 要注意下面每段话，进行加粗的地方。
+
+
+
+Spring Bean 的**初始化**流程如下：
+
+- 实例化 Bean 对象
+
+  - Spring 容器根据配置中的 Bean Definition(定义)中**实例化** Bean 对象。
+
+    > Bean Definition 可以通过 XML，Java 注解或 Java Config 代码提供。
+
+  - Spring 使用依赖注入**填充**所有属性，如 Bean 中所定义的配置。
+
+- Aware 相关的属性，注入到 Bean 对象
+
+  - 如果 Bean 实现 **BeanNameAware** 接口，则工厂通过传递 Bean 的 beanName 来调用 `#setBeanName(String name)` 方法。
+  - 如果 Bean 实现 **BeanFactoryAware** 接口，工厂通过传递自身的实例来调用 `#setBeanFactory(BeanFactory beanFactory)` 方法。
+
+- 调用相应的方法，进一步初始化 Bean 对象
+
+  - 如果存在与 Bean 关联的任何 **BeanPostProcessor** 们，则调用 `#preProcessBeforeInitialization(Object bean, String beanName)` 方法。
+  - 如果 Bean 实现 **InitializingBean** 接口，则会调用 `#afterPropertiesSet()` 方法。
+  - 如果为 Bean 指定了 **init** 方法（例如 `<bean />` 的 `init-method` 属性），那么将调用该方法。
+  - 如果存在与 Bean 关联的任何 **BeanPostProcessor** 们，则将调用 `#postProcessAfterInitialization(Object bean, String beanName)` 方法。
+
+
+
+
+
+### 5. 什么是 Spring 的内部 bean？
+
+
+
+
+
+### 6. 什么是 Spring 装配？
+
+
+
+
+
+### 7. 解释什么叫延迟加载？
+
+### 8. Spring 框架中的单例 Bean 是线程安全的么？
+
+### 9. Spring Bean 怎么解决循环依赖的问题？
+
+
+
+
+
+
+
+## 四、Spring 注解
 
 什么是基于注解的容器配置？
 如何在 Spring 中启动注解装配？
@@ -252,7 +395,7 @@ Spring Bean 怎么解决循环依赖的问题？
 
 
 
-## Spring AOP
+## 五、Spring AOP
 
 什么是 AOP ？
 什么是 Aspect ？
@@ -272,7 +415,7 @@ Spring 如何使用 AOP 切面？
 
 
 
-## Spring Transaction
+## 六、Spring Transaction
 
 什么是事务？
 事务的特性指的是？
@@ -298,7 +441,7 @@ Spring 事务如何和不同的数据持久层框架做集成？
 
 
 
-## Spring Data Access
+## 七、Spring Data Access
 
 > 这块的问题，感觉面试问的不多，至少我很少问。哈哈哈。就当做下了解，万一问了呢。
 
@@ -353,7 +496,7 @@ Spring 提供了 Spring JDBC 框架，方便我们使用 JDBC 。
 
 
 
-## 最后
+## 八、最后
 
 参考与推荐如下文章：
 
