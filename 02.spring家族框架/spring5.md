@@ -50,7 +50,7 @@ The Spring Framework consists of features organized into about 20 modules. These
 
 **Table 2.1. Spring Framework Artifacts**
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110013126-e5faaf5c-6f36-4029-a29e-40d590219f54.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110013126-e5faaf5c-6f36-4029-a29e-40d590219f54.png?w=900)
 
 
 
