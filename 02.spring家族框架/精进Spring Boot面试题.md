@@ -27,7 +27,6 @@ tags:
 <hr>
 
 
-
 ## 核心技术篇
 
 ### 1. Spring Boot 是什么？
@@ -52,7 +51,7 @@ Spring Boot 提供了各种 Starter 启动器，提供标准化的默认配置�
 
 
 
-### Spring Boot 提供了哪些核心功能？
+### 2. Spring Boot 提供了哪些核心功能？
 
 #### 1、独立运行 Spring 项目
 
@@ -94,7 +93,7 @@ Spring Boot 没有引入任何形式的代码生成，它是使用的 Spring 4.0
 
 
 
-### Spring Boot 有什么优缺点？
+### 3. Spring Boot 有什么优缺点？
 
 > 任何技术栈，有优点必有缺点，没有银弹。
 
@@ -102,7 +101,7 @@ Spring Boot 没有引入任何形式的代码生成，它是使用的 Spring 4.0
 
 
 
-### Spring Boot、Spring MVC 和 Spring 有什么区别？
+### 4. Spring Boot、Spring MVC 和 Spring 有什么区别？
 
 Spring 的完整名字，应该是 Spring Framework 。它提供了多个模块，Spring IoC、Spring AOP、Spring MVC 等等。所以，Spring MVC 是 Spring Framework 众多模块中的一个。
 
