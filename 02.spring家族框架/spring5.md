@@ -30,8 +30,6 @@ The Spring Framework consists of features organized into about 20 modules. These
 
 **spring4**
 
-> Figure 2.1. Overview of the Spring Framework
->
 > 注：这个图来源于`Spring4`的`Doc`，我在`Spring5`以后的官方Doc中没有找到这个图，而且Spring5的文档的排版跟Spring4的排版有很大的区别。
 
 
@@ -42,7 +40,7 @@ The Spring Framework consists of features organized into about 20 modules. These
 
 **spring5**
 
-> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110566537-f5ec2849-b148-4c00-8d64-bf54697cc0dd.png)
+> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110566537-f5ec2849-b148-4c00-8d64-bf54697cc0dd.png?w=600)
 
 
 
@@ -52,7 +50,7 @@ The Spring Framework consists of features organized into about 20 modules. These
 
 **Table 2.1. Spring Framework Artifacts**
 
-![img](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110013126-e5faaf5c-6f36-4029-a29e-40d590219f54.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110013126-e5faaf5c-6f36-4029-a29e-40d590219f54.png?w=600)
 
 
 
