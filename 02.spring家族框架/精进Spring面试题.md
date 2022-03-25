@@ -225,6 +225,8 @@ Spring 是一个开源应用框架，旨在降低应用程序开发的复杂度�
 
 
 
+<hr>
+
 当然，Spring 带来优点的同时，一定会带来相应的缺点：
 
 - 每个框架都有的问题，调试阶段不直观，后期的 bug 对应阶段，不容易判断问题所在。要花一定的时间去理解它。
@@ -354,7 +356,7 @@ IoC 是个更宽泛的概念，DI 是更具体的。引用郑烨的一篇博客�
 
 那么这两种方式各有什么优缺点呢？胖友可以简单阅读 [《Spring两种依赖注入方式的比较》](https://my.oschina.net/itblog/blog/203746)，不用太较真。综述来说：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220325212541886.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220325212541886.png?w=600)
 
 
 
