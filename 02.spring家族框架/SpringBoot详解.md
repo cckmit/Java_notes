@@ -269,7 +269,7 @@ public class Springboot01QuickstartApplication {
 
 #### 3.4 内嵌tomcat
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326181954751.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326181954751.png?w=600)
 
 
 
