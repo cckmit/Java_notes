@@ -192,7 +192,7 @@ public class BookController {
 
 
 
--
+
 
 
 
@@ -269,7 +269,7 @@ public class Springboot01QuickstartApplication {
 
 #### 3.4 内嵌tomcat
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302175200478.png?w=500)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326181954751.png)
 
 
 
