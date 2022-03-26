@@ -188,19 +188,19 @@ public class BookController {
 
 #### 3.1 parent
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302151722177.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302151722177.png?w=600)
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302152433847.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302152433847.png?w=600)
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302152545767.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302152545767.png?w=600)
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302152642782.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302152642782.png?w=600)
 
 
 
@@ -217,23 +217,23 @@ public class BookController {
 
 #### 3.2 starter
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302173752751.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302173752751.png?w=600)
 
 
 
-> starter
->
-> - SpringBoot中常见项目名称，定义了当前项目使用的所有依赖坐标，以达到减少依赖配置的目的
->
-> parent
->
-> - 所有SpringBoot项目要继承的项目，定义了若干个坐标版本号（依赖管理，而非依赖），以达到减少依赖冲突的目的
-> - spring-boot-starter-parent各版本间存在着诸多坐标版本不同
->
-> 实际开发
->
-> - 使用任意坐标时，仅书写GAV中的G和A，V由SpringBoot提供，除非SpringBoot未提供对应版本V
-> - 如发生坐标错误，再指定Version（要小心版本冲突）
+##### starter
+
+- SpringBoot中常见项目名称，定义了当前项目使用的所有依赖坐标，以达到减少依赖配置的目的
+
+##### parent（parent和stater主要解决配置问题！！！）
+
+- 所有SpringBoot项目要继承的项目，定义了若干个坐标版本号（依赖管理，而非依赖），以达到减少依赖冲突的目的
+- spring-boot-starter-parent各版本间存在着诸多坐标版本不同
+
+##### 实际开发
+
+- 使用任意坐标时，仅书写GAV中的G和A，V由SpringBoot提供，除非SpringBoot未提供对应版本V
+- 如发生坐标错误，再指定Version（要小心版本冲突）
 
 
 
@@ -242,8 +242,6 @@ public class BookController {
 > 3. 使用starter可以实现快速配置的效果，达到简化配置的目的
 
 
-
-> 以上的parent和stater主要解决配置问题！！！
 
 
 
@@ -260,20 +258,22 @@ public class Springboot01QuickstartApplication {
 
 
 
-> SpringBoot的引导类是Boot工程的执行入口，运行main方法就可以启动项目
-> SpringBoot工程运行后初始化Spring容器，扫描引导类所在包加载bean
+- SpringBoot的引导类是Boot工程的执行入口，运行main方法就可以启动项目
+- SpringBoot工程运行后初始化Spring容器，扫描引导类所在包加载bean
 
 
 
 #### 3.4 内嵌tomcat
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302175200478.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302175200478.png?w=600)
 
 
+
+##### Jetty
 
 > 使用maven依赖管理变更起步依赖项
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302192727997.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302192727997.png?w=600)
 
 Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应用引擎（GAE）已经全面切换为Jetty
 
@@ -285,6 +285,8 @@ Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应
 
 
 
+##### 总结
+
 > 1. 内嵌Tomcat服务器是SpringBoot辅助功能之一
 > 2. 内嵌Tomcat工作原理是将Tomcat服务器作为对象运行，并将该对象交给Spring容器管理
 > 3. 变更内嵌服务器思想是去除现有服务器，添加全新的服务器
@@ -293,15 +295,14 @@ Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应
 
 ### 4. 基础配置
 
-> SpringBoot默认配置文件application.properties，通过键值对配置对应属性。
+SpringBoot默认配置文件`application.properties`，通过键值对配置对应属性。
 
 
 
-> SpringBoot内置属性查询：
+> SpringBoot内置属性查询：（官方文档中参考文档第一项：Application Properties）
 >
 > https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties
 >
-> 官方文档中参考文档第一项：Application Properties
 
 
 
@@ -317,7 +318,7 @@ Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应
 
 
 
-#### yaml
+#### 4.1 yaml
 
 YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
@@ -337,7 +338,7 @@ YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
 > 数组表示方式：在属性名书写位置的下方使用减号作为数据开始符号，每行书写一个数据，减号与数据间空格分隔
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302195914779.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302195914779.png?w=600)
 
 
 
@@ -345,7 +346,7 @@ YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
 > 使用@Value读取单个数据，属性名引用方式：${一级属性名.二级属性名……}
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200300577.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200300577.png?w=600)
 
 
 
@@ -353,13 +354,13 @@ YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
 > 读取数据过多
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200800230.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200800230.png?w=600)
 
 
 
 封装全部数据到Environment对象。
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200833382.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200833382.png?w=600)
 
 
 
@@ -377,13 +378,19 @@ YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
 > 自定义对象封装指定数据的作用
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302202643245.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302202643245.png?w=600)
 
 
+
+
+
+<hr>
 
 ### 4. 整合第三方技术
 
-#### 整合Junit
+#### 4.1 整合Junit
+
+@SpringBootTest测试类注解，测试类定义上方。作用是设置JUnit加载的SpringBoot启动类。
 
 ```java
 @SpringBootTest
@@ -398,8 +405,6 @@ class Springboot07JunitApplicationTests {
 }
 ```
 
-> @SpringBootTest测试类注解，测试类定义上方。作用是设置JUnit加载的SpringBoot启动类。
-
 
 
 > 1. 导入测试对应的starter
@@ -408,7 +413,7 @@ class Springboot07JunitApplicationTests {
 
 
 
-#### 整合Mybatis
+#### 4.2 整合Mybatis
 
 > 核心配置：数据库连接相关信息（连什么？连谁？什么权限）
 >
@@ -439,11 +444,11 @@ spring:
 		password: root
 ```
 
-> SpringBoot版本低于2.4.3(不含)，Mysql驱动版本大于8.0时，需要在url连接串中配置时区
->
-> jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
->
-> 或在MySQL数据库端配置时区解决此问题
+SpringBoot版本低于2.4.3(不含)，Mysql驱动版本大于8.0时，需要在url连接串中配置时区
+
+`jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC`
+
+或在MySQL数据库端配置时区解决此问题
 
 
 
@@ -479,7 +484,7 @@ class Springboot08MybatisApplicationTests {
 
 
 
-#### 整合Mybatis-Plus
+#### 4.3 整合Mybatis-Plus
 
 > MyBatis-Plus与MyBatis区别
 >
@@ -488,7 +493,7 @@ class Springboot08MybatisApplicationTests {
 
 
 
-> ①：手动添加SpringBoot整合MyBatis-Plus的坐标，可以通过mvnrepository获取
+> ①：手动添加SpringBoot整合MyBatis-Plus的坐标，可以通过mvn repository获取
 
 ```xml
 <dependency> 
@@ -514,11 +519,11 @@ public interface UserDao extends BaseMapper<User> {
 
 
 
-#### 整合Druid
+#### 4.4 整合Druid
 
 > 指定数据源类型
 
-```yaml
+```yml
 spring:
 	datasource:
 		driver-class-name: com.mysql.cj.jdbc.Driver
@@ -556,9 +561,10 @@ spring:
 
 
 
-#### 整合任意第三方技术
+#### 4.5 整合任意第三方技术
 
 > 导入对应的starter
+>
 > 根据提供的配置格式，配置非默认值对应的配置项
 
 
@@ -580,15 +586,14 @@ spring:
 
 
 
-> 先开发基础CRUD功能，做一层测一层
-> 调通页面，确认异步提交成功后，制作所有功能
-> 添加分页功能与查询功能
+- 先开发基础CRUD功能，做一层测一层
+- 调通页面，确认异步提交成功后，制作所有功能
+- 添加分页功能与查询功能
 
 
 
 <hr>
-
-#### 搭建SpringBoot应用
+#### 5.1 搭建SpringBoot应用
 
 > 勾选SpringMVC与MySQL坐标
 >
@@ -598,7 +603,7 @@ spring:
 
 
 
-#### 实体类开发
+#### 5.2 实体类开发
 
 > Lombok，一个Java类库，提供了一组注解，简化POJO实体类开发
 >
@@ -622,7 +627,7 @@ public class Book {
 
 
 
-#### 数据层开发
+#### 5.3 数据层开发
 
 > 技术实现方案
 > - MyBatisPlus
@@ -632,7 +637,7 @@ public class Book {
 
 > 导入MyBatisPlus与Druid对应的starter
 >
-> 配置数据源与MyBatisPlus对应的基础配置（id生成策略使用数据库自增策略）
+> **配置数据源与MyBatisPlus对应的基础配置（id生成策略使用数据库自增策略）**
 
 ```java
 spring:
@@ -650,7 +655,7 @@ mybatis-plus:
       id-type: auto
 ```
 
-> 继承BaseMapper并指定泛型
+> **继承BaseMapper并指定泛型**
 
 ```java
 @Mapper
@@ -702,9 +707,10 @@ mybatis-plus:
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220303151011943.png)
 
-#### 数据层开发分页功能
+#### 5.4 数据层开发分页功能
 
 > 分页操作需要设定分页对象IPage，IPage对象中封装了分页操作中的所有数据（数据、当前页码值、每页数据总量、最大页码值、数据总量）。
+>
 > 分页操作是在MyBatisPlus的常规操作基础上增强得到，内部是动态的拼写SQL语句，因此需要增强对应的功能，使用MyBatisPlus拦截器实现
 
 
@@ -740,7 +746,7 @@ public class MPConfig {
 
 
 
-#### 数据层开发条件查询功能
+#### 5.5 数据层开发条件查询功能
 
 > 使用QueryWrapper对象封装查询条件，推荐使用LambdaQueryWrapper对象，所有查询操作封装成方法调用
 
@@ -790,7 +796,7 @@ void testGetByCondition(){
 
 
 
-#### 业务层开发
+#### 5.6 业务层开发
 
 > Service层接口定义与数据层接口定义具有较大区别，不要混用
 > - selectByUserNameAndPassword(String username,String password);
@@ -867,7 +873,7 @@ public class BookServiceImpl implements BookService {
 
 
 
-#### 业务层开发——快速开发
+#### 5.7 业务层开发——快速开发
 
 > 快速开发方案
 >
@@ -955,7 +961,7 @@ public class BookServiceImpl extends ServiceImpl<BookDao, Book> implements BookS
 
 
 
-#### 表现层开发
+#### 5.8 表现层开发
 
 > 基于Restful进行表现层接口开发
 >
@@ -982,7 +988,7 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304092503978.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304092503978.png?w=600)
 
 
 
@@ -999,9 +1005,9 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 
-#### 表现层消息一致性处理 R
+#### 5.9 表现层消息一致性处理 R
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304093035557.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304093035557.png?w=600)
 
 
 
@@ -1009,7 +1015,7 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304093337419.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304093337419.png?w=600)
 
 
 
@@ -1028,8 +1034,7 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 <hr>
-
-#### 前后端协议联调
+#### 5.10 前后端协议联调
 
 > 前后端分离结构设计中页面归属前端服务器
 > 单体工程中页面放置在resources目录下的static目录中（建议执行clean）
@@ -1228,9 +1233,9 @@ cancel(){
 
 
 
-#### 业务消息一致性处理
+#### 5.11 业务消息一致性处理
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304095957398.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304095957398.png?w=600)
 
 
 
@@ -1263,7 +1268,7 @@ public class ProjectExceptionAdvice {
 
 
 
-#### 分页功能
+#### 5.12 分页功能
 
 > 页面使用el分页组件添加分页功能
 >
@@ -1307,14 +1312,16 @@ public class ProjectExceptionAdvice {
 ## 二、实用篇之运维实用篇
 
 > 能够掌握SpringBoot程序多环境开发
+>
 > 能够基于Linux系统发布SpringBoot工程
+>
 > 能够解决线上灵活配置SpringBoot工程的需求
 
 
 
-### 1. 打包与运行
+### 6. 打包与运行
 
-#### 程序打包与运行（Windows版）
+#### 6.1 程序打包与运行（Windows版）
 
 ①：对SpringBoot项目打包（执行Maven构建指令package）
 
@@ -1406,16 +1413,19 @@ taskkill -f -t -im "进程名称"
 
 
 
-#### 程序运行（Linux版）
+#### 6.2 程序运行（Linux版）
 
 > 基于Linux（CenterOS7）
+>
 > 安装JDK，且版本不低于打包时使用的JDK版本
+>
 > 安装包保存在/usr/local/自定义目录中或$HOME下
+>
 > 其他操作参照Windows版进行
 
 
 
-> 1. 上传安装包
+> 1. 使用`electerm`等工具上传包
 > 2. 执行jar命令：java –jar 工程名.jar
 
 
@@ -1428,9 +1438,9 @@ taskkill -f -t -im "进程名称"
 
 
 
-### 2. 配置高级
+### 7. 配置高级
 
-#### 2.1 临时属性设置
+#### 7.1 临时属性设置
 
 > 带属性数启动SpringBoot
 >
@@ -1450,11 +1460,11 @@ java –jar springboot.jar –-server.port=80
 
 
 
-#### 2.2 临时属性设置（开发环境）
+#### 7.2 临时属性设置（开发环境）
 
 > 带属性启动SpringBoot程序，为程序添加运行属性
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304124924581.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304124924581.png?w=600)
 
 
 
@@ -1477,23 +1487,26 @@ public static void main(String[] args) {
 
 
 
-#### 2.3 配置文件分类&&自定义配置文件
+#### 7.3 配置文件分类&&自定义配置文件
 
 > SpringBoot中4级配置文件
 >
-> 1级： file ：config/application.yml 【最高】
-> 2级： file ：application.yml
-> 3级：classpath：config/application.yml
-> 4级：classpath：application.yml 【最低】
+> - 1级： file ：config/application.yml 【最高】
+>
+> - 2级： file ：application.yml
+> - 3级：classpath：config/application.yml
+> - 4级：classpath：application.yml 【最低】
 >
 > 
 >
 > 1级与2级留做系统打包后设置通用属性，1级常用于运维经理进行线上整体项目部署方案调控
+>
 > 3级与4级用于系统开发阶段设置通用属性，3级常用于项目经理进行整体项目属性调控
 >
 > 
 >
 > 如果yml与properties在不同层级中共存会是什么效果？
+>
 > 例：类路径application.properties属性是否覆盖文件系统config目录中application.yml属性
 
 
@@ -1514,9 +1527,10 @@ public static void main(String[] args) {
 > 通过启动参数加载指定文件路径下的配置文件
 >
 > 通过启动参数加载指定文件路径下的配置文件时可以加载多个配置
+>
 > 多配置文件常用于将配置进行分类，进行独立管理，或将可选配置单独制作便于上线更新维护
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304130940441.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304130940441.png?w=600)
 
 
 
@@ -1547,9 +1561,9 @@ public static void main(String[] args) {
 
 
 
-### 3. 多环境开发
+### 8. 多环境开发
 
-#### 3.1 多环境开发（YAML版）
+#### 8.1 多环境开发（YAML版）
 
 
 
@@ -1568,7 +1582,7 @@ public static void main(String[] args) {
 
 
 
-> 多环境开发（YAML版）多配置文件格式
+##### 多环境开发（YAML版）多配置文件格式
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304132614555.png)
 
@@ -1633,16 +1647,18 @@ spring:
 
 
 
-#### 3.2 多环境开发（Properties版）
+#### 8.2 多环境开发（Properties版）
 
 
 
-#### 3.3 多环境开发控制
+#### 8.3 多环境开发控制
 
 ##### Maven与SpringBoot多环境兼容
 
 > ①：Maven中设置多环境属性
+>
 > ②：SpringBoot中引用Maven属性
+>
 > ③：执行Maven打包指令，并在生成的boot打包文件.jar文件中查看对应信息
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304133822623.png)
@@ -1654,9 +1670,9 @@ spring:
 
 
 
-### 4. 日志
+### 9. 日志
 
-#### 4.1 日志基础
+#### 9.1 日志基础
 
 > 日志（log）作用
 > - 编程期调试代码
@@ -1734,7 +1750,7 @@ level:
 
 > 1. 日志用于记录开发调试与运维过程消息
 >
-> 2. 日志的级别共6种，通常使用4种即可，分别是DEBUG，INFO,WARN,ERROR
+> 2. 日志的级别共6种，通常使用4种即可，分别是DEBUG，INFO, WARN, ERROR
 >
 > 3. 可以通过日志组或代码包的形式进行日志显示级别的控制
 
@@ -1765,8 +1781,9 @@ public class BookController extends BaseController {
 
 ##### 教你一招：优化日志对象创建代码
 
-> 使用lombok提供的注解@Slf4j简化开发，减少日志对象的声明操作
-> 基于lombok提供的@Slf4j注解为类快速添加日志对象
+> 使用lombok提供的注解@Slf4j简化开发，减少日志对象的声明操作 
+>
+> 基于`lombok`提供的`@Slf4j`注解为类快速添加日志对象
 
 
 
@@ -1789,19 +1806,20 @@ public class BookController {
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304135439828.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304135439828.png?w=600)
 
 
 
-#### 4.2 日志输出格式控制
+#### 9.2 日志输出格式控制
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304135548508.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304135548508.png?w=600)
 
 
 
 > PID：进程ID，用于表明当前操作所处的进程，当多服务同时记录日志时，该值可用于协助程序员调试程序
+>
 > 所属类/接口名：当前显示信息为SpringBoot重写后的信息，名称过长时，简化包名书写为首字母，甚至直接删除
 
 
@@ -1809,7 +1827,9 @@ public class BookController {
 > 设置日志输出格式
 >
 > %d：日期
+>
 > %m：消息
+>
 > %n：换行
 
 
@@ -1826,7 +1846,7 @@ logging:
 
 
 
-#### 4.3 日志文件
+#### 9.3 日志文件
 
 
 
@@ -1862,7 +1882,7 @@ logging:
 
 
 
-### 1. 热部署
+### 10. 热部署
 
 #### 手动启动热部署
 
@@ -1894,38 +1914,38 @@ logging:
 
 
 
-### 2. 配置高级
+### 11. 配置高级
 
-### 3. 测试
+### 12. 测试
 
-### 4. 数据层解决方案
+### 13. 数据层解决方案
 
+**现有数据层解决方案技术选型：Druid + MyBatis-Plus + MySQL**
 
+<hr>
 
-> 现有数据层解决方案技术选型：Druid + MyBatis-Plus + MySQL
->
-> - 数据源：DruidDataSource
-> - 持久化技术：MyBatis-Plus / MyBatis
+> - 数据源：Druid DataSource
+>- 持久化技术：MyBatis-Plus / MyBatis
 > - 数据库：MySQL
 
 
 
-#### 4.1 数据源配置
+#### 13.1 数据源配置
+
+##### 数据源配置2种格式
 
 
-
-> 数据源配置2种格式
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304170632398.png)
 
+##### SpringBoot提供了3种内嵌的数据源对象供开发者选择
 
 
-> SpringBoot提供了3种内嵌的数据源对象供开发者选择
->
-> - HikariCP：默认内置数据源对象
-> - Tomcat提供DataSource：HikariCP不可用的情况下，且在web环境中，将使用tomcat服务器配置的数据源对象
+
+> - HikariCP：**默认**内置数据源对象
+>- Tomcat提供DataSource：HikariCP不可用的情况下，且在web环境中，将使用tomcat服务器配置的数据源对象
 > - Commons DBCP：Hikari不可用，tomcat数据源也不可用，将使用dbcp数据源
->
+> 
 > 通用配置无法设置具体的数据源配置信息，仅提供基本的连接相关配置，如需配置，在下一级配置中设置具体设定
 
 
@@ -1934,13 +1954,15 @@ logging:
 
 
 
-#### 4.2 内置持久化解决方案——JdbcTemplate
+#### 13.2 SpringBoot内置持久化解决方案——JdbcTemplate
 
 
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304172412869.png)
 
 
+
+添加依赖：
 
 ```xml
 <dependency>
@@ -1964,17 +1986,21 @@ spring:
 
 
 
+> 总结：
+>
 > 1. SpringBoot内置JdbcTemplate持久化解决方案
 > 2. 使用JdbcTemplate需要导入spring-boot-starter-jdbc
 
 
 
-#### 4.3 内嵌数据库H2
+#### 13.3 内嵌数据库H2
 
-> SpringBoot提供了3种内嵌数据库供开发者选择，提高开发测试效率
->
+##### SpringBoot提供了3种内嵌数据库供开发者选择，提高开发测试效率
+
+
+
 > - H2
-> - HSQL
+>- HSQL
 > - Derby
 
 
@@ -1997,7 +2023,7 @@ spring:
 
 - 设置当前项目为web工程，并配置H2管理控制台参数（访问用户名sa，默认密码123456）
 
-```yaml
+```yml
 server:
 	port: 80
 spring:
@@ -2054,6 +2080,7 @@ spring:
 
 
 > H2内嵌式数据库启动方式
+>
 > H2数据库线上运行时请务必关闭
 
 
@@ -2062,7 +2089,7 @@ spring:
 
 
 
-#### 4.4 NoSQL解决方案1_Redis
+#### 13.4 NoSQL解决方案1_Redis
 
 > 市面上常见的NoSQL解决方案
 >
@@ -2074,6 +2101,10 @@ spring:
 > 说明：上述技术通常在Linux系统中安装部署，为降低学习者压力，本课程制作基于Windows版安装所有的软件并基于Windows版安装的软件进行课程制作
 
 
+
+
+
+<hr>
 
 > Redis是一款key-value存储结构的内存级NoSQL数据库
 >
@@ -2097,7 +2128,7 @@ spring:
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304222858659.png)
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304223048629.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304223048629.png?w=600)
 
 
 
@@ -2123,13 +2154,13 @@ spring:
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304223454886.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304223454886.png?w=600)
 
 
 
 > （3）RedisTemplate提供操作各种数据存储类型的接口API
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305115839226.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305115839226.png?w=600)
 
 
 
@@ -2148,7 +2179,9 @@ spring:
 
 
 
-#### 4.5 客户端选择Jedis（另外的lettuce是内部默认实现）
+#### 13.5 客户端选择Jedis（另外的lettuce是内部默认实现）
+
+依赖
 
 ```xml
 <dependency>
@@ -2158,6 +2191,8 @@ spring:
 ```
 
 
+
+配置
 
 ```yaml
 spring:
@@ -2192,19 +2227,19 @@ spring:
 
 > 机构化数据存储，速度又很快的数据结构。
 
-#### 4.6 NoSQL解决方案2_Mongodb
+#### 13.6 NoSQL解决方案2_Mongodb
 
 > MongoDB是一个开源、高性能、无模式的文档型数据库。NoSQL数据库产品中的一种，是最像关系型数据库的非关系型数据库
 
 
 
-##### 应用场景
+##### 13.6.1 应用场景
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305211859839.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305211859839.png?w=600)
 
 
 
-##### 安装&启动&可视化客户端
+##### 13.6.2 安装&启动&可视化客户端
 
 ###### windows
 
@@ -2274,7 +2309,9 @@ db.book.find()
 
 
 
-##### springboot整合
+##### 13.6.3 springboot整合
+
+###### 依赖
 
 ```xml
 <dependency>
@@ -2283,7 +2320,7 @@ db.book.find()
 </dependency>
 ```
 
-
+###### 配置
 
 ```yaml
 spring:
@@ -2292,7 +2329,7 @@ spring:
       uri: mongodb://localhost/itheima
 ```
 
-
+###### 测试
 
 ```java
 @SpringBootTest
@@ -2324,13 +2361,13 @@ class Springboot17MongodbApplicationTests {
 
 
 
-#### 4.7 NoSQL解决方案3_ElasticSearch（ES）
+#### 13.7 NoSQL解决方案3_ElasticSearch（ES）
 
-##### 应用场景&&相关概念
+##### 13.7.1 应用场景&&相关概念
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305220531243.png)
 
-##### 安装&启动
+##### 13.7.2 安装&启动
 
 ###### windows
 
@@ -2358,7 +2395,7 @@ $ sh elasticsearch
 
 
 
-##### ES索引操作
+##### 13.7.3 ES索引操作
 
 ```bash
 # 创建/查询/删除索引
@@ -2379,15 +2416,13 @@ DELETE	http://localhost:9200/books
 
 
 
-### 5. 整合第三方技术
+### 14. 整合第三方技术
 
 
 
-#### 5.1 缓存
+#### 14.1 缓存
 
-##### 缓存作用&自定义缓存
-
-> 数据库成为系统操作的瓶颈
+##### 缓存作用（数据库成为系统操作的瓶颈）&自定义缓存
 
 
 
@@ -2489,21 +2524,30 @@ public Book getById(Integer id) {
 > SpringBoot提供的缓存技术除了提供默认的缓存方案，还可以对其他缓存技术进行整合，统一接口，方便缓存技术的开发与管理
 >
 > Generic
+>
 > JCache
+>
 > <font color=red>Ehcache</font>
+>
 > Hazelcast
+>
 > Infinispan
+>
 > Couchbase
+>
 > <font color=red>Redis</font>
+>
 > Caffeine
+>
 > Simple（默认）
+>
 > <font color=red>memcached</font>
 
 
 
 ##### 缓存使用案例——手机验证码
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305232200622.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305232200622.png?w=600)
 
 
 
@@ -2772,24 +2816,27 @@ $ brew install memcached
 
 
 
-### 6. 监控
+### 15. 监控
 
-#### 监控的意义
+#### 15.1 监控的意义
 
 > 监控服务状态是否宕机
+>
 > 监控服务运行指标（内存、虚拟机、线程、请求等）
+>
 > 监控日志
+>
 > 管理服务（服务下线）
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306082728330.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306082728330.png?w=600)
 
 
 
 
 
-#### 可视化监控平台Admin
+#### 15.2 可视化监控平台Admin
 
 > Spring Boot Admin，开源社区项目，用于管理和监控SpringBoot应用程序。 客户端注册到服务端后，通过HTTP请求方式，服务端定期从客户端获取对应的信息，并通过UI界面展示对应信息。
 
@@ -2872,11 +2919,14 @@ management:
 
 
 
-#### 监控原理actuator
+#### 15.3 监控原理actuator
 
 > Actuator提供了SpringBoot生产就绪功能，通过端点的配置与访问，获取端点信息
+>
 > 端点描述了一组监控信息，SpringBoot提供了多个内置端点，也可以根据需要自定义端点信息
+>
 > 访问当前应用所有端点信息：/actuator
+>
 > 访问端点详细信息：/actuator/端点名称
 
 
@@ -2895,23 +2945,23 @@ management:
 
 > 小工具
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306095920146.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306095920146.png?w=600)
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306100145308.png)
-
-
-
-
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306100622550.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306100145308.png?w=600)
 
 
 
 
 
-#### 自定义监控指标
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306100622550.png?w=600)
+
+
+
+
+
+#### 15.4 自定义监控指标
 
 
 
