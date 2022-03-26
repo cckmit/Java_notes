@@ -1,12 +1,3 @@
----
-title: git
-date: 2022-01-16 20:27:43
-tags:
-
----
-
-
-
 # Git
 
 
@@ -31,7 +22,7 @@ git add .
 # 提交到暂存区
 git commit -m "github";
 # 推送
-
+git push github master
 ```
 
 
@@ -53,7 +44,7 @@ git branch (branchname)
 
 
 
-
+<hr>
 
 ## 一个本地库能不能既关联 GitHub，又关联 Gitee 呢？
 
