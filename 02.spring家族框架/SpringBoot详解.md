@@ -1,6 +1,6 @@
 
 
-
+# SpringBoot详解（基于黑马程序员）
 
 
 
@@ -76,10 +76,10 @@
 
 ### 1. 四种创建方式：
 
-> 基于Idea创建SpringBoot工程
-> 基于官网创建SpringBoot工程
-> 基于阿里云创建SpringBoot工程
-> 手工创建Maven工程修改为SpringBoot工程
+> - 基于Idea创建SpringBoot工程
+> - 基于官网创建SpringBoot工程
+> - 基于阿里云创建SpringBoot工程
+> - 手工创建Maven工程修改为SpringBoot工程
 
 
 
@@ -93,7 +93,7 @@
 
 ②：选择当前模块需要使用的技术集
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302125704010.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302125704010.png?w=600)
 
 
 
@@ -116,7 +116,7 @@ public class BookController {
 
 ④：运行自动生成的Application类
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302125857236.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302125857236.png?w=600)
 
 
 
@@ -127,11 +127,11 @@ public class BookController {
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302130025852.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302130025852.png?w=600)
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302130040514.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302130040514.png?w=600)
 
 
 
@@ -149,18 +149,18 @@ public class BookController {
 
 #### 1.2 基于官网：https://start.spring.io/
 
-> 打开SpringBoot官网，选择Quickstart Your Project
-> 创建工程，并保存项目
-> 解压项目，通过IDE导入项目
+- 打开SpringBoot官网，选择Quickstart Your Project
+- 创建工程，并保存项目
+- 解压项目，通过IDE导入项目
 
 
 
 #### 1.3 基于阿里云：https://start.aliyun.com
 
-> 阿里云提供的坐标版本较低，如果需要使用高版本，进入工程后手工切换SpringBoot版本
-> 阿里云提供的工程模板与Spring官网提供的工程模板略有不同
+> - 阿里云提供的坐标版本较低，如果需要使用高版本，进入工程后手工切换SpringBoot版本
+> - 阿里云提供的工程模板与Spring官网提供的工程模板略有不同
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302131047519.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302131047519.png?w=600)
 
 
 

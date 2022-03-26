@@ -11,6 +11,33 @@ tags:
 
 
 
+## 日常使用
+
+
+
+
+
+```bash
+# 本地库同步Github
+
+# 初始化
+git init;
+
+# 添加远程库
+git remote add github https://github.com/cat0501/Java_notes_code.git
+
+# 添加到本地
+git add .
+# 提交到暂存区
+git commit -m "github";
+# 推送
+
+```
+
+
+
+
+
 ```bash
 # 列出本地分支
 git branch
