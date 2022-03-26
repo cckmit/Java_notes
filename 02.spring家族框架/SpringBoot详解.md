@@ -188,7 +188,11 @@ public class BookController {
 
 #### 3.1 parent
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302151722177.png?w=800)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302151722177.png)
+
+
+
+-
 
 
 
@@ -593,7 +597,11 @@ spring:
 
 
 <hr>
+
+
 #### 5.1搭建SpringBoot应用
+
+
 
 > 勾选SpringMVC与MySQL坐标
 >
