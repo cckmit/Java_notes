@@ -188,7 +188,7 @@ public class BookController {
 
 #### 3.1 parent
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302151722177.png)
+![image-20220326183112429](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326183112429.png)
 
 
 
