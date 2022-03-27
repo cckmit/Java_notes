@@ -87,7 +87,7 @@
 
 ①：创建新模块，选择Spring Initializr，并配置模块相关基础信息
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162853957.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162853957.png?w=600)
 
 
 
