@@ -1180,7 +1180,7 @@ TODO 问超哥
 
 下图所示是 ClassLoader 加载一个 `.class` 文件到 JVM 时需要经过的步骤：
 
-![image-20220327193619765](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327193619765.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327193619765.png?w=600)
 
 
 
@@ -1286,7 +1286,7 @@ JVM 初始化步骤：
 
 
 
-![image-20220327193924927](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327193924927.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327193924927.png?w=600)
 
 
 
@@ -1452,7 +1452,7 @@ OSGI 实现模块化热部署的关键，是它自定义的类加载器机制的
 
 总的来说，JVM 主要提问的点，如下脑图：
 
-![脑图](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/f20e86724ff310733d7556bd203dc061.jpeg)
+![脑图](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/f20e86724ff310733d7556bd203dc061.jpeg?w=600)
 
 
 
