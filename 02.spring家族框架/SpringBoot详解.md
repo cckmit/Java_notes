@@ -188,7 +188,7 @@ public class BookController {
 
 #### 3.1 parent
 
-![image-20220326183112429](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326183112429.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326183112429.png)
 
 
 
@@ -206,7 +206,7 @@ public class BookController {
 
 
 
-![image-20220326182257433](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326182257433.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326182257433.png)
 
 
 
