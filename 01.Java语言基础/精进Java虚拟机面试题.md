@@ -1460,7 +1460,7 @@ OSGI 实现模块化热部署的关键，是它自定义的类加载器机制的
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327213348651.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327213348651.png?w=600)
 
 
 
