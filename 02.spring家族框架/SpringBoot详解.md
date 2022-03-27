@@ -87,7 +87,7 @@
 
 ①：创建新模块，选择Spring Initializr，并配置模块相关基础信息
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302125636716.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162853957.png)
 
 
 
@@ -116,7 +116,7 @@ public class BookController {
 
 ④：运行自动生成的Application类
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302125857236.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162921543.png)
 
 
 
