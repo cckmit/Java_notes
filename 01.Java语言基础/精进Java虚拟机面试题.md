@@ -925,7 +925,7 @@ SafePoint 指的特定位置主要有：
 
 
 
-### 什么是新生代 GC 和老年代 GC？
+### 18. 什么是新生代 GC 和老年代 GC？
 
 GC 经常发生的区域是堆区，堆区还可以细分为
 
@@ -943,6 +943,533 @@ GC 经常发生的区域是堆区，堆区还可以细分为
 > 默认新生代(Young)与老年代(Old)的比例的值为 `1:2` (该值可以通过参数 `–XX:NewRatio` 来指定)。
 >
 > 默认的 `Eden:from:to=8:1:1` (可以通过参数 `–XX:SurvivorRatio` 来设定)。
+
+
+
+**新生代GC（MinorGC/YoungGC）**：指发生在新生代的垃圾收集动作，因为 Java 对象大多都具备朝生夕灭的特性，所以 MinorGC 非常频繁，一般回收速度也比较快。
+
+**老年代GC（MajorGC/FullGC）**：指发生在老年代的 GC，出现了 MajorGC，经常会伴随至少一次的 MinorGC（但非绝对的，在 Parallel Scavenge 收集器的收集策略里就有直接进行 MajorGC 的策略选择过程）。MajorGC 的速度一般会比 MinorGC 慢 10 倍以上。
+
+🦅 **什么情况下会出现 Young GC？**
+
+对象优先在新生代 Eden 区中分配，如果 Eden 区没有足够的空间时，就会触发一次 Young GC 。
+
+🦅 **什么情况下回出现 Full GC？**
+
+Full GC 的触发条件有多个，FULL GC 的时候会 STOP THE WORD 。
+
+
+
+- 1、在执行 Young GC 之前，JVM 会进行空间分配担保——如果老年代的连续空间小于新生代对象的总大小（或历次晋升的平均大小），则触发一次 Full GC 。
+- 2、大对象直接进入老年代，从年轻代晋升上来的老对象，尝试在老年代分配内存时，但是老年代内存空间不够。
+- 3、显式调用 `System#gc()` 方法时。
+
+
+
+## 虚拟机性能监控与故障处理工具
+
+### 19. JDK 的命令行工具有哪些可以监控虚拟机？
+
+
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「4.2 JDK 的命令行工具」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+
+
+- jps ：虚拟机进程状况工具
+
+> JVM Process Status Tool ，显示指定系统内所有的HotSpot虚拟机进程。
+
+
+
+- jstat ：虚拟机统计信息监控工具
+
+> JVM statistics Monitoring ，是用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据。
+
+
+
+- jinfo ：Java 配置信息工具
+
+> JVM Configuration info ，这个命令作用是实时查看和调整虚拟机运行参数。
+
+
+
+- jmap ：Java 内存映射工具
+
+> JVM Memory Map ，命令用于生成 heap dump 文件。
+
+
+
+- jhat ：虚拟机堆转储快照分析工具
+
+> JVM Heap Analysis Tool ，命令是与 jmap 搭配使用，用来分析 jmap 生成的 dump 文件。jhat 内置了一个微型 的HTTP/HTML 服务器，生成 dump 的分析结果后，可以在浏览器中查看。
+
+
+
+- jstack ：Java 堆栈跟踪工具
+
+> Java Stack Trace ，用于生成 Java 虚拟机当前时刻的线程快照。
+
+
+
+- HSDIS ：JIT 生成代码反编译
+
+
+
+
+
+### 20. JDK 的可视化工具有哪些可以监控虚拟机？
+
+> [深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「4.3 JDK 的可视化工具」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+
+
+- Java 自带
+
+  - JConsole ：Java 监视与管理控制台
+
+    > Java Monitoring and Management Console 是从 Java5 开始，在 JDK 中自带的 Java 监控和管理控制台，用于对 JVM 中内存，线程和类等的监控。
+
+  - [VisualVM](https://blog.csdn.net/a19881029/article/details/8432368/) ：多合一故障处理工具
+
+    > JDK 自带全能工具，可以分析内存快照、线程快照、监控内存变化、GC变化等。
+    >
+    > 特别是 BTrace 插件，动态跟踪分析工具。
+
+- 第三方
+
+  - MAT ：内存分析工具
+
+    > Memory Analyzer Tool ，一个基于 Eclipse 的内存分析工具，是一个快速、功能丰富的 Java heap 分析工具，它可以帮助我们查找内存泄漏和减少内存消耗。
+
+  - [GChisto](http://svip.iocoder.cn/Java/VirtualMachine/Interview/GC 日志分析工具 —— GChisto) ：一款专业分析 GC 日志的工具。
+
+**另外，一些开源项目，例如 [SkyWalking](https://github.com/apache/incubator-skywalking)、[Cat](https://github.com/dianping/cat) ，也提供了 JVM 监控的功能，更加适合生产环境，对 JVM 的监控。**
+
+
+
+### 21. 怎么获取 Java 程序使用的内存？
+
+可以通过 `java.lang.Runtime` 类中与内存相关方法来获取剩余的内存，总内存及最大堆内存。通过这些方法你也可以获取到堆使用的百分比及堆内存的剩余空间。
+
+
+
+- `Runtime#freeMemory()` 方法，返回剩余空间的字节数。
+- `Runtime#totalMemory()` 方法，总内存的字节数。
+- `Runtime#maxMemory()` 方法，返回最大内存的字节数。
+
+
+
+
+
+## 调优案例分析与实战
+
+在 [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「第5章 调优案例分析与实战」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 中，已经提供了一些案例，建议胖友可以看看。
+
+
+
+
+
+
+
+### 22. 常见 GC 的优化配置？
+
+| 配置              | 描述                                     |
+| :---------------- | :--------------------------------------- |
+| -Xms              | 初始化堆内存大小                         |
+| -Xmx              | 堆内存最大值                             |
+| -Xmn              | 新生代大小                               |
+| -XX:PermSize      | 初始化永久代大小                         |
+| -XX:MaxPermSize   | 永久代最大容量                           |
+| -XX:SurvivorRatio | 设置年轻代中 Eden 区与 Survivor 区的比值 |
+| -XX:Xmn           | 设置年轻代大小                           |
+
+另外，也可以看看 [《JVM 调优》](https://blog.csdn.net/zhaojw_420/article/details/70527138) 文章。
+
+
+
+### 23. 如何排查线程 Full GC 频繁的问题？
+
+- [《线上 Full GC 频繁的排查》](https://blog.csdn.net/wilsonpeng3/article/details/70064336/)
+- [《触发 JVM 进行 Full GC 的情况及应对策略》](https://blog.csdn.net/chenleixing/article/details/46706039/)
+
+
+
+🦅 **JVM 的永久代中会发生垃圾回收么？**
+
+- **Young GC** 不会发生在永久代。
+- 如果永久代满了或者是超过了临界值，会触发完全垃圾回收(**Full GC**)。如果我们仔细查看垃圾收集器的输出信息，就会发现永久代也是被回收的。这就是为什么正确的永久代大小对避免 Full GC 是非常重要的原因。
+
+> Java8 ：从永久代到元数据区 (注：Java8 中已经移除了永久代，新加了一个叫做元数据区的 native 内存区)。
+
+
+
+### 24. 有看过 GC 日志么？
+
+> 艿艿：这个问题，一般面试不会问，加进来，主要让胖友知道，有这么个知识点。
+
+
+
+参见文章如下：
+
+- [《[JVM\]理解GC日志》](https://www.jianshu.com/p/fd1d4f21733a)
+- [《GC 日志查看分析》](https://blog.csdn.net/TimHeath/article/details/53053106)
+
+
+
+
+
+### TODO 25. JVM 线程案例
+
+TODO 问晓峰
+TODO 问阿牛
+TODO 问狼哥
+TODO 问闪电侠
+TODO 问超哥
+
+
+
+
+
+## TODO 类文件结构
+
+## TODO 虚拟机类加载机制
+
+
+
+> 类加载器，是面试的重点，所以要掌握好。当然，相对来说难度也不算上~
+
+### 26. 类加载器是有了解吗？
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「7.4 类加载器」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+类加载器(ClassLoader)，用来加载 Java 类到 Java 虚拟机中。一般来说，Java 虚拟机使用 Java 类的方式如下：Java 源程序(`.java` 文件)在经过 Java 编译器编译之后就被转换成 Java 字节代码(`.class` 文件)。
+
+类加载器，负责读取 Java 字节代码，并转换成 `java.lang.Class` 类的一个实例。
+
+- 每个这样的实例用来表示一个 Java 类。通过此实例的 `Class#newInstance(...)` 方法，就可以创建出该类的一个对象。
+- 实际的情况可能更加复杂，比如 Java 字节代码可能是通过工具动态生成的，也可能是通过网络下载的。
+
+
+
+### 27. 类加载发生的时机是什么时候？
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「7.2 类加载的时机」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+
+
+虚拟机严格规定，有且仅有 5 种情况必须对类进行加载：
+
+> 注意，有些文章会称为对类进行“初始化”。
+
+ 
+
+- 1、遇到 `new`、`getstatic`、`putstatic`、`invokestatic` 这四条字节码指令时，如果类还没进行初始化，则需要先触发其初始化。
+- 2、使用 `java.lang.reflect` 包的方法对类进行反射调用的时候，如果类还没进行初始化，则需要先触发其初始化。
+- 3、当初始化了一个类的时候，如果发现其父类还没进行初始化，则需要先触发其父类的初始化。
+- 4、当虚拟机启动时，用户需要指定一个执行的主类，即调用其 `#main(String[] args)` 方法，虚拟机则会先初始化该主类。
+- 5、当使用 JDK7 的动态语言支持时，如果一个 `java.lang.invoke.MethodHandle` 实例最后的解析结果为 REF_getStatic、REF_putStatic、REF_invokeStatic 的方法句柄，并且这个方法句柄所对应的类没有进行过初始化，则需要先触发其初始化。
+
+
+
+### 28. 类加载器是如何加载 Class 文件的？
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「7.2 类加载的时机」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+
+
+下图所示是 ClassLoader 加载一个 `.class` 文件到 JVM 时需要经过的步骤：
+
+![image-20220327193619765](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327193619765.png)
+
+
+
+- 第一个阶段，加载(Loading)，是找到 `.class` 文件并把这个文件包含的字节码加载到内存中。
+- 第二阶段，连接(Linking)，又可以分为三个步骤，分别是字节码验证、Class 类数据结构分析及相应的内存分配、最后的符号表的解析。
+- 第三阶段，Initialization(类中静态属性和初始化赋值)，以及Using(静态块的执行)等。
+
+
+
+> 注意，不包括卸载(Unloading)部分。
+
+
+
+🦅 **1）加载**
+
+> 加载是“类加载”过程的第一阶段，胖友不要混淆这两个名字。
+
+在加载阶段，虚拟机需要完成以下三件事情：
+
+- 通过一个类的全限定名来获取其定义的二进制字节流。
+- 将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。
+- 在Java堆中生成一个代表这个类的 `java.lang.Class` 对象，作为对方法区中这些数据的访问入口。
+
+
+
+相对于类加载的其他阶段而言，加载阶段（准确地说，是加载阶段获取类的二进制字节流的动作）是可控性最强的阶段，因为开发人员既可以使用系统提供的类加载器来完成加载，也可以自定义自己的类加载器来完成加载。
+
+加载阶段完成后，虚拟机外部的二进制字节流就按照虚拟机所需的格式存储在方法区之中，而且在Java堆中也创建一个 `java.lang.Class` 类的对象，这样便可以通过该对象访问方法区中的这些数据。
+
+
+
+🦅 **2）加载**
+
+**2.1 验证：确保被加载的类的正确性**
+
+验证是连接阶段的第一步，这一阶段的目的是为了确保 Class 文件的字节流中包含的信息符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。
+
+验证阶段大致会完成4个阶段的检验动作：
+
+- 文件格式验证：验证字节流是否符合 Class 文件格式的规范。例如：是否以 `0xCAFEBABE` 开头、主次版本号是否在当前虚拟机的处理范围之内、常量池中的常量是否有不被支持的类型。
+- 元数据验证：对字节码描述的信息进行语义分析（注意：对比 javac 编译阶段的语义分析），以保证其描述的信息符合 Java 语言规范的要求。例如：这个类是否有父类，除了 `java.lang.Object` 之外。
+- 字节码验证：通过数据流和控制流分析，确定程序语义是合法的、符合逻辑的。
+- 符号引用验证：确保解析动作能正确执行。
+
+验证阶段是非常重要的，但不是必须的，它对程序运行期没有影响，如果所引用的类经过反复验证，那么可以考虑采用 `-Xverifynone` 参数来关闭大部分的类验证措施，以缩短虚拟机类加载的时间。
+
+**2.2 准备：为类的静态变量分配内存，并将其初始化为默认值**
+
+准备阶段，是正式为类变量分配内存并设置类变量初始值的阶段，这些内存都将在方法区中分配。对于该阶段有以下几点需要注意：
+
+- 1、这时候进行内存分配的仅包括类变量(`static`)，而不包括实例变量，实例变量会在对象实例化时随着对象一块分配在 Java 堆中。
+
+  > 思考下，对于类本身，静态变量就是其属性。
+
+- 2、这里所设置的初始值通常情况下是数据类型默认的零值(如 `0`、`0L`、`null`、`false` 等），而不是被在 Java 代码中被显式地赋予的值。
+
+  假设一个类变量的定义为： `public static int value = 3`。那么静态变量 `value` 在准备阶段过后的初始值为 `0`，而不是 `3`。因为这时候尚未开始执行任何 Java 方法，而把 `value` 赋值为 `3` 的 `public static` 指令是在程序编译后，存放于**类构造器** `<clinit>()` 方法之中的，所以把 `value` 赋值为 `3` 的动作将在初始化阶段才会执行。
+
+  > 这里还需要注意如下几点：
+  >
+  > - 对基本数据类型来说，对于类变量(`static`)和全局变量，如果不显式地对其赋值而直接使用，则系统会为其赋予默认的零值，而对于局部变量来说，在使用前必须显式地为其赋值，否则编译时不通过。
+  > - 对于同时被 `static` 和 `final` 修饰的常量，必须在声明的时候就为其显式地赋值，否则编译时不通过；而只被 `final` 修饰的常量则既可以在声明时显式地为其赋值，也可以在类初始化时显式地为其赋值，总之，在使用前必须为其显式地赋值，系统不会为其赋予默认零值。
+  > - 对于引用数据类型 reference 来说，如数组引用、对象引用等，如果没有对其进行显式地赋值而直接使用，系统都会为其赋予默认的空值，即 `null` 。
+  > - 如果在数组初始化时没有对数组中的各元素赋值，那么其中的元素将根据对应的数据类型而被赋予默认的“空”值。
+
+- 3、如果类字段的字段属性表中存在 ConstantValue 属性，即同时被 `final` 和 `static` 修饰，那么在准备阶段变量 `value` 就会被初始化为 ConstValue 属性所指定的值。
+
+  假设上面的类变量 `value` 被定义为： `public static final int value = 3` 。编译时， `javac` 将会为 `value` 生成 ConstantValue 属性。在准备阶段虚拟机就会根据 ConstantValue 的设置将 `value` 赋值为 3。我们可以理解为 `static final` 常量在编译期就将其结果放入了调用它的类的常量池中。
+
+**2.3 解析：把类中的符号引用转换为直接引用**
+
+> 这个步骤，艿艿看的也有点懵逼。
+>
+> R 大在 [《JVM 符号引用转换直接引用的过程?》](https://www.zhihu.com/question/50258991) 和 [《JVM 里的符号引用如何存储？》](https://www.zhihu.com/question/30300585) 做过解答，看的还是懵逼。
+
+解析阶段，是虚拟机将常量池内的符号引用替换为直接引用的过程。解析动作，主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符 7 类符号引用进行。
+
+- 符号引用，就是一组符号来描述目标，可以是任何字面量。
+- 直接引用，就是直接指向目标的指针、相对偏移量或一个间接定位到目标的句柄。
+
+🦅 **3）初始化**
+
+初始化，为类的静态变量赋予正确的初始值，JVM 负责对类进行初始化，主要对类变量进行初始化。在 Java 中对类变量进行初始值设定有两种方式：
+
+- 1、声明类变量是指定初始值。
+- 2、使用静态代码块为类变量指定初始值。
+
+JVM 初始化步骤：
+
+- 1、假如这个类还没有被加载和连接，则程序先加载并连接该类。
+- 2、假如该类的直接父类还没有被初始化，则先初始化其直接父类。
+- 3、假如类中有初始化语句，则系统依次执行这些初始化语句。
+
+
+
+
+
+### 29. 什么是双亲委派模型（Parent Delegation Model）？
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「7.4.2 双亲委派模型」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+类加载器 ClassLoader 是具有层次结构的，也就是父子关系，如下图所示：
+
+
+
+![image-20220327193924927](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327193924927.png)
+
+
+
+- Bootstrap ClassLoader ：根类加载器，负责加载 Java 的核心类，它不是 `java.lang.ClassLoader` 的子类，而是由 JVM 自身实现。
+
+
+
+> 此处，说的是 Hotspot 的情况下。
+
+
+
+- Extension ClassLoader ：扩展类加载器，扩展类加载器的加载路径是 JDK 目录下 `jre/lib/ext` 。扩展加载器的 `#getParent()` 方法返回 `null` ，实际上扩展类加载器的父类加载器是根加载器，只是根加载器并不是 Java 实现的。
+- System ClassLoader ：系统(应用)类加载器，它负责在 JVM 启动时加载来自 Java 命令的 `-classpath` 选项、`java.class.path` 系统属性或 `CLASSPATH` 环境变量所指定的 jar 包和类路径。程序可以通过 `#getSystemClassLoader()` 来获取系统类加载器。系统加载器的加载路径是程序运行的当前路径。
+- 该模型要求除了顶层的 Bootstrap 启动类加载器外，其余的类加载器都应当有自己的父类加载器。子类加载器和父类加载器不是以继承（Inheritance）的关系来实现，而是通过组合（Composition）关系来复用父加载器的代码。简略代码如下：
+
+
+
+```java
+// java.lang.ClassLoader
+
+public abstract class ClassLoader {
+
+    // ... 省略其它代码
+
+    // The parent class loader for delegation
+    // Note: VM hardcoded the offset of this field, thus all new fields
+    // must be added *after* it.
+    private final ClassLoader parent;
+
+}
+```
+
+- 每个类加载器都有自己的命名空间（由该加载器及所有父类加载器所加载的类组成。
+  - 在同一个命名空间中，不会出现类的完整名字（包括类的包名）相同的两个类。
+  - 在不同的命名空间中，有可能会出现类的完整名字（包括类的包名）相同的两个类）。
+  - 类加载器负责加载所有的类，同一个类(一个类用其全限定类名(包名加类名)标志)只会被加载一次。
+
+
+
+🦅 **Java 虚拟机是如何判定两个 Java 类是相同的？**
+
+Java 虚拟机不仅要看类的全名是否相同，还要看加载此类的类加载器是否一样。**只有两者都相同的情况，才认为两个类是相同的**。即便是同样的字节代码，被不同的类加载器加载之后所得到的类，也是不同的。
+
+比如一个 Java 类 `com.example.Sample` ，编译之后生成了字节代码文件 `Sample.class` 。两个不同的类加载器 ClassLoaderA 和 ClassLoaderB 分别读取了这个 `Sample.class` 文件，并定义出两个 `java.lang.Class` 类的实例来表示这个类。这两个实例是不相同的。对于 Java 虚拟机来说，它们是不同的类。试图对这两个类的对象进行相互赋值，会抛出运行时异常 ClassCastException 。
+
+
+
+🦅 **双亲委派模型的工作过程？**
+
+- 1、当前 ClassLoader 首先从自己已经加载的类中，查询是否此类已经加载，如果已经加载则直接返回原来已经加载的类。
+
+  > 每个类加载器都有自己的加载缓存，当一个类被加载了以后就会放入缓存，等下次加载的时候就可以直接返回了。
+
+- 2、当前 ClassLoader 的缓存中没有找到被加载的类的时候
+
+  - 委托父类加载器去加载，父类加载器采用同样的策略，首先查看自己的缓存，然后委托父类的父类去加载，一直到 bootstrap ClassLoader。
+  - 当所有的父类加载器都没有加载的时候，再由当前的类加载器加载，并将其放入它自己的缓存中，以便下次有加载请求的时候直接返回。
+
+
+
+让我们来简单撸下源码。代码如下：
+
+> 要不要跟面试官吹下，自己看过源码得知~
+
+
+
+```java
+// java.lang.ClassLoader
+// 删除部分无关代码
+
+protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    synchronized (getClassLoadingLock(name)) {
+        // 首先，从缓存中获得 name 对应的类
+        Class<?> c = findLoadedClass(name);
+        if (c == null) { // 获得不到
+            try {
+                // 其次，如果父类非空，使用它去加载类
+                if (parent != null) {
+                    c = parent.loadClass(name, false);
+                // 其次，如果父类为空，使用 Bootstrap 去加载类
+                } else {
+                    c = findBootstrapClassOrNull(name);
+                }
+            } catch (ClassNotFoundException e) {
+            }
+
+            if (c == null) { // 还是加载不到
+                // 最差，使用自己去加载类
+                c = findClass(name);
+            }
+        }
+        // 如果要解析类，则进行解析
+        if (resolve) {
+            resolveClass(c);
+        }
+        return c;
+    }
+}
+```
+
+
+
+🦅 **为什么优先使用父 ClassLoader 加载类？**
+
+- 1、共享功能：可以避免重复加载，当父亲已经加载了该类的时候，子类不需要再次加载，一些 Framework 层级的类一旦被顶层的 ClassLoader 加载过就缓存在内存里面，以后任何地方用到都不需要重新加载。
+- 2、隔离功能：主要是为了安全性，避免用户自己编写的类动态替换 Java 的一些核心类，比如 String ，同时也避免了重复加载，因为 JVM 中区分不同类，不仅仅是根据类名，相同的 class 文件被不同的 ClassLoader 加载就是不同的两个类，如果相互转型的话会抛 `java.lang.ClassCaseException` 。
+
+
+
+> 这也就是说，即使我们自己定义了一个 `java.util.String` 类，也不会被重复加载。
+
+
+
+### 30. 什么是破坏双亲委托模型？
+
+
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「7.4.3 破坏双亲委派模型」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+
+
+正如我们上面看到的源码，破坏双亲委托模型，需要做的是，`#loadClass(String name, boolean resolve)` 方法中，不调用父 `parent` ClassLoader 方法去加载类，那么就成功了。那么我们要做的仅仅是，错误的覆盖 `##loadClass(String name, boolean resolve)` 方法，不去使用父 `parent` ClassLoader 方法去加载类即可。
+
+
+
+想要深入的胖友，可以深入看看如下文章：
+
+- [《Tomcat 类加载器之为何违背双亲委派模型》](https://blog.csdn.net/dangwanma6489/article/details/80244981)
+- [《真正理解线程上下文类加载器（多案例分析）》](https://blog.csdn.net/yangcheng33/article/details/52631940) 提供了多种打破双亲委托模型的案例。
+- [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「第 9 章 类加载及执行子系统的案例与实战」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#)
+
+
+
+🦅 **如何自定义 ClassLoader 类？**
+
+直接参考 [《Java 自定义 ClassLoader 实现 JVM 类加载》](https://www.jianshu.com/p/3036b46f1188) 文章即可。
+
+🦅 **OSGI 如何实现模块化热部署？**
+
+> 了解即可。
+
+
+
+OSGI 实现模块化热部署的关键，是它自定义的类加载器机制的实现。每一个程序模块都有一个自己的类加载器，当需要等换一个模块时，就把模块连同类加载器一起换掉以实现代码的热替换。
+
+
+
+## TODO 虚拟机字节码执行引擎
+
+## TODO 早期（编译期）优化
+
+### 31. TODO JIT
+
+有时我们会听到 JIT 这个概念，并说它是 JVM 的一部分，这让我们很困惑。JIT 是 JVM 的一部分，它可以在同一时间编译类似的字节码来优化将字节码转换为机器特定语言的过程相似的字节码，从而将优化字节码转换为机器特定语言的过程，这样减少转换过程所需要花费的时间。
+
+
+
+## TODO 晚期（运行期）优化
+
+
+
+## 最后 
+
+总的来说，JVM 主要提问的点，如下脑图：
+
+![脑图](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/f20e86724ff310733d7556bd203dc061.jpeg)
+
+
+
+
+
+<hr>
+
+参考与推荐如下文章：
+
+- [《Java 面试知识点解析(三)——JVM篇》](https://www.cnblogs.com/wmyskxz/p/9045972.html)
+- [《总结的 JVM 面试题》](https://www.jianshu.com/p/54eb60cfa7bd)
+- [《JAVA 对象创建的过程》](https://troywu0.gitbooks.io/spark/content/java对象创建的过程.html)
+- [《Java 虚拟机详解 —— JVM 常见问题总结》](https://www.cnblogs.com/smyhvae/p/4810168.html)
+
+
+
+
 
 
 
