@@ -782,7 +782,7 @@ log.debug("运行结束...");
 
 根据 Thread.State 枚举，分为六种状态
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220301142504871.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220301142504871.png?w=600)
 
 
 
