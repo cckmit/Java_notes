@@ -736,11 +736,213 @@ Java 一共有四种引用类型：
 
 ### 15. 什么是安全点？
 
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「3.4.2 安全点」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+
+
+SafePoint 安全点，顾名思义是指一些特定的位置，当线程运行到这些位置时，线程的一些状态可以被确定(the thread’s representation of it’s Java machine state is well described)，比如记录OopMap 的状态，从而确定 GC Root 的信息，使 JVM 可以安全的进行一些操作，比如开始 GC 。
+
+
+
+SafePoint 指的特定位置主要有：
+
+1. 循环的末尾 (防止大循环的时候一直不进入 Safepoint ，而其他线程在等待它进入 Safepoint )。
+2. 方法返回前。
+3. 调用方法的 Call 之后。
+4. 抛出异常的位置。
+
+
+
+详细的内容，可以看看 [《深入学习 JVM-JVM 安全点和安全区域》](https://my.oschina.net/wenbo123/blog/1822414) 。
+
+
+
+- 如何使线程中断
+
+  - 主动式
+
+  > 主动式 JVM 设置一个全局变量，线程去按照某种策略检查这个变量一旦发现是 SafePoint 就主动挂起。
+  >
+  > HostSpot 虚拟机采用的是主动式使线程中断。****
+
+  - 被动式
+
+  > 被动式就是发个信号，例如关机、Control+C ，带来的问题就是不可控，发信号的时候不知道线程处于什么状态。
+
+  - 安全区域
+
+  > 如果程序长时间不执行，比如线程调用的 sleep 方法，这时候程序无法响应 JVM 中断请求这时候线程无法到达安全点，显然 JVM 也不可能等待程序唤醒，这时候就需要安全区域了。
+  >
+  > 安全区域是指一段代码片中，引用关系不会发生变化，在这个区域任何地方 GC 都是安全的，安全区域可以看做是安全点的一个扩展。
+  >
+  > - 线程执行到安全区域的代码时，首先标识自己进入了安全区域，这样 GC 时就不用管进入安全区域的线程了.
+  > - 线程要离开安全区域时就检查 JVM 是否完成了 GC Roots 枚举（或者整个 GC 过程），如果完成就继续执行，如果没有完成就等待直到收到可以安全离开的信号。
+
+
+
+### 16. JVM 垃圾收集器有哪些？
+
+
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「3.5 垃圾收集器」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+
+
+如果说收集算法是内存回收的方法论，那么垃圾收集器就是内存回收的具体实现。
+
+
+
+- 新生代收集器
+
+  - Serial 收集器
+
+  - ParNew 收集器
+
+    > ParNew 收集器，是 Serial 收集器的多线程版。
+
+  - Parallel Scavenge 收集器
+
+- 老年代收集器
+
+  - Serial Old 收集器
+    - Serial Old 收集器，是 Serial 收集器的老年代版本。
+  - Parallel Old 收集器
+    - Parallel Old 收集器，是 Parallel Scavenge 收集器的老年代版本。
+  - CMS 收集器
+
+- 新生代 + 老年代收集器
+
+  - G1 收集器
+  - ZGC 收集器
+
+
+
+小结表格如下：
+
+| 收集器                | 串行、并行or并发 | 新生代/老年代 | 算法               | 目标         | 适用场景                                  |
+| :-------------------- | :--------------- | :------------ | :----------------- | :----------- | :---------------------------------------- |
+| **Serial**            | 串行             | 新生代        | 复制算法           | 响应速度优先 | 单CPU环境下的Client模式                   |
+| **Serial Old**        | 串行             | 老年代        | 标记-整理          | 响应速度优先 | 单CPU环境下的Client模式、CMS的后备预案    |
+| **ParNew**            | 并行             | 新生代        | 复制算法           | 响应速度优先 | 多CPU环境时在Server模式下与CMS配合        |
+| **Parallel Scavenge** | 并行             | 新生代        | 复制算法           | 吞吐量优先   | 在后台运算而不需要太多交互的任务          |
+| **Parallel Old**      | 并行             | 老年代        | 标记-整理          | 吞吐量优先   | 在后台运算而不需要太多交互的任务          |
+| **CMS**               | 并发             | 老年代        | 标记-清除          | 响应速度优先 | 集中在互联网站或B/S系统服务端上的Java应用 |
+| **G1**                | 并发             | both          | 标记-整理+复制算法 | 响应速度优先 | 面向服务端应用，将来替换CMS               |
+
+关于每种垃圾收集器的说明，请看 如下文章：
+
+- [《深入理解 JVM(3) —— 7 种垃圾收集器》](https://crowhawk.github.io/2017/08/15/jvm_3/)
+- [《一文读懂 Java 11 的 ZGC 为何如此高效》](https://zhuanlan.zhihu.com/p/43608166)
+
+
+
+🦅 **G1 和 CMS 的区别？**
+
+- CMS ：并发标记清除。他的主要步骤有：初始收集，并发标记，重新标记，并发清除（删除）、重置。
+- G1：主要步骤：初始标记，并发标记，重新标记，复制清除（整理）
+- CMS 的缺点是对 CPU 的要求比较高。G1是将内存化成了多块，所有对内段的大小有很大的要求。
+- CMS是清除，所以会存在很多的内存碎片。G1是整理，所以碎片空间较小。
+- G1 和 CMS 都是响应优先把，他们的目的都是尽量控制 STW 时间。
+
+> G1 和 CMS 的 Full GC 都是单线程 mark sweep compact 算法，直到 JDK10 才优化为并行的。
+
+
+
+感兴趣的胖友，可以看看 [《GC 优化的一些总结》](http://engineering.xueqiu.com/blog/2015/06/25/jvm-gc-tuning/) 的分析。
+
+
+
+🦅 **CMS 算法的过程，CMS 回收过程中 JVM 是否需要暂停？**
+
+会有短暂的停顿。详细的，可以看看 [《[jvm\][面试] 并发收集器 CMS(Concurrent Mark-Sweep)》](https://blog.csdn.net/wfh6732/article/details/57490195) 。
+
+
+
+🦅 **如何使用指定的垃圾收集器**
+
+| 配置                    | 描述                                     |
+| :---------------------- | :--------------------------------------- |
+| -XX:+UserSerialGC       | 串行垃圾收集器                           |
+| -XX:+UserParrallelGC    | 并行垃圾收集器                           |
+| -XX:+UseConcMarkSweepGC | 并发标记扫描垃圾回收器                   |
+| -XX:ParallelCMSThreads  | 并发标记扫描垃圾回收器 =为使用的线程数量 |
+| -XX:+UseG1GC            | G1垃圾回收器                             |
+
+
+
+### 17. 对象分配规则是什么？
+
+> [《深入拆解 Java 虚拟机》](http://gk.link/a/100kc) 的 [「3.6 对象分配与回收策略」](http://svip.iocoder.cn/Java/VirtualMachine/Interview/#) 。
+
+对象优先分配在 Eden 区。
+
+> 如果 Eden 区无法分配，那么尝试把活着的对象放到 Survivor0 中去（Minor GC）
+>
+> - 如果 Survivor0 可以放入，那么放入之后清除 Eden 区。
+> - 如果 Survivor0 不可以放入，那么尝试把 Eden 和 Survivor0 的存活对象放到 Survivor1 中。
+>   - 如果 Survivor1 可以放入，那么放入 Survivor1 之后清除 Eden 和 Survivor0 ，之后再把 Survivor1 中的对象复制到 Survivor0 中，保持 Survivor1 一直为空。
+>   - 如果 Survivor1 不可以放入，那么直接把它们放入到老年代中，并清除 Eden 和 Survivor0 ，这个过程也称为**分配担保**。
+>
+> ps：清除 Eden、Survivor 区，就是 Minor GC 。
+>
+> 总结来说，分配的顺序是：新生代（Eden => Survivor0 => Survivor1）=> 老年代
+
+
+
+大对象直接进入老年代（大对象是指需要大量连续内存空间的对象）。
+
+> 这样做的目的是，避免在 Eden 区和两个 Survivor 区之间发生大量的内存拷贝（新生代采用复制算法收集内存）。
+
+
+
+动态判断对象的年龄。
+
+> 为了更好的适用不同程序的内存情况，虚拟机并不是永远要求对象的年龄必须达到 MaxTenuringThreshold 才能晋升老年代。
+>
+> 如果 Survivor 区中相同年龄的所有对象大小的总和大于 Survivor 空间的一半，年龄大于或等于该年龄的对象可以直接进入老年代。
+
+
+
+空间分配担保。
+
+> 每次进行 Minor GC 时，JVM 会计算 Survivor 区移至老年区的对象的平均大小，如果这个值大于老年区的剩余值大小则进行一次 Full GC ，如果小于检查 HandlePromotionFailure 设置，如果 `true` 则只进行 Monitor GC ，如果 `false` 则进行 Full GC 。
+
+如下是一张对象创建时，分配内存的图：
+
+
+
+![内存分配](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/bc22a30cbe93b8dedda080144a73b613.png)
 
 
 
 
 
+🦅 **为什么新生代内存需要有两个 Survivor 区？**
+
+详细的原因，可以看 [《为什么新生代内存需要有两个 Survivor 区》](https://blog.csdn.net/qq_27093465/article/details/79802884) 文章。
+
+
+
+
+
+### 什么是新生代 GC 和老年代 GC？
+
+GC 经常发生的区域是堆区，堆区还可以细分为
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327191948250.png)
+
+
+
+- 新生代
+  - 一个 Eden 区
+  - 两个 Survivor 区
+- 老年代
+
+
+
+> 默认新生代(Young)与老年代(Old)的比例的值为 `1:2` (该值可以通过参数 `–XX:NewRatio` 来指定)。
+>
+> 默认的 `Eden:from:to=8:1:1` (可以通过参数 `–XX:SurvivorRatio` 来设定)。
 
 
 
