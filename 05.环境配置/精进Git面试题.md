@@ -50,6 +50,10 @@ git branch (branchname)
 
 <hr>
 
+## Git 的一些常用命令？
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327231015557.png)
+
 
 
 - `git init`：创建 Git 库。
@@ -76,13 +80,7 @@ git branch (branchname)
 
 - `git clone` ：从远程仓库拷贝代码到本地。
 
-- ```
-  git branch
-  ```
-
-   
-
-  ：查看当前的分支名称。
+- `git branch`：查看当前的分支名称。
 
   - `git branch -r` ：查看远程分支。
 
@@ -90,23 +88,11 @@ git branch (branchname)
 
 - `git merge <branch>` ：将 branch 分支合并到当前分支。
 
-- ```
-  git stash
-  ```
-
-   
-
-  ：暂存。
+- `git stash`：暂存。
 
   - `git stash pop` ：恢复最近一次的暂存。
 
-- ```
-  git pull
-  ```
-
-   
-
-  ：抓取远程仓库所有分支更新并合并到本地。
+- `git pull`：抓取远程仓库所有分支更新并合并到本地。
 
   - `git push origin master` ：将本地主分支推到远程主分支。
 
@@ -114,6 +100,132 @@ git branch (branchname)
 
 
 
+## 平时使用什么 Git 工具？
+
+**1）命令行**
+
+只能说十个里面九个菜，还有一个是大神，虽然命令行提供了全部的功能，但是很多用 GUI 工具可以很便捷解决的问题，命令行做起来都比较麻烦。
+
+当然并不是让大家不要去命令行，通过命令行可以对 git 的功能和原理有一个更深入的了解。
+
+**2）IDEA Git 插件**
+
+IDEA Git 插件越来越强大，很多时候，我们日常使用 Git ，更多使用它。具体的教程，可以看看 [《IntelliJ IDEA 下的使用 git》](https://blog.csdn.net/huangfan322/article/details/53220060) 。
+
+**3）SourceTree**
+
+> 可以说是最好用的 Git 工具，没有之一。
+
+日常使用的一个图形化的 Git 增强工具，而最好用的功能就在于它集成了 GitFlow ，让开发者可以更简单、更规范的去做一些 Git 操作；
+
+另外它还提供了更友好的 merge 界面，但是操作起来不是很顺手，因为它只支持整行删除。
+
+**4）其它**
+
+- [SmartGit](https://www.syntevo.com/smartgit/)
+- [Tower](https://www.git-tower.com/mac)
+- Atom
+
+
+
+## Git 和 SVN 的优缺点？
+
+Git 是分布式版本控制系统，SVN 是集中式版本控制系统。
+
+1）SVN 的优缺点
+
+- 优点
+  - 1、管理方便，逻辑明确，符合一般人思维习惯。
+  - 2、易于管理，集中式服务器更能保证安全性。
+  - 3、代码一致性非常高。
+  - 4、适合开发人数不多的项目开发。
+- 缺点
+  - 1、服务器压力太大，数据库容量暴增。
+  - 2、如果不能连接到服务器上，基本上不可以工作，因为 SVN 是集中式服务器，如果服务器不能连接上，就不能提交，还原，对比等等。
+  - 3、不适合开源开发（开发人数非常非常多，但是 Google App Engine 就是用 SVN 的）。但是一般集中式管理的有非常明确的权限管理机制（例如分支访问限制），可以实现分层管理，从而很好的解决开发人数众多的问题。
+
+
+
+2）Git 优缺点
+
+- 优点
+  - 1、适合分布式开发，强调个体。
+  - 2、公共服务器压力和数据量都不会太大。
+  - 3、速度快、灵活。
+  - 4、任意两个开发者之间可以很容易的解决冲突。
+  - 5、离线工作。
+- 缺点
+  - 1、学习周期相对而言比较长。
+  - 2、不符合常规思维。
+  - 3、代码保密性差，一旦开发者把整个库克隆下来就可以完全公开所有代码和版本信息。
+
+所以，很多公司的开发团队使用 Git 作为版本管理，而产品团队使用 SVN 。
+
+
+
+## 说说创建分支的步骤？
+
+- 1、`git branch xxx_dev` ：创建名字为 `xxx_dev` 的分支。
+- 2、`git checkout xxx_dev` ：切换到名字为 `xxx_dev` 的分支。
+- 3、`git push origin xxx_dev` ：执行推送的操作，完成本地分支向远程分支的同步。
+
+更详细的，可以看看 [《Github 创建新分支》](https://blog.csdn.net/top_code/article/details/51931916) 文章。
+
+
+
+🦅 **tag 是什么？**
+
+tag ，指向一次 commit 的 id ，通常用来给分支做一个标记。
+
+> 大多数情况下，我们会将每个 Release 版本打一个分支。例如 SkyWalking 的 Tag 是 https://github.com/apache/incubator-skywalking/tags 。
+
+- 打标签 ：`git tag -a v1.01 -m "Release version 1.01"` 。
+- 提交标签到远程仓库 ：`git push origin --tags` 。
+- 查看标签 ：`git tag` 。
+- 查看某两次 tag 之间的 commit ：`git log --pretty=oneline tagA..tagB` 。
+- 查看某次 tag 之后的 commit ：`git log --pretty=oneline tagA..` 。
+
+
+
+🦅 **Git 提交代码时候写错 commit 信息后，如何重新设置 commit 信息？**
+
+可以通过 `git commit --amend` 来对本次 commit 进行修改。
+
+🦅 **删除已经合并过的分支会发生什么事？**
+
+分支本身就像是指标或贴纸一样的东西，它指着或贴在某个 commit 上面，分支并不是目录或档桉的复制品（但在有些版控系统的确是）。
+
+在 Git 裡，删除分支就像是你把包装盒上的贴纸撕下来，贴纸撕掉了，盒子并不会就这样跟着消失。所以，当你删除合并过的分支不会发生什么事，也不会造成档桉或目录跟着被删除的状况。
+
+
+
+
+
+## Git 服务器
+
+Git 服务器的选择，实际上是比较多的。
+
+- 公有服务方案
+  - Github
+  - Gitee
+- 私有化部署方案
+  - GitLab
+  - Gogs
+  - Bitbucket
+
+> 注意，Gitlab 和 Bitbucket 也提供公有服务的方案。
+
+
+
+一般情况下，大多数公司使用 GitLab 作为 Git 服务器。
+
+> GitLab是一个利用 [Ruby on Rails](http://www.oschina.net/p/ruby+on+rails) 开发的开源应用程序，实现一个自托管的[Git](http://www.oschina.net/p/git)项目仓库，可通过Web界面进行访问公开的或者私人项目。
+>
+> 它拥有与[Github](http://www.oschina.net/p/github)类似的功能，能够浏览源代码，管理缺陷和注释。可以管理团队对仓库的访问，它非常易于浏览提交过的版本并提供一个文件历史库。它还提供一个代码片段收集功能可以轻松实现代码复用，便于日后有需要的时候进行查找。
+
+
+
+- 不过因为 GitLb 使用 Ruby on Rails 实现，所以占用的系统资源会比较多。
 
 
 
@@ -123,10 +235,29 @@ git branch (branchname)
 
 
 
+<hr>
+
+## 最后
+
+参考与推荐如下文章：
+
+- [《Git 面試題》](https://gitbook.tw/interview)
+
+  > 读者写的非常棒，即使不准备面试，也可以看看，作为平时使用 Git 一些场景下的解决方案。
+
+- [《面试当中的 Git 问题》](https://blog.csdn.net/qq_26768741/article/details/66975516)
+
+- [《Git 的常见问题以及面试题汇总》](https://www.breakyizhan.com/git/5035.html)
+
+- [《泪流满面的 11 个 Git 面试题》](http://blog.jobbole.com/114297/)
+
+- [《面试中的那些 Git 问题 - 基础部分》](http://www.cocoachina.com/ios/20171023/20873.html)
 
 
 
 
+
+<hr>
 
 ## 一个本地库能不能既关联 GitHub，又关联 Gitee 呢？
 
