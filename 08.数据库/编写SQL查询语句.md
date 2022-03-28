@@ -26,7 +26,7 @@
 
 
 
-- 1、查询student表中重名的学生，结果包含id和name，按name,id升序
+#### 1、查询student表中重名的学生，结果包含id和name，按name,id升序
 
 ```sql
 select id,name
@@ -46,7 +46,7 @@ select name from student group by name having(count(*) > 1)
 
 
 
-- 2、在student_course表中查询平均分不及格的学生，列出学生id和平均分
+#### 2、在student_course表中查询平均分不及格的学生，列出学生id和平均分
 
 ```sql
 select sid,avg(score) as avg_score
@@ -60,7 +60,7 @@ group by sid having(avg_score<60);
 
 
 
-- 3、在student_course表中查询每门课成绩都不低于80的学生id
+#### 3、在student_course表中查询每门课成绩都不低于80的学生id
 
 ```sql
 select distinct sid
