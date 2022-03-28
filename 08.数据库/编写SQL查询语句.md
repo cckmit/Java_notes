@@ -35,6 +35,10 @@ select name from student group by name having(count(*) > 1)
 
 
 
+<hr>
+
+
+
 - 2、在student_course表中查询平均分不及格的学生，列出学生id和平均分
 
 ```sql
