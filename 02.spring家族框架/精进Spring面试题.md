@@ -1436,7 +1436,7 @@ class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 
 `@Transactional` 注解的**属性**如下：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220325223819438.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220325223819438.png?w=600)
 
 
 
