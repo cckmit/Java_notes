@@ -684,7 +684,7 @@ MyISAM引 擎使用B+Tree作为索引结构，**叶节点的data域存放的是�
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328145526173.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328145526173.png?w=600)
 
 
 
