@@ -622,7 +622,7 @@ B+Tree 相对于 B-Tree 有几点不同：
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328144855735.png?w=900)
+![image-20220329201938443](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220329201938443.png)
 
 
 
@@ -682,9 +682,9 @@ MyISAM引 擎使用B+Tree作为索引结构，**叶节点的data域存放的是�
 
 - 这里设表一共有三列，假设我们以 Col1 为主键，上图是一个 MyISAM 表的主索引（Primary key）示意。可以看出 MyISAM 的索引文件仅仅保存数据记录的地址。
 
+![image-20220329201958002](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220329201958002.png)
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328145526173.png?w=500)
 
 
 
