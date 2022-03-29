@@ -622,7 +622,7 @@ B+Tree 相对于 B-Tree 有几点不同：
 
 
 
-![image-20220329201938443](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220329201938443.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220329204308035.png)
 
 
 
