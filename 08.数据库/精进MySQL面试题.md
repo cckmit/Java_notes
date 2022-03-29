@@ -700,7 +700,7 @@ MyISAM 的索引方式也叫做“**非聚集**”的，之所以这么称呼是
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328145544636.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220329202314028.png)
 
 
 
