@@ -690,6 +690,8 @@ MyISAM引 擎使用B+Tree作为索引结构，**叶节点的data域存放的是�
 
 2）辅助索引：
 
+
+
 **在 MyISAM 中，主索引和辅助索引在结构上没有任何区别，只是主索引要求 key 是唯一的，而辅助索引的 key 可以重复。**如果我们在 Col2 上建立一个辅助索引，则此索引的结构如下图所示：
 
 - 同样也是一颗 B+Tree ，data 域保存数据记录的地址。因此，**MyISAM 中索引检索的算法为首先按照 B+Tree 搜索算法搜索索引，如果指定的 Key 存在，则取出其 data 域的值，然后以 data 域的值为地址，读取相应数据记录。**
@@ -698,7 +700,7 @@ MyISAM 的索引方式也叫做“**非聚集**”的，之所以这么称呼是
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328145544636.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328145544636.png?w=600)
 
 
 
