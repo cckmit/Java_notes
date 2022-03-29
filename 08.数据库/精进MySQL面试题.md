@@ -74,7 +74,11 @@ https://www.cnblogs.com/zhoug2020/p/13525463.html
 问题：
 
 ```sql
-1055 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'test.student.name' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by, Time: 0.000000s
+1055 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 
+
+'test.student.name' which is not functionally dependent on columns in GROUP BY clause; this is 
+
+incompatible with sql_mode=only_full_group_by, Time: 0.000000s
 ```
 
 原因：
@@ -240,7 +244,7 @@ MySQL 提供了多种的存储引擎：
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328131746807.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328131746807.png?w=600)
 
 更完整的对比，可以看看 [《数据库存储引擎》](https://github.com/jaywcjlove/mysql-tutorial/blob/master/chapter3/3.5.md) 的 [「常用引擎对比」](http://svip.iocoder.cn/MySQL/Interview/#) 小节。
 
