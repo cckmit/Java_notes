@@ -244,7 +244,7 @@ MySQL 提供了多种的存储引擎：
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328131746807.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328131746807.png?w=800)
 
 更完整的对比，可以看看 [《数据库存储引擎》](https://github.com/jaywcjlove/mysql-tutorial/blob/master/chapter3/3.5.md) 的 [「常用引擎对比」](http://svip.iocoder.cn/MySQL/Interview/#) 小节。
 
@@ -571,7 +571,7 @@ B+Tree 相对于 B-Tree 有几点不同：
 
 
 
-![image-20220328144245253](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328144245253.png)
+![image-20220328144245253](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328144245253.png?w=600)
 
 
 
@@ -622,7 +622,7 @@ B+Tree 相对于 B-Tree 有几点不同：
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328144855735.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220328144855735.png?w=600)
 
 
 
