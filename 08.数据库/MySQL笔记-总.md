@@ -20,7 +20,7 @@ MySQL 是一款非常流行的数据库管理系统
 
 ### 面试题
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220330134108353.png?w=600)
+![image-20220330135055917](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220330135055917.png)
 
 
 
