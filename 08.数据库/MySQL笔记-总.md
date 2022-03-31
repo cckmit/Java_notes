@@ -1169,7 +1169,7 @@ MySQL索引数据结构对经典的B+Tree进行了优化。在原B+Tree的基础
 
 如果两个(或多个)键值，映射到一个相同的槽位上，他们就产生了hash冲突（也称为hash碰撞），可以通过链表来解决。
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331152030663.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331152030663.png?w=600)
 
 Hash索引特点：
 
