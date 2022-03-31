@@ -203,7 +203,7 @@ truncate table 表名;
 
 MySQL中的数据类型有很多，主要分为三类：数值类型、字符串类型、日期时间类型。
 
-![image-20220331110917846](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331110917846.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331110917846.png?w=600)
 
 
 
