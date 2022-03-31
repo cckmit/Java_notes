@@ -1421,7 +1421,7 @@ explain select 字段列表 from 表名 where 条件;
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331185441717.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331185441717.png?w=600)
 
  
 
@@ -1429,7 +1429,7 @@ explain select 字段列表 from 表名 where 条件;
 
 - Id：select查询的序列号，表示查询中执行select子句或者是操作表的顺序(id相同，执行顺序从上到下；id不同，值越大，越先执行)。 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331190207655.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331190207655.png?w=600)
 
 - select_type：表示 SELECT 的类型，常见的取值有 SIMPLE（简单表，即不使用表连接或者子查询）、PRIMARY（主查询，即外
 
