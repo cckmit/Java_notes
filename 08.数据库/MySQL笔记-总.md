@@ -1630,6 +1630,32 @@ select count(distinct substring(email,1,5)/count(*) from tb_user);
 
 
 
+#### 单列索引与联合索引
+
+单列索引：即一个索引只包含单个列。
+
+联合索引：即一个索引包含了多个列。
+
+在业务场景中，如果存在多个查询条件，考虑针对于查询字段建立索引时，建议建立联合索引，而非单列索引。
+
+
+
+```sql
+explain select id, phone, name from tb_user where phone = '17799990010' and name = '韩信';
+-- 必然涉及覆盖索引的问题，会回表查询，因为phone的索引当中必然不包含name字段的值。
+-- 所以，推荐创建联合索引。
+```
+
+
+
+多条件联合查询时， MySQL优化器会评估哪个字段的索引效率更高，会选择该索引完成本次查询。
+
+
+
+联合索引情况：（最终构建的B+树如下，节点存储phone和name的值）（这一个索引结构已经获取到了想要的数据，覆盖索引，不会回表查询）
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331211509552.png)
+
 
 
 
@@ -1638,43 +1664,1424 @@ select count(distinct substring(email,1,5)/count(*) from tb_user);
 
 ### 索引设计原则
 
+1. 针对于数据量较大（超过100w），且**查询比较频繁的表建立索引**。
+
+2. 针对于常作为查询条件（where）、排序（order by）、分组（group by）操作的字段建立索引。
+
+3. 尽量**选择区分度高（身份证号，反例是性别）的列**作为索引，尽量建立唯一索引，区分度越高，使用索引的效率越高。
+
+4. 如果是字符串类型的字段，字段的长度较长，可以针对于字段的特点，**建立前缀索引**。
+
+5. 尽量使用联合索引，减少单列索引，查询时，**联合索引很多时候可以覆盖索引，节省存储空间，避免回表，提高查询效率。**
+
+6. 要控制索引的数量，索引并不是多多益善，索引越多，维护索引结构的代价也就越大，**会影响增删改的效率。**
+
+7. 如果索引列不能存储NULL值，请在创建表时使用**NOT NULL约束**它。当优化器知道每列是否包含NULL值时，它可以更好地确定哪个索引最有效地用于查询。
+
+
+
+### 索引总结
+
+```sql
+-- 1.概述
+索引是高效获取数据的数据结构 ;
+-- 2.索引结构
+B+ Tree: 所有的数据出现在叶子结点，而且叶子结点形成一个双向链表。
+Hash
+-- 3.索引分类
+主键索引（主键默认会创建的）、唯一索引、常规索引、全文索引
+聚集索引（必须存在，只能有一个。叶子结点挂的是一行row的数据。默认主键索引就是聚集索引。）、二级索引（叶子结点挂的是对应行的主键）
+-- 4.索引语法（创建、查看、删除）
+create [unique] index xxx on xxx(xxx);
+show index from xxx;
+drop index xxx from xxx;
+-- 5.SQL性能分析
+执行频次（查询为主还是增删改为主）、慢查询日志（定位执行比较耗时的sql语句）、profile（监控每一条sql语句的耗时以及具体的时间耗费在哪一个阶段）、explain（使用最多，查看sql语句的执行计划评判sql语句的性能）
+-- 6.索引使用
+联合索引（最重要的是遵循最左前缀法则，防止失效）
+索引失效（索引列上运算、字符串不加引号、前面模糊匹配、or连接一侧没有索引、全表扫描更快）
+SQL提示（指定使用哪个索引）
+覆盖索引（涉及回表查询的问题。所谓覆盖索引是指查询返回的列在索引结构中都包含了。所谓回表查询是指先走二级索引再到聚集索引）
+前缀索引（缩小索引的体积，提高查询的效率）
+单列/联合索引（推荐使用联合索引。理由：性能较高；如果使用得当可以避免回表查询。）
+-- 7.索引性能分析
+表（数据量大，查询频率高）
+字段（查询条件（where）、排序（order by）、分组（group by）后的字段）
+建立设么索引（尽量建立唯一索引，区分度高）（尽量使用联合索引）（尽量使用前缀索引）
+```
 
 
 
 
 
 
-## 9. SQL优化
+
+## 9. SQL优化（对索引进行优化）
+
+### 9.1 插入数据
 
 
 
-## 10. 视图/存储过程/触发器
+- 批量插入
+- 手动提交事务
+- 主键顺序插入
 
 
 
-## 11. 锁
+- 大批量插入数据
 
-## 12. InnoDB引擎
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331220058636.png)
+
+> 使用load指令将100w数据加载进表结构当中，16s。使用insert的话，需要十多分钟。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331220122365.png)
+
+主键顺序插入性能高于乱序插入。
+
+
+
+### 9.2 主键优化（主键的设计原则）
+
+> 所有的数据都在叶子结点，非叶子结点仅仅起到索引数据的作用，
+>
+> 非叶子结点的索引和叶子节点的数据最终都是存放在一个逻辑结构——页page当中的。
+
+
+
+#### 页分裂
+
+页可以为空，也可以填充一半，也可以填充100%。每个页包含了2-N行数据(如果一行数据多大，会行溢出)，根据主键排列。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331221432582.png)
+
+
+
+主键乱序插入可能出现页分裂的情况。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331221455047.png)
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331221554607.png)
+
+#### 页合并
+
+当删除一行记录时，实际上记录并没有被物理删除，只是记录被标记（flaged）为删除并且它的空间变得允许被其他记录声明使用。
+
+当页中删除的记录达到 MERGE_THRESHOLD（默认为页的50%），InnoDB会开始寻找最靠近的页（前或后）看看是否可以将两个页
+
+合并以优化空间使用。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331221837341.png)
+
+知识小贴士：
+
+MERGE_THRESHOLD：合并页的阈值，可以自己设置，在创建表或者创建索引时指定。
+
+#### 主键设计原则
+
+➢ 满足业务需求的情况下，尽量降低主键的长度。（主键索引只有一个，二级索引可以有很多）
+
+➢ 插入数据时，尽量选择顺序插入（否则可能会出现页分裂），选择使用AUTO_INCREMENT自增主键。
+
+➢ 尽量不要使用UUID做主键（无序的，可能会乱序插入。而且长度也较长。）或者是其他自然主键，如身份证号。
+
+➢ 业务操作时，避免对主键的修改。（修改主键还会去动对应的索引结构，代价是比较大的）
+
+
+
+### 9.3 order by 优化
+
+① Using filesort：通过表的索引或全表扫描，读取满足条件的数据行，然后在排序缓冲区 sort buffer中完成排序操作，所有不是通过
+
+索引直接返回排序结果的排序都叫 Filesort排序。
+
+② Using index：通过有序索引顺序扫描直接返回有序数据，这种情况即为Using index ，不需要额外排序，操作效率高。（相比上
+
+面，性能更高。）（优化order by语句的时候尽量优化为这种。）
+
+
+
+```sql
+-- 没有创建索引时，根据age,phone进行排序
+explain select id, age, phone from tb_user order by age, phone;
+-- 创建索引
+create index idx_user_age_phone_aa on tb_user(age, phone); 
+-- 创建索引后，根据age,phone进行升序排序(优化为Using index)
+explain select id, age, phone from tb_user order by age, phone;
+-- 创建索引后，根据age,phone进行降序排序(优化为Using index)(反向扫描索引)
+explain select id, age, phone from tb_user order by age desc, phone desc;
+
+-- 根据age, phone一个升序，一个降序
+explain select id, age, phone from tb_user order by age asc, phone desc;(Using filesort, Using index)
+-- 创建索引
+create index idx_user_age_phone_ad on tb_user(age acs, phone desc); 
+-- 再次测试，发现已经优化为Using index
+```
+
+
+
+![image-20220401094251904](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401094251904.png)
+
+
+
+➢ 根据排序字段建立合适的索引，多字段排序时，也遵循最左前缀法则。
+
+➢ 尽量使用覆盖索引。
+
+➢ 多字段排序 一个升序一个降序，此时需要注意联合索引在创建时的规则（asc / desc ）。
+
+➢ 如果不可避免的出现 ，大数据量排序时，可以适当增大排序缓冲区大小 sort_buffer_size （默认256k ）
+
+
+
+
+
+### 9.4 group by （分组）优化
+
+
+
+```sql
+-- 删除目前的联合索引
+drop index idx_user_pro_age_sta on tb_user;
+-- 执行分组操作，根据profession字段分组
+explain select profession, count(*) from tb_user group by profession;(用到了临时表，性能较低)
+-- 创建联合索引
+create index idx_user_pro_age_sta on tb_user(profession, age, status);
+-- 执行分组操作，根据profession字段分组
+explain select profession, count(*) from tb_user group by profession;（优化为了Using index）
+-- 执行分组操作，根据profession字段分组
+explain select profession, count(*) from tb_user group by profession, age;
+```
+
+
+
+➢  在分组操作时，可以通过索引来提高效率。
+
+➢ 分组操作时，索引的使用也是满足最左前缀法则的。
+
+
+
+### 9.5 limit（分页查询）优化
+
+一个常见又非常头疼的问题就是 limit 2000000,10 ，此时需要MySQL排序前2000010 记录，仅仅返回2000000 - 2000010 
+
+的记录，其他记录丢弃，查询排序的代价非常大 。
+
+```sql
+-- 第1页（速度很快）
+select * from tb_sku limit 0,10;
+-- 第2页（速度很快）
+select * from tb_sku limit 10,10;
+-- 1000000的前10条（慢）
+select * from tb_sku limit 1000000,10;
+
+-- 官方：覆盖索引+子查询实现
+select s.* from tb_sku s, (select id from tb_sku order by id limit 9000000, 10) a where s.id = a.id;
+```
+
+
+
+优化思路: 一般分页查询时，通过创建 覆盖索引 能够比较好地提高性能，可以通过覆盖索引加子查询形式进行优化。
+
+
+
+### 9.6 count（聚合函数）优化
+
+```sql
+explain select count(*) from tb_sku;
+```
+
+- MyISAM 引擎把一个表的总行数存在了磁盘上，因此执行 count(*) 的时候会直接返回这个数，效率很高；*
+- InnoDB 引擎就麻烦了，它执行 count(*) 的时候，需要把数据一行一行地从引擎里面读出来，然后累积计数。
+
+
+
+优化思路：自己计数
+
+
+
+count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加，最
+
+后返回累计值。
+
+
+
+<hr>
+
+**用法：count（*）、count（主键）、count（字段）、count（1）**
+
+- count（主键）：InnoDB 引擎会遍历整张表，把每一行的 主键id 值都取出来，返回给服务层。服务层拿到主键后，直接按行进行
+
+  累加(主键不可能为null)
+
+- count（字段）：没有not null 约束 : InnoDB 引擎会遍历整张表把每一行的字段值都取出来，返回给服务层，服务层判断是否为
+
+  null，不为null，计数累加。有not null 约束：InnoDB 引擎会遍历整张表把每一行的字段值都取出来，返回给服务层，直接按行进
+
+  行累加。
+
+- count（1）：InnoDB 引擎遍历整张表，但不取值。服务层对于返回的每一行，放一个数字“1”进去，直接按行进行累加。
+
+- count（*）：InnoDB引擎并不会把全部字段取出来，而是专门做了优化，不取值，服务层直接按行进行累加。
+
+
+
+**按照效率排序的话，count(字段) < count(主键 id) < count(1) ≈ count(*)，所以尽量使用 count(*)（数据库专门做了优化）。**
+
+
+
+### 9.7 update（更新数据时）优化
+
+执行update语句的时候，一定要根据索引字段进行更新，否则行锁升级为表锁。
+
+InnoDB的行锁是针对索引加的锁，不是针对记录加的锁 ,并且该索引不能失效，否则会从行锁升级为表锁 。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401102524185.png)
+
+
+
+
+
+## 10. 视图/存储过程/触发器（存储对象）
+
+### 10.1 视图
+
+#### 介绍
+
+视图（View）是一种虚拟存在的表。视图中的数据并不在数据库中实际存在，行和列数据来自定义视图的查询中使用的表，并且是在 
+
+使用视图时动态生成的。
+
+通俗的讲，视图只保存了查询的SQL逻辑，不保存查询结果。所以我们在创建视图的时候，主要的工作就落在创建这条SQL查询语句上。
+
+
+
+```sql
+-- 创建
+create [or replace] view 视图名称[列名列表] as select 语句 [with [cascaded | local] check option]
+create or replace view stu_v_1 as select id, name from student where id <=10;
+
+-- 查询
+-- 查询创建视图语句  show create view 视图名称;
+-- 查询视图数据  select * from 视图名称......;
+show create view stu_v_1;
+select * from stu_v_1;
+select * from stu_v_1 where id < 3;
+
+-- 修改
+方式1：create [or replace] view 视图名称[列名列表] as select 语句 [with [cascaded | local] check option]
+方式2：alter view 视图名称[列名列表] as select 语句 [with [cascaded | local] check option]
+create or replace view stu_v_1 as select id, name, no from student where id <=10;
+alter view stu_v_1 as select id, name from student where id <=10;
+
+-- 删除
+drop view [if exists] 视图名称;
+drop view if exists stu_v_1;
+```
+
+
+
+#### 检查选项
+
+当使用WITH CHECK OPTION子句创建视图时，MySQL会通过视图检查正在更改的每个行，例如 插入，更新，删除，以使其符合视
+
+图的定义。 MySQL允许基于另一个视图创建视图，它还会检查依赖视图中的规则以保持一致性。为了确定检查的范围，mysql提供了
+
+两个选项：CASCADED 和 LOCAL ，默认值为 CASCADED 。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401105746671.png)
+
+> insert into stu_v_2 values(15, 'Tom'); 就会成功，因为满足2个约束。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401110749356.png)
+
+（1）当我们操作当前视图时，cascaded检查选项是，如果当前视图有检查选项，则插入数据要满足包括当前视图条件以及满足当前
+
+视图所依赖的视图的条件。如果当前视图没有检查选项，则插入数据要满足当时视图所依赖视图有检查选项及其依赖的视图的条件。
+
+（2）当我们在操作当前视图时，local检查选项是递归的查找当前视图所依赖的视图是否有检查选项，如果有，则检查；如果没有，就
+
+不做检查。
+
+https://blog.csdn.net/weixin_44300779/article/details/122805156
+
+
+
+#### 更新
+
+要使视图可更新，视图中的行与基础表中的行之间必须存在一对一的关系。如果视图包含以下任何一项，则该视图不可更新：
+
+\1. 聚合函数或窗口函数（SUM()、 MIN()、 MAX()、 COUNT()等）
+
+\2. DISTINCT
+
+\3. GROUP BY
+
+\4. HAVING
+
+\5. UNION 或者 UNION ALL
+
+
+
+#### 作用
+
+简单：视图不仅可以简化用户对数据的理解，也可以简化他们的操作。那些被经常使用的查询可以被定义为视图，从而使得用户不必
+
+为以后的操作每次指定全部的条件。
+
+安全：数据库可以授权，但不能授权到数据库特定行和特定的列上。通过视图用户只能查询和修改他们所能见到的数据（保证了敏感数据的安全性）
+
+数据独立：视图可帮助用户屏蔽真实表结构变化带来的影响。（屏蔽基表变化对业务的影响）
+
+#### 案例
+
+```sql
+-- 根据如下需求，定义视图
+1. 为了保证数据库表的安全性，开发人员在操作tb_user表时，只能看到的用户的基本字段，屏蔽手机号和邮箱两个字段。
+create view tb_user_view as select id, name, profession, age, gender, status, createtime from tb_user;
+select * from tb_user_view;
+2. 查询每个学生所选修的课程（三张表联查），这个功能在很多的业务中都有使用到，为了简化操作，定义一个视图。
+select s.name, s.no, c.name from student s, student_course sc, course c where s.id = sc.studentid and sc.courseid = c.id;
+-- 多表联查的sql封装到视图中
+create view tb_stu_course_view as select s.name student_name, s.no student_no, c.name course_name from student s, student_course sc, course c where s.id = sc.studentid and sc.courseid = c.id;
+-- 后续直接查询视图就可以
+select * from tb_stu_course_view;
+```
+
+
+
+
+
+### 10.2 存储过程
+
+#### 介绍与特点
+
+**介绍**
+
+存储过程是事先经过编译并存储在数据库中的一段 SQL 语句的集合，调用存储过程可以简化应用开发人员的很多工作，减少数据在数
+
+据库和应用服务器之间的传输，对于提高数据处理的效率是有好处的。
+
+存储过程思想上很简单，就是数据库 SQL 语言层面的代码封装与重用。
+
+
+
+**特点**
+
+- 封装，复用
+- 可以接收参数，也可以返回数据
+- 减少网络交互，效率提升
+
+
+
+```sql
+-- 创建
+create procedure 存储过程名称([参数列表])
+begin
+	-- sqlyuju 
+end;	
+
+create procedure p1()
+begin
+	select count(*) from student;
+end;	
+
+-- 调用
+call 名称([参数])
+call p1();
+
+-- 查看
+select * from information_schema.ROUTINES where ROUTINE_SCHEMA = 'itcast';    -- 查询指定数据库的存储过程及状态信息
+show create procedure p1;
+
+-- 删除
+drop procedure if exists p1;
+```
+
+
+
+注意: 在命令行中，执行创建存储过程的SQL时，需要通过关键字 delimiter 指定SQL语句的结束符。
+
+
+
+### 10.3 存储函数
+
+存储函数是有返回值的存储过程，存储函数的参数只能是IN类型的。具体语法如下：
+
+
+
+
+
+```sql
+-- 1. 计算从1累加到n的值，n为传入的参数值。
+```
+
+
+
+
+
+### 10.4 触发器
+
+触发器是与表有关的数据库对象，指在 insert/update/delete 之前或之后，触发并执行触发器中定义的SQL语句集合。
+
+触发器的这种特性可以协助应用在数据库端确保数据的完整性 , 日志记录 , 数据校验等操作 。
+
+使用别名 OLD 和 NEW 来引用触发器中发生变化的记录内容，这与其他的数据库是相似的。现在触发器还只支持行级触发（如update
+
+影响5行，触发5次），不支持语句级触发。
+
+
+
+```sql
+-- 创建
+create trigger trigger_name
+before/after insert/update/delete
+on tbl_name for each row  -- 行级触发器
+begin
+	trigger_stmt;
+end;
+
+-- 查看
+show triggers;
+
+-- 删除
+drop trigger [schema_name] trigger_name;    -- 如果没有指定schema_name，默认当前数据库
+```
+
+
+
+
+
+
+
+
+
+```sql
+-- 案例：定义触发器，完成如下需求
+通过触发器记录 tb_user 表的数据变更日志，将变更日志插入到日志表user_logs中, 包含增加, 修改 , 删除 ;
+
+-- 准备工作，日志表user_log
+create table user_logs (
+	id int(11) not null auto_increment,
+  operation varchar(20) not null comment '操作类型, insert/update/delete',
+  operation_time datetime not null comment '操作时间',
+  operate_id int(11) not null comment'操作ID',
+  operate_params varchar(500) comment'操作参数',
+  primary key('id')
+) engine=innodb default charset=utf8;
+
+-- 插入数据触发器
+create trigger tb_user_insert_trigger
+		after insert on tb_user for each row
+begin
+		insert into user_log(id, operation, operation_time, operation_id, operation_params) values
+		(null, 'insert', now(), new.id, concat('插入的数据内容为：id=', new.id' ,',name=', new.name,',phone=', new.phone,',email=', new.email,',',profession=', new.profession));
+end;
+
+-- 更新数据触发器
+create trigger tb_user_update_trigger
+		after update on tb_user for each row
+begin
+		insert into user_log(id, operation, operation_time, operation_id, operation_params) values
+		(null, 'update', now(), new.id, 
+     		concat('更新之前的数据内容为：id=', old.id' ,',name=', old.name,',phone=', old.phone,',email=', old.email,',',profession=', old.profession,
+               '更新之后的数据内容为：id=', new.id' ,',name=', new.name,',phone=', new.phone,',email=', new.email,',',profession=', new.profession
+              ));
+end;
+
+-- 删除数据触发器
+create trigger tb_user_delete_trigger
+		after delete on tb_user for each row
+begin
+		insert into user_log(id, operation, operation_time, operation_id, operation_params) values
+		(null, 'delete', now(), old.id, 
+     		concat('删除之前的数据内容为：id=', old.id' ,',name=', old.name,',phone=', old.phone,',email=', old.email,',',profession=', old.profession	));
+end;
+```
+
+
+
+<hr>
+
+```bash
+# 小结
+# 视图 view 
+虚拟存在的表，不保存查询结果，只保存查询的SQL逻辑
+简单、安全、数据独立
+
+# 存储过程 procedure
+事先定义并存储在数据库中的一段SQL语句的集合。
+减少网络交互，提高性能、封装重用
+变量、if、case、参数(in/out/inout)、while、repeat、loop、cursor、handler
+
+# 存储函数 function
+存储函数是有返回值的存储过程，参数类型只能为IN类型
+存储函数可以被存储过程替代
+
+# 触发器 trigger
+可以在表数据进行INSERT、UPDATE、DELETE之前或之后触发
+保证数据完整性、日志记录、数据校验
+```
+
+
+
+
+
+## 11. 锁🔐
+
+### 11.1 概述
+
+锁是计算机协调多个进程或线程并发访问某一资源的机制。
+
+在数据库中，除传统的计算资源（CPU、RAM、I/O）的争用以外，数据也是一种供许多用户共享的资源。
+
+如何保证数据并发访问的一致性、有效性是所有数据库必须解决的一个问题，锁冲突也是影响数据库并发访问性能的一个重要因素。
+
+从这个角度来说，锁对数据库而言显得尤其重要，也更加复杂。
+
+
+
+**MySQL中的锁，按照锁的粒度分，分为以下三类：**
+
+1. 全局锁：锁定数据库中的所有表。
+
+2. 表级锁：每次操作锁住整张表。
+
+3. 行级锁：每次操作锁住对应的行数据。
+
+
+
+<hr>
+
+### 11.2 全局锁
+
+全局锁就是对整个数据库实例加锁，加锁后整个实例就处于只读状态，后续的DML的写语句，DDL语句，已经更新操作的事务提交语
+
+句都将被阻塞。
+
+
+
+其典型的使用场景是**做全库的逻辑备份**，对所有的表进行锁定，从而获取一致性视图，保证数据的完整性。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401155803659.png)
+
+
+
+如下，加了全局锁后，只可读不可写。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401171353342.png)
+
+
+
+
+
+```sql
+-- 加上全局锁
+flush tables with read lock;
+
+-- 备份库
+mysqldump -h 192.168.200.202 -uroot -p123456 db01 > D:/db01.sql
+
+-- 释放锁
+unlock tables;
+```
+
+
+
+数据库中加全局锁，是一个比较重的操作，存在以下问题：
+
+1. 如果在主库上备份，那么在备份期间都不能执行更新，业务基本上就得停摆。
+
+2. 如果在从库上备份，那么在备份期间从库不能执行主库同步过来的二进制日志（binlog），会导致主从延迟。
+
+
+
+在InnoDB引擎中，我们可以在备份时加上参数 --single-transaction 参数来完成不加锁的一致性数据备份。（快照读的方式）
+
+```sql
+mysqldump --single-transaction -uroot -p123456 db01 > db01.sql
+```
+
+
+
+
+
+
+
+### 11.3 表级锁
+
+表级锁，每次操作锁住整张表。锁定粒度大，发生锁冲突的概率最高，并发度最低。应用在MyISAM、InnoDB、BDB等存储引擎中。
+
+对于表级锁，主要分为以下三类：
+
+#### 表锁
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401173346623.png)
+
+读锁不会阻塞其他客户端的读，但是会阻塞写。写锁既会阻塞其他客户端的读，又会阻塞其他客户端的写。
+
+
+
+#### 元数据锁（meta data lock，MDL）
+
+MDL加锁过程是系统自动控制，无需显式使用，在访问一张表的时候会自动加上。MDL锁主要作用是维护表元数据的数据一致性，在
+
+表上有活动事务的时候，不可以对元数据进行写入操作。为了避免DML与DDL冲突，保证读写的正确性。
+
+在MySQL5.5中引入了MDL，当对一张表进行增删改查的时候，加MDL读锁(共享)；当对表结构进行变更操作的时候，加MDL写锁(排
+
+他)。
+
+| 对应SQL                                        | 锁类型                                  | 说明                                             |
+| ---------------------------------------------- | --------------------------------------- | ------------------------------------------------ |
+| lock tables xxx read / write                   | SHARED_READ_ONLY / SHARED_NO_READ_WRITE |                                                  |
+| select 、select ... lock in share mode         | SHARED_READ                             | 与SHARED_READ、SHARED_WRITE兼容，与EXCLUSIVE互斥 |
+| insert 、update、delete、select ... for update | SHARED_WRITE                            | 与SHARED_READ、SHARED_WRITE兼容，与EXCLUSIVE互斥 |
+| alter table ...                                | EXCLUSIVE                               | 与其他的MDL都互斥                                |
+
+
+
+查看元数据锁：
+
+```sql
+select object_type, object_schema, object_name, lock_type, lock_duration from performance_schema.metadata_locks;
+```
+
+
+
+#### 意向锁（解决行锁和表锁的冲突问题）
+
+为了避免DML在执行时，加的行锁与表锁的冲突，在InnoDB中引入了意向锁，使得表锁不用检查每行数据是否加锁，使用意向锁来减
+
+少表锁的检查。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401175409044.png)
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401175558066.png)
+
+##### 意向共享锁（IS）
+
+由语句 select ... lock in share mode添加。
+
+与表锁共享锁（read）兼容，与表锁排它锁（write）互斥。
+
+##### 意向排他锁（IX）
+
+由insert、update、delete、select ... for update 添加。
+
+与表锁共享锁（read）及排它锁（write）都互斥。意向锁之间不会互斥。
+
+
+
+可以通过以下SQL，查看意向锁及行锁的加锁情况：
+
+```sql
+select object_schema, object_name, index_name, lock_type, lock_mode, lock_data from performance_schema.data_locks;
+```
+
+
+
+
+
+### 11.4 行级锁
+
+行级锁，每次操作锁住对应的行数据。锁定粒度最小，发生锁冲突的概率最低，并发度最高。应用在InnoDB存储引擎中。
+
+
+
+InnoDB的数据是基于索引组织的，行锁是通过对索引上的索引项加锁来实现的，而不是对记录加的锁。对于行级锁，主要分为以下三
+
+类：
+
+- 行锁（Record Lock）：锁定单个行记录的锁，防止其他事务对此行进行update和delete。在RC、RR隔离级别下都支持。
+
+- 间隙锁（Gap Lock）：锁定索引记录间隙（不含该记录），确保索引记录间隙不变，防止其他事务在这个间隙进行insert，产生幻
+
+  读。在RR隔离级别下都支持。
+
+- 临键锁（Next-Key Lock）：行锁和间隙锁组合，同时锁住数据，并锁住数据前面的间隙Gap。在RR隔离级别下支持。
+
+
+
+![image-20220401181158018](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401181158018.png)
+
+
+
+InnoDB实现了以下两种类型的行锁：
+
+- 共享锁（S）：允许一个事务去读一行，阻止其他事务获得相同数据集的排它锁。
+
+- 排他锁（X）：允许获取排他锁的事务更新数据，阻止其他事务获得相同数据集的共享锁和排他锁。
+
+
+
+| 当前锁类型/请求锁类型 | S（共享锁） | X（排它锁） |
+| --------------------- | ----------- | ----------- |
+| S（共享锁）           | 兼容        | 冲突        |
+| X（排它锁）           | 冲突        | 冲突        |
+
+
+
+| SQL                           | 行锁类型    | 说明                                     |
+| ----------------------------- | ----------- | ---------------------------------------- |
+| insert...                     | 排它锁      | 自动加锁                                 |
+| update...                     | 排它锁      | 自动加锁                                 |
+| delete...                     | 排它锁      | 自动加锁                                 |
+| select（正常）                | 不加任何锁🔐 |                                          |
+| select ... lock in share mode | 共享锁      | 需要手动在select之后加lock in share mode |
+| select ... for update         | 排它锁      | 需要手动在select之后加for update         |
+
+
+
+
+
+**行锁演示：**
+
+默认情况下，InnoDB在 REPEATABLE READ事务隔离级别运行，InnoDB使用 next-key 锁进行搜索和索引扫描，以防止幻读。
+
+- 针对唯一索引进行检索时，对已存在的记录进行等值匹配时，将会自动优化为行锁。
+
+- InnoDB的行锁是针对于索引加的锁，**不通过索引条件检索数据，那么InnoDB将对表中的所有记录加锁**，此时 **就会升级为表锁**。
+
+可以通过以下SQL，查看意向锁及行锁的加锁情况：
+
+```sql
+select object_schema, object_name, index_name, lock_type, lock_mode, lock_data from performance_schema.data_locks;
+```
+
+
+
+**间隙锁/临键锁-演示：**
+
+默认情况下，InnoDB在 REPEATABLE READ事务隔离级别运行，InnoDB使用 next-key 锁进行搜索和索引扫描，以防止幻读。
+
+
+
+- 索引上的等值查询(唯一索引)，给不存在的记录加锁时, 优化为间隙锁 。
+- 索引上的等值查询(普通索引)，向右遍历时最后一个值不满足查询需求时，next-key lock 退化为间隙锁。
+- 索引上的范围查询(唯一索引)--会访问到不满足条件的第一个值为止。
+
+
+
+注意：间隙锁唯一目的是防止其他事务插入间隙。间隙锁可以共存，一个事务采用的间隙锁不会阻止另一个事务在同一间隙上采用间
+
+隙锁。
+
+<hr>
+
+```bash
+# 概述
+在并发访问时，解决数据访问的一致性、有效性问题
+全局锁、表级锁、行级锁
+
+# 全局锁
+对整个数据库实例加锁，加锁后整个实例就处于只读状态
+性能较差，数据逻辑备份时使用
+
+# 表级锁
+操作锁住整张表，锁定粒度大，发生锁冲突的概率高
+表锁、元数据锁、意向锁
+
+# 行级锁
+操作锁住对应的行数据，锁定粒度最小，发生锁冲突的概率最低
+行锁、间隙锁（记录间的间隙）（主要是为了避免多个事务操作时出现幻读现象）、临键锁（记录和间隙）
+```
+
+
+
+
+
+
+
+## 12. InnoDB引擎（理解为主）
+
+### 12.1 逻辑存储结构
+
+![image-20220401201311779](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401201311779.png)
+
+
+
+
+
+### 12.2 架构（内存架构和磁盘架构）
+
+MySQL5.5 版本开始，默认使用InnoDB存储引擎，它擅长事务处理，具有崩溃恢复特性，在日常开发中使用非常广泛。下面是InnoDB
+
+架构图，左侧为内存结构，右侧为磁盘结构。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401201620483.png)
+
+#### 内存架构
+
+##### （1）缓冲池 Buffer Pool
+
+Buffer Pool：缓冲池是主内存中的一个区域，里面可以缓存磁盘上经常操作的真实数据，在执行增删改查操作时，先操作缓冲池中的
+
+数据（若缓冲池没有数据，则从磁盘加载并缓存），然后再以一定频率刷新到磁盘，从而减少磁盘IO，加快处理速度。
+
+
+
+缓冲池以Page页为单位，底层采用链表数据结构管理Page。根据状态，将Page分为三种类型：
+
+-  free page：空闲page，未被使用。
+
+- clean page：被使用page，数据没有被修改过。
+
+- dirty page：脏页，被使用page，数据被修改过，也中数据与磁盘的数据产生了不一致。
+
+
+
+##### （2）更改缓冲区 Change Buffer
+
+Change Buffer：更改缓冲区（针对于非唯一二级索引页），在执行DML语句时，如果这些数据Page没有在Buffer Pool中，不会直接
+
+操作磁盘，而会将数据变更存在更改缓冲区 Change Buffer 中，在未来数据被读取时，再将数据合并恢复到Buffer Pool中，再将合并
+
+后的数据刷新到磁盘中。
+
+**Change Buffer的意义是什么?** 
+
+与聚集索引不同，二级索引通常是非唯一的，并且以相对随机的顺序插入二级索引。同样，删除和更新可能会影响索引树中不相邻的
+
+二级索引页，如果每一次都操作磁盘，会造成大量的磁盘IO。有了ChangeBuffer之后，我们可以在缓冲池中进行合并处理，减少磁盘
+
+IO。
+
+
+
+##### （3）自适应Hash
+
+Adaptive Hash Index：自适应hash索引，用于优化对Buffer Pool数据的查询。InnoDB存储引擎会监控对表上各索引页的查询，如果观
+
+察到hash索引可以提升速度，则建立hash索引，称之为自适应hash索引。
+
+
+
+自适应哈希索引，无需人工干预，是系统根据情况自动完成。
+
+参数： adaptive_hash_index
+
+
+
+
+
+##### （4）日志缓冲区Log Buffer
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401203021589.png)
+
+
+
+
+
+<hr>
+
+#### 磁盘结构
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401203753042.png)
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401203815305.png)
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401203833458.png)
+
+
+
+
+
+#### 后台线程（内存中的数据如何刷新到磁盘中）
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401215350625.png)
+
+
+
+**1. Master Thread**
+
+核心后台线程，负责调度其他线程，还负责将缓冲池中的数据异步刷新到磁盘中, 保持数据的一致性，还包括脏页的刷新、合并插入缓
+
+存、undo页的回收 。
+
+**2. IO Thread**
+
+在InnoDB存储引擎中大量使用了AIO来处理IO请求, 这样可以极大地提高数据库的性能，而IO Thread主要负责这些IO请求的回调。
+
+| 线程类型             | 默认个数 | 职责                         |
+| -------------------- | -------- | ---------------------------- |
+| Read thread          | 4        | 负责读操作                   |
+| Write thread         | 4        | 负责写操作                   |
+| Log thread           | 1        | 负责将日志缓冲区刷新到磁盘   |
+| Insert buffer thread | 1        | 负责将写缓冲区内容刷新到磁盘 |
+
+
+
+**3. Purge Thread**
+
+主要用于回收事务已经提交了的undo log，在事务提交之后，undo log可能不用了，就用它来回收。
+
+**4. Page Cleaner Thread**
+
+协助 Master Thread 刷新脏页到磁盘的线程，它可以减轻 Master Thread 的工作压力，减少阻塞。
+
+
+
+### 12.3 事务管理（作为默认存储引擎，很大一部分原因在于支持事务）
+
+事务 是一组操作的集合，它是一个不可分割的工作单位，事务会把所有的操作作为一个整体一起向系统提交或撤销操作请求，即这些
+
+操作要么同时成功，要么同时失败。
+
+- 原子性（Atomicity）：事务是不可分割的最小操作单元，要么全部成功，要么全部失败。
+- 一致性（Consistency）：事务完成时，必须使所有的数据都保持一致状态。
+- 隔离性（Isolation）：数据库系统提供的隔离机制，保证事务在不受外部并发操作影响的独立环境下运行。
+- 持久性（Durability）：事务一旦提交或回滚，它对数据库中的数据的改变就是永久的。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401215844958.png)
+
+
+
+#### redo log（持久性）
+
+重做日志，记录的是事务提交时数据页的物理修改，是用来实现事务的持久性。
+
+该日志文件由两部分组成：重做日志缓冲（redo log buffer）以及重做日志文件（redo log file）,前者是在内存中，后者在磁盘中。当
+
+事务提交之后会把所有修改信息都存到该日志文件中, 用于在刷新脏页到磁盘,发生错误时, 进行数据恢复使用。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401220540789.png)
+
+
+
+
+
+#### undo log（原子性）
+
+回滚日志，用于记录数据被修改前的信息 , 作用包含两个 : **提供回滚** 和 **MVCC(多版本并发控制)** 。
+
+undo log和redo log记录物理日志不一样，它是逻辑日志。可以认为当delete一条记录时，undo log中会记录一条对应的insert记录，反
+
+之亦然，当update一条记录时，它记录一条对应相反的update记录。当执行rollback时，就可以从undo log中的逻辑记录读取到相应的
+
+内容并进行回滚。
+
+
+
+Undo log销毁：undo log在事务执行时产生，事务提交时，并不会立即删除undo log，因为这些日志可能还用于MVCC。
+
+Undo log存储：undo log采用段的方式进行管理和记录，存放在前面介绍的 rollback segment 回滚段中，内部包含1024个undo log 
+
+segment。
+
+
+
+
+
+### 12.4 MVCC（事务相关）（多版本并发控制）（高频面试题）
+
+#### 基本概念
+
+- 当前读：读取的是记录的最新版本，读取时还要保证其他并发事务不能修改当前记录，会对读取的记录进行加锁。对于我们日常
+
+  的操作，如：select ... lock in share mode(共享锁)，select ... for update、update、insert、delete(排他锁)都是一种当前读。
+
+- 快照读：简单的select（不加锁）就是快照读，快照读，读取的是记录数据的可见版本，有可能是历史数据，不加锁，是非阻塞
+
+  读。
+
+  - Read Committed：每次select，都生成一个快照读。
+
+  - Repeatable Read：开启事务后第一个select语句才是快照读的地方。
+  - Serializable：快照读会退化为当前读。
+
+- MVCC：全称 Multi-Version Concurrency Control，多版本并发控制。指维护一个数据的多个版本，使得读写操作没有冲突，快照
+
+  读为MySQL实现MVCC提供了一个非阻塞读功能。MVCC的具体实现，还需要依赖于数据库记录中的三个隐式字段、undo log日
+
+  志、readView。
+
+
+
+#### 实现原理
+
+##### 记录中的隐藏字段
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401221925563.png)
+
+
+
+| 隐藏字段    | 含义                                                         |
+| ----------- | ------------------------------------------------------------ |
+| DB_TRX_ID   | 最近修改事务ID，记录插入这条记录或最后一次修改该记录的事务ID。 |
+| DB_ROLL_PTR | 回滚指针，指向这条记录的上一个版本，用于配合undo log，指向上一个版本。 |
+| DB_ROW_ID   | 隐藏主键，如果表结构没有指定主键，将会生成该隐藏字段。       |
+
+
+
+##### undo log
+
+回滚日志，在insert、update、delete的时候产生的便于数据回滚的日志。
+
+- 当insert的时候，产生的undo log日志只在回滚时需要，在事务提交后，可被立即删除。
+
+- 而update、delete的时候，产生的undo log日志不仅在回滚时需要，在快照读时也需要，不会立即被删除。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401223007731.png)
+
+
+
+不同事务或相同事务对同一条记录进行修改，会导致该记录的undolog生成一条记录版本链表，链表的头部是最新的旧记录，链表尾部
+
+是最早的旧记录。
+
+
+
+##### readView
+
+ReadView（读视图）是 快照读 SQL执行时MVCC提取数据的依据，记录并维护系统当前活跃的事务（未提交的）id。
+
+
+
+ReadView中包含了四个核心字段：
+
+| 字段           | 含义                                                 |
+| -------------- | ---------------------------------------------------- |
+| m_ids          | 当前活跃的事务ID集合                                 |
+| min_trx_id     | 最小活跃事务ID                                       |
+| max_trx_id     | 预分配事务ID，当前最大事务ID+1（因为事务ID是自增的） |
+| creator_trx_id | ReadView创建者的事务ID                               |
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401223807981.png)
+
+
+
+不同的隔离级别，生成ReadView的时机不同：
+
+- READ COMMITTED ：在事务中每一次执行快照读时生成ReadView。 
+- REPEATABLE READ：仅在事务中第一次执行快照读时生成ReadView，后续复用该ReadView。
+
+
+
+###### RC隔离级别下快照读的时候，数据版本提取时的底层原理
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401224552274.png)
+
+
+
+###### RR隔离级别下快照读的时候，数据版本提取时的底层原理
+
+RR隔离级别下，仅在事务中第一次执行快照读时生成ReadView，后续复用该ReadView。
+
+> P146：可重复读，同一个事务当中读取两条相同的数据应该是一样的，两个ReadView都一样其匹配规则也一样，在版本链查找出来的数据也应该是一样的。这就保证了可重复读。
+
+
+
+MVCC主要作用就是：在快照读的时候，决定提取的到底是哪一个记录的版本。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401225400664.png)
+
+
+
+<hr>
+
+
+
+```bash
+# 逻辑存储结构
+表空间、段、区1M、页16K、行
+# 架构
+内存结构（主要是缓冲区）
+磁盘结构
+# 事务原理（四大特性底层是如何实现的）
+原子性 – undo log
+持久性 – redo log
+一致性 – undo log + redo log
+隔离性 – 锁 + MVCC
+# MVCC
+记录隐藏字段、undo log版本链、readView
+```
+
+
 
 ## 13. MySQL管理
 
+### 13.1 系统数据库
 
+Mysql数据库安装完成后，自带了一下四个数据库，具体作用如下：
+
+| 数据库              | 含义                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| mysql               | 存储MySQL服务器正常运行所需要的各种信息（时区、主从、用户、权限等） |
+| informastion_schema | 提供了访问数据库元数据的各种表和视图，包括数据库、表、字段类型及访问全新等 |
+| performance_schema  | 为MySQL服务器运行时状态提供了一个底层监控功能，主要用于收集数据库服务器性能参数 |
+| sys                 | 包含了一系列方便DBA和开发人员利用performance_schema性能数据库进行性能调优和诊断的视图 |
+
+
+
+### 13.2 常用工具
+
+#### （1）mysql（MySQL客户端工具，-e执行SQL并退出）
+
+该mysql不是指mysql服务，而是指mysql的客户端工具。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401231522101.png)
+
+
+
+**-e **选项可以在Mysql客户端执行SQL语句，而不用连接到MySQL数据库再执行，对于一些批处理脚本，这种方式尤其方便。
+
+```sql
+mysql -h192.168.200.202 -P3306 -uroot -p123456 itcast -e "select * from stu";
+```
+
+
+
+#### （2）mysqladmin（MySQL管理工具）
+
+mysqladmin 是一个执行管理操作的客户端程序。可以用它来检查服务器的配置和当前状态、创建并删除数据库等。
+
+通过帮助文档查看选项：`mysqladmin --help`
+
+```sql
+mysqladmin -uroot -p123456 version;
+mysqladmin -uroot -p123456 variables;
+```
+
+
+
+#### （3）mysqbinlog（二进制日志查看工具）
+
+由于服务器生成的二进制日志文件以二进制格式保存，所以如果想要检查这些文本的文本格式，就会使用到mysqlbinlog 日志管理
+
+工具。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401232422653.png)
+
+
+
+#### （4）mysqlshow（查看数据库、表、字段的统计信息）
+
+mysqlshow 客户端对象查找工具，用来很快地查找存在哪些数据库、数据库中的表、表中的列或者索引。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401232657606.png)
+
+
+
+#### （5）mysqldump（数据备份工具）
+
+mysqldump 客户端工具用来备份数据库或在不同数据库之间进行数据迁移。备份内容包含创建表，及插入表的SQL语句。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220401232733109.png)
+
+
+
+
+
+#### （6）mysqlimport/source（数据导入工具）
+
+mysqlimport 是客户端数据导入工具，用来导入mysqldump 加 -T 参数后导出的文本文件。
+
+```sql
+mysqlimport [options] db_name textfile1 [textfile2...]
+mysqlimport -uroot -p123456 test /tmp/city.txt
+```
+
+
+
+如果需要导入sql文件,可以使用mysql中的source 指令 :
+
+```sql
+source /root/xxx.sql
+```
+
+
+
+
+
+<hr>
 
 # 运维篇
 
-## 14. 日志
+## 14. 日志（各种日志以及日志的作用）
+
+### 14.1 错误日志
+
+错误日志是 MySQL 中最重要的日志之一，它记录了当 mysqld 启动和停止时，以及服务器在运行过程中发生任何严重错误时的相关信
+
+息。当数据库出现任何故障导致无法正常使用时，建议首先查看此日志。
 
 
 
-## 15. 主从复制
+该日志是默认开启的，默认存放目录 /var/log/，默认的日志文件名为 mysqld.log 。查看日志位置：
+
+```sql
+show variables like %log_error%;
+```
 
 
 
-## 16. 分库分表
+
+
+### 14.2 二进制日志
+
+#### 介绍
+
+
+
+#### 日志格式
+
+
+
+#### 日志查看
+
+
+
+
+
+#### 日志删除
+
+
+
+
+
+### 14.3 查询日志
+
+
+
+
+
+
+
+### 14.4 慢查询日志
+
+
+
+
+
+
+
+
+
+## 15. 主从复制（概念、原理、搭建集群）
+
+### 15.1 概述
+
+
+
+
+
+### 15.2 原理
+
+
+
+
+
+
+
+### 15.3 搭建
+
+
+
+
+
+
+
+
+
+
+
+## 16. 分库分表（重要内容）
+
+### 介绍
+
+
+
+### Mycat概述
+
+
+
+
+
+### Mycat入门
+
+
+
+
+
+### Mycat配置
+
+
+
+
+
+### Mycat分片
+
+
+
+
+
+
+
+### Mycat管理及监控
+
+
+
+
 
 
 
 ## 17. 读写分离
+
+### 17.1 介绍
+
+
+
+
+
+
+
+### 17.2 一主一从
+
+
+
+
+
+
+
+### 17.3 一主一从读写分离
+
+
+
+
+
+
+
+### 17.4 双主双从
+
+
+
+
+
+
+
+
+
+### 17.5双主双从读写分离
 
 
 
