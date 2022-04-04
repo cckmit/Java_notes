@@ -9,13 +9,14 @@ date: 2022-02-12 16:24:54
 
 
 
-# Linxu
+# Linxu笔记-总
 
 
 
 ```sh
 # 查看端口占用情况（用kill pid来杀掉进程）
 $ lsof -i tcp:port
+$ netstat -tunlp|grep 3306
 
 # 创建空文件夹
 $ mkdir test
@@ -43,6 +44,15 @@ cat b1.sql b2.sql b3.sql > b_all.sql
 cat *.sql > merge.sql
 
 
+mv 
+
+
+```
+
+
+
+```bash
+# mysql
 
 
 ```

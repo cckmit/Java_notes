@@ -108,6 +108,91 @@ mysql [-h 127.0.0.1][-p 3306] -u root -p
 
 
 
+```bash
+# mysql环境下
+## 彻底卸载
+[root@192 bin]# find / -name mysql
+/data/mysql
+/data/mysql/mysql
+/usr/share/mysql
+/usr/local/mysql
+/usr/local/mysql/include/mysql
+/usr/local/mysql/bin/mysql
+/usr/local/bin/mysql
+/usr/lib64/mysql
+/run/lock/subsys/mysql
+/etc/selinux/targeted/active/modules/100/mysql
+/etc/rc.d/init.d/mysql
+/var/lib/mysql
+[root@192 bin]# 
+[root@192 bin]# rm -rf /data/mysql
+[root@192 bin]# rm -rf /data/mysql/mysql
+[root@192 bin]# rm -rf /usr/share/mysql
+[root@192 bin]# rm -rf /usr/local/mysql
+[root@192 bin]# rm -rf /usr/local/bin/mysql
+[root@192 bin]# rm -rf /usr/lib64/mysql
+[root@192 bin]# rm -rf /run/lock/subsys/mysql
+[root@192 bin]# rm -rf /etc/selinux/targeted/active/modules/100/mysql
+[root@192 bin]# rm -rf /etc/rc.d/init.d/mysql
+[root@192 bin]# rm -rf /var/lib/mysql
+
+
+## 安装
+https://blog.csdn.net/u010565545/article/details/104961184
+### （1）下载并上传到/usr/local目录下，解压，重命名
+[root@192 local]# tar -Jxf mysql-8.0.27-linux-glibc2.12-x86_64.tar.xz
+[root@192 local]# mv mysql-8.0.27-linux-glibc2.12-x86_64 mysql8
+
+### (2) 创建 用户，并给数据目录赋予权限
+试过绝对路径没有? /usr/sbin/groupadd students
+[root@192 sbin]# /usr/sbin/groupadd mysql
+[root@192 sbin]# /usr/sbin/useradd -g mysql mysql
+[root@192 sbin]# chown -R mysql.mysql /usr/local/mysql8
+[root@192 sbin]# chmod 750 /usr/local/mysql8/data/ -R
+
+### (3) 修改配置文件（内容错误将导致初始化失败）
+[root@192 bin]# vim /etc/my.cnf
+
+### (4) 初始化mysql
+[root@192 bin]# ./mysqld --defaults-file=/etc/my.cnf --basedir=/usr/local/mysql8 --datadir=/usr/local/mysql8/data --user=mysql --initialize
+
+--defaults-file=/usr/local/etc/my.cnf 指定配置文件（一定要放在最前面，至少 --initialize 前面）
+--user=mysql 指定用户（很关键）
+--basedir=/usr/local/mysql/ 指定安装目录
+--datadir=/usr/local/mysql/data/ 指定初始化数据目录
+
+### 查看mysql.log初始密码，复制出来：5uK>wC;IXk(y
+[root@192 bin]# cat /usr/local/mysql8/mysql.log
+### (5) 启动mysql，查看是否启动。并更改root 密码
+[root@VM-24-10-centos bin]# ./mysqld_safe --defaults-file=/etc/my.cnf &
+[root@VM-24-10-centos bin]# ps -ef|grep mysql
+
+[root@VM-24-10-centos bin]# ./mysql -u root -p
+
+#### 修改新密码123456:
+ALTER USER 'root'@'localhost' IDENTIFIED with mysql_native_password BY '你的新密码';
+flush privileges; #刷新权限
+#### 首次改密推荐使用本地密码插件with mysql_native_password
+ 
+use mysql;
+select user,host,plugin,authentication_string from user;
+CREATE user 'root'@'%'; #创建用户任意远程访问
+alter user 'root'@'%' identified with mysql_native_password by '123456'; #修改密码
+grant all privileges on *.* to "root"@"%"; #给用户授权
+flush privileges; #刷新权限
+
+### 环境变量配置：这是由于系统默认会查找/usr/bin下的命令，如果这个命令不在这个目录下，当然会找不到命令，我们需要做的就是映射一个链接到/usr/bin目录下，相当于建立一个链接文件。首先得知道mysql命令或mysqladmin命令的完整路径，比如mysql的路径是：/usr/local/mysql/bin/mysql，我们则可以这样执行命令：
+ln -s /usr/local/mysql8/bin/mysql /usr/bin
+### 还有其它常用命令mysqladmin、mysqldump等不可用时候都可按用此方法解决。
+
+```
+
+
+
+
+
+
+
 **关系模型**
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220330232509495.png)
@@ -1654,7 +1739,7 @@ explain select id, phone, name from tb_user where phone = '17799990010' and name
 
 联合索引情况：（最终构建的B+树如下，节点存储phone和name的值）（这一个索引结构已经获取到了想要的数据，覆盖索引，不会回表查询）
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331211509552.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220331211509552.png?w=600)
 
 
 
@@ -2937,17 +3022,75 @@ show variables like %log_error%;
 
 
 
-### 14.2 二进制日志
+### 14.2 二进制日志DDL和DML
 
 #### 介绍
+
+二进制日志（BINLOG）记录了所有的 DDL（数据定义语言）语句和 DML（数据操纵语言）语句，**但不包括数据查询（SELECT、**
+
+**SHOW）语句。**
+
+作用：①. 灾难时的数据恢复；②. MySQL的主从复制。在MySQL8版本中，默认二进制日志是开启着的，涉及到的参数如下：
+
+```sql
+show variables like '%log_bin%';
+```
+
+
+
+`/var/lib/mysql/binlog.index`记录了当前关联的日志文件有哪些。
 
 
 
 #### 日志格式
 
+MySQL服务器中提供了多种格式来记录二进制日志，具体格式及特点如下：
+
+| 日志格式  | 含义                                                         |
+| --------- | ------------------------------------------------------------ |
+| statement | 基于SQL语句的日志记录，记录的是SQL语句，对数据进行修改的SQL都会记录在日志文件中。 |
+| row       | 基于行的日志记录，记录的是每一行的数据变更。（默认）         |
+| mixed     | 混合了STATEMENT和ROW两种格式，默认采用STATEMENT，在某些特殊情况下会自动切换为ROW进行记录。 |
+
+
+
+```sql
+show variables like '%binlog_format%';
+```
+
+
+
+row：如果使用update更新了3行，那么会记录这三行数据变化前后的样子，使用如下命令查看
+
+```bash
+mysqlbinlog -v binlog.000002
+```
+
+statement：记录的是sql语句，使用如下命令查看
+
+```bash
+mysqlbinlog binlog.000003
+```
+
+
+
+
+
 
 
 #### 日志查看
+
+由于日志是以二进制方式存储的，不能直接读取，需要通过二进制日志查询工具 mysqlbinlog 来查看，具体语法：
+
+```bash
+mysqlbinlog [参数选项] logfilename
+
+参数选项：
+		-d		指定数据库名称，只列出指定的数据库相关操作。
+		-o		忽略掉日志中的前 行命令。
+		-v		将行事件（数据变更）重构为sql语句
+		-w		将行事件（数据变更）重构为sql语句，并输出注释信息
+```
 
 
 
@@ -2955,13 +3098,43 @@ show variables like %log_error%;
 
 #### 日志删除
 
+对于比较繁忙的业务系统，每天生成的binlog数据巨大，如果长时间不清除，将会占用大量磁盘空间。可以通过以下几种方式清理日
+
+志：
+
+| 指令                                             | 含义                                                         |
+| ------------------------------------------------ | ------------------------------------------------------------ |
+| reset master                                     | 删除全部 binlog 日志，删除之后，日志编号，将从 binlog.000001重新开始 |
+| purge master logs to 'binlog.000002'             | 删除 000002 编号之前的所有日志                               |
+| purge master logs before 'yyyy-mm-dd hh24:mi:ss' | 删除日志为 "yyyy-mm-dd hh24:mi:ss" 之前产生的所有日志        |
+
+
+
+也可以在mysql的配置文件中配置二进制日志的过期时间，设置了之后，二进制日志过期会自动删除。默认存放30天。
+
+```bash
+show variables like '%binlog_expire_logs_seconds%';
+```
 
 
 
 
-### 14.3 查询日志
 
+### 14.3 查询日志（记录所有sql语句，默认不开启）
 
+查询日志中记录了客户端的所有操作语句，而二进制日志不包含查询数据的SQL语句。默认情况下， 查询日志是未开启
+
+的。如果需要开启查询日志，可以设置以下配置 ：
+
+```sql
+show variables like '%general%';
+
+-- 修改MySQL的配置文件/etc/my.cnf文件，添加如下内容：
+# 开启查询日志，0开启 1关闭
+general_log=1
+# 设置日志的文件名，若未指定，默认文件名为host_name.log
+general_log_file=mysql_query.log
+```
 
 
 
@@ -2969,7 +3142,31 @@ show variables like %log_error%;
 
 ### 14.4 慢查询日志
 
+慢查询日志记录了所有执行时间超过参数 `long_query_time` 设置值并且扫描记录数不小于 min_examined_row_limit
 
+的所有的SQL语句的日志，默认未开启。long_query_time 默认为 10 秒，最小为 0， 精度可以到微秒。
+
+```bash
+# 开启慢查询日志
+slow_query_log=1
+# 执行时间参数
+long_query_time=2
+```
+
+
+
+
+
+默认情况下，不会记录管理语句，也不会记录不使用索引进行查找的查询。可以使用log_slow_admin_statements和
+
+log_queries_not_using_indexes更改此行为，如下所述。
+
+```sql
+-- 记录执行较慢的管理语句
+log_slow_admin_statements=1
+-- 记录执行较慢的未使用索引的语句
+log_queries_not_using_indexes=1
+```
 
 
 
@@ -2983,19 +3180,199 @@ show variables like %log_error%;
 
 
 
+主从复制是指将主数据库的DDL 和 DML 操作通过二进制日志传到从库服务器中，然后在从库上对这些日志重新执行（也叫重做），
+
+从而使得从库和主库的数据保持同步。
+
+
+
+MySQL支持一台主库同时向多台从库进行复制， 从库同时也可以作为其他从服务器的主库，实现链状复制。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220402095858761.png)
+
 
 
 ### 15.2 原理
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220402095958529.png)
 
 
 
+
+
+从上图来看，复制分成三步：
+
+1. Master 主库在事务提交时，会把数据变更记录在二进制日志文件 Binlog 中。
+
+2. 从库读取主库的二进制日志文件 Binlog ，写入到从库的中继日志 Relay Log 。
+
+3. slave重做中继日志中的事件，将改变反映它自己的数据。
 
 
 
 ### 15.3 搭建
 
+#### 准备服务器
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220402145457925.png)
+
+准备好两台服务器之后，在上述的两台服务器中分别安装好MySQL，并完成基础的初始化准备工作。
+
+
+
+#### 配置主库
+
+
+
+- 修改配置文件 /etc/my.cnf
+
+```bash
+# mysql服务ID，保证整个集群环境中唯一，取值范围1~2^32-1，默认为1
+server-id=1
+# 是否只读：1只读  0读写
+read-only=0
+# 指定不需要同步的数据库
+#binlog-ignore-db=mysql
+# 指定同步的数据库
+#binlog-do-db=db01
+```
+
+- 重启mysql服务器
+
+```bash
+systemctl restart mysqld
+```
+
+
+
+- 登录mysql，创建远程连接的账号，并授予主从复制权限
+
+```bash
+# 创建itcast用户，并设置密码，该用户可在任意主机连接该MySQL服务
+create user 'itcast'@'%' identified with mysql_native_password by 'Root@123456';
+# 为'itcast'@'%'用户分配主从复制权限
+grant replication slave on *.* to 'itcast'@'%';
+```
+
+
+
+- 通过指令，查看二进制日志坐标
+
+```bash
+show master status;
+```
+
+
+
+**字段含义说明：**
+
+file : 从哪个日志文件开始推送日志文件
+
+position ： 从哪个位置开始推送日志
+
+binlog_ignore_db : 指定不需要同步的数据库
+
+
+
+#### 配置从库
+
+
+
+- 修改配置文件 /etc/my.cnf
+
+```bash
+# mysql服务ID，保证整个集群环境中唯一，取值范围1~2^32-1，默认为1
+server-id=2
+# 是否只读：1只读  0读写
+read-only=1
+```
+
+- 重启mysql服务器
+
+```bash
+systemctl restart mysqld
+```
+
+- 登录mysql，设置主库配置
+
+```sql
+change replication source to source_host 'xxx.xxx', source_user='xxx', source_password='xxx', source_log_file='xxx', source_log_pos='xxx';
+```
+
+
+
+上述是8.0.23中的语法。如果是之前版本，执行如下sql
+
+```sql
+change master to master_host 'xxx.xxx', master_user='xxx', master_password='xxx', master_log_file='xxx', master_log_pos='xxx';
+```
+
+
+
+| 参数名          | 含义               | 8.0.23之前      |
+| --------------- | ------------------ | --------------- |
+| source_host     | 主库IP地址         | master_host     |
+| source_user     | 连接主库的用户名   | master_user     |
+| source_password | 连接主库的密码     | master_password |
+| source_log_file | binlog日志文件名   | master_log_file |
+| source_log_pos  | binlog日志文件位置 | master_log_pos  |
+
+
+
+- 开启同步操作
+
+```bash
+start replica;  # 8.0.22之后
+start slave;  # 8.0.22之前
+```
+
+
+
+
+
+-  查看主从同步状态
+
+```bash
+show replica status;  # 8.0.22之后
+show slave status;  # 8.0.22之前
+```
+
+
+
+
+
+#### 测试主从复制
+
+- 在主库上创建数据库、表，并插入数据
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220402151716973.png)
+
+
+
+- 在从库中查询数据，验证主从是否同步
+
+
+
+
+
+<hr>
+
+```bash
+# 概述
+将主库的数据变更同步到从库，从而保证主库和从库数据一致。
+数据备份、失败迁移，读写分离，降低单库读写压力。
+# 原理
+① 主库会把数据变更记录在二进制日志文件binlog中。
+② 从库连接主库，读取binlog日志，并写入自身中继日志 relaylog。 
+③ slave重做中继日志，将改变反映它自己的数据。
+# 搭建
+① 准备服务器
+② 配置主库
+③ 配置从库
+④ 测试主从复制
+```
 
 
 
@@ -3011,13 +3388,298 @@ show variables like %log_error%;
 
 
 
+随着互联网及移动互联网的发展，应用系统的数据量也是成指数式增长，若采用单数据库进行数据存储，存在以下性能瓶颈：
+
+1. IO瓶颈：热点数据太多，数据库缓存不足，产生大量磁盘IO，效率较低。 请求数据太多，带宽不够，网络IO瓶颈。
+
+2. CPU瓶颈：排序、分组、连接查询、聚合统计等SQL会耗费大量的CPU资源，请求数太多，CPU出现瓶颈。
+
+
+
+分库分表的中心思想都是将数据分散存储，使得单一数据库/表的数据量变小来缓解单一数据库的性能问题，从而达到提升数据库性能
+
+的目的。
+
+
+
+#### 拆分策略之垂直拆分
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220402152153389.png)
+
+
+
+#### 拆分策略之水平拆分
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220402152214334.png)
+
+
+
+#### 实现技术
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220402152342731.png)
+
+
+
+- shardingJDBC：基于AOP原理，在应用程序中对本地执行的SQL进行拦截，解析、改写、路由处理。需要自行编码配置实现，只
+
+  支持java语言，性能较高。
+
+- MyCat：数据库分库分表中间件，不用调整代码即可实现分库分表，支持多种语言，性能不及前者。
+
+
+
+<hr>
+
 ### Mycat概述
 
+Mycat是开源的、活跃的、基于Java语言编写的MySQL**数据库中间件**。**可以像使用mysql一样来使用mycat**，对于开发人员来说根
 
+本感觉不到mycat的存在。
+
+
+
+优势：
+
+- 性能可靠稳定
+- 强大的技术团队
+- 体系完善
+- 社区活跃
+
+
+
+#### 下载及安装
+
+Mycat是采用java语言开发的开源的数据库中间件，支持Windows和Linux运行环境，下面介绍MyCat的Linux中的环境搭建。我们需要
+
+在准备好的服务器中安装如下软件。
+
+- MySQL
+
+- Jdk
+- MyCat
+
+
+
+| 服务器         | 安装软件          | 说明                          |
+| -------------- | ----------------- | ----------------------------- |
+| 101.42.229.218 | Jdk、MySQL、MyCat | MyCat中间件服务器、分片服务器 |
+| 39.101.189.62  | MySQL             | 分片服务器                    |
+
+
+
+
+
+```bash
+http://www.mycat.org.cn/mycat1.html
+http://dl.mycat.org.cn/1.6.7.4/Mycat-server-1.6.7.4-release/
+
+tar -zxvf Mycat-server-1.6.7.3-release-20210913163959-linux.tar.gz -C /usr/local/
+```
+
+
+
+#### 目录结构
+
+- bin : 存放可执行文件，用于启动停止mycat
+- conf：存放mycat的配置文件
+- lib：存放mycat的项目依赖包（jar）
+- logs：存放mycat的日志文件
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220403143705825.png)
 
 
 
 ### Mycat入门
+
+由于 tb_order 表中数据量很大，磁盘IO及容量都到达了瓶颈，现在需要对 tb_order表进行数据分片，分为三个数据节点，每一个节
+
+点主机位于不同的服务器上, 具体的结构，参考下图：
+
+
+
+```bash
+# UltraEdit连接远端Linux进行文件编辑
+https://blog.csdn.net/zhangjunfei12103323/article/details/72654308
+```
+
+
+
+#### 分片配置（schema.xml）
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+	
+	<schema name="DB01" checkSQLschema="true" sqlMaxLimit="100">
+		<!-- auto sharding by id (long) -->
+		<table name="TB_ORDER" dataNode="dn1,dn2" rule="auto-sharding-long" />
+	</schema>
+
+	<dataNode name="dn1" dataHost="dhost1" database="db01" />
+	<dataNode name="dn2" dataHost="dhost2" database="db01" />
+
+	<dataHost name="dhost1" maxCon="1000" minCon="10" balance="0"
+			  writeType="0" dbType="mysql" dbDriver="jdbc" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+
+		<writeHost host="master" url="jdbc:mysql://101.42.229.218:3306?useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;characterEncoding=utf8" user="root" password="123456" />
+	</dataHost>
+	
+		<dataHost name="dhost2" maxCon="1000" minCon="10" balance="0"
+			  writeType="0" dbType="mysql" dbDriver="jdbc" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+
+		<writeHost host="master" url="jdbc:mysql://39.101.189.62:3306?useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;characterEncoding=utf8" user="root" password="123456" />
+	</dataHost>
+</mycat:schema>
+```
+
+
+
+#### 分片配置（server.xml）
+
+配置mycat的用户及用户的权限信息:
+
+```xml
+	<user name="root" defaultAccount="true">
+		<property name="password">123456</property>
+		<property name="schemas">DB01</property>
+		
+		<!-- 表级 DML 权限设置 -->
+		<!-- 		
+		<privileges check="false">
+			<schema name="TESTDB" dml="0110" >
+				<table name="tb01" dml="0000"></table>
+				<table name="tb02" dml="1111"></table>
+			</schema>
+		</privileges>		
+		 -->
+	</user>
+
+	<user name="user">
+		<property name="password">123456</property>
+		<property name="schemas">DB01</property>
+		<property name="readOnly">true</property>
+	</user>
+```
+
+
+
+#### 启动服务
+
+切换到Mycat的安装目录，执行如下指令，启动Mycat：
+
+```bash
+# 启动，占用端口号 8066。
+bin /mycat start
+[root@VM-24-10-centos bin]# ./mycat start
+# 停止
+bin /mycat stop
+
+# 启动完毕之后，查看日志是否启动成功
+cat -b wrapper.log
+
+# 连接并登陆MyCat
+[root@192 ~]# mysql -h 39.101.189.62 -P 8066 -u root -p
+```
+
+
+
+
+
+```bash
+# 几个坑
+1. 使用阿里云等服务器，要开放8066端口。
+2. MyCat建议使用1.6.7.4版本
+3. schema 的值不要用小写
+<schema name="DB01" checkSQLschema="true" sqlMaxLimit="100">
+
+
+# 推荐参考：
+## 官方强大的文档
+https://github.com/MyCATApache/Mycat-Server/wiki/3.0-Mycat%E9%85%8D%E7%BD%AE%E5%85%A5%E9%97%A8
+## 其它
+https://blog.csdn.net/weixin_44649811/article/details/116503119
+https://www.cnblogs.com/JennyYu/p/14394504.html
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220403171533361.png)
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220403171548106.png)
+
+
+
+```bash
+# 阿里云
+## docker
+[root@192 ~]# docker -v
+Docker version 20.10.14, build a224086
+
+
+# 腾讯云
+## CentOS8
+CentOS8 Linux发行版止步在了CentOS8版本，并且将在2021年12月31日停止维护（原本EOL时间是2029年5月31日的），替代它的是CentOS Stream滚动发行版。
+解决办法：https://blog.csdn.net/weixin_42131383/article/details/123160464
+cd /etc/yum.repos.d/
+rm *.repo #
+wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo 
+curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo
+yum makecache
+重新运行 yum install -y yum-utils命令 安装依赖
+## docker
+[root@192 ~]# docker -v
+Docker version 20.10.14, build a224086
+```
+
+
+
+```bash
+# 安装docker
+
+# 1、yum 包更新到最新 
+yum update
+# 2、安装需要的软件包， yum-util 提供yum-config-manager功能，另外两个是devicemapper驱动依赖的 
+yum install -y yum-utils device-mapper-persistent-data lvm2
+# 3、 设置yum源
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+# 4、 安装docker，出现输入的界面都按 y 
+yum install -y docker-ce
+# 5、 查看docker版本，验证是否验证成功
+docker -v
+
+# 启动docker
+systemctl start docker
+# 启动后，查看启动状态
+systemctl status docker
+# docker search mysql
+
+# 拉取镜像
+docker pull mysql:8.0.27
+# 查看镜像
+[root@VM-24-10-centos yum.repos.d]# docker images
+REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
+mysql        8.0.27    3218b38490ce   3 months ago   516MB
+
+# 
+lsof -i tcp:3306
+kill 3306;
+https://www.cnblogs.com/Rui6/p/14599965.html
+lsof不可用时使用
+netstat -tunlp|grep 3306
+
+# 
+docker run --name db1 -p 3326:3306 -v /root/db2/my.cnf:/etc/mysql/my.cnf -e MYSQL_ROOT_PASSWORD=123456 -d mysql:8.0.27
+docker run --name db2 -p 3326:3306 -v /root/db2/my.cnf:/etc/mysql/my.cnf -e MYSQL_ROOT_PASSWORD=123456 -d mysql:8.0.27
+docker images;
+
+```
 
 
 
@@ -3029,7 +3691,7 @@ show variables like %log_error%;
 
 
 
-### Mycat分片
+### Mycat分片（核心）
 
 
 
