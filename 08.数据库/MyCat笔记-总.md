@@ -1097,7 +1097,7 @@ C. property : 根据算法的要求执行
 
 #### 4.1.1 概述（想象购物快递的流程被垂直拆分）
 
-![image-20220405155132442](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220405155132442.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220405155132442.png?w=600)
 
 
 
@@ -1109,13 +1109,13 @@ C. property : 根据算法的要求执行
 
 #### 4.1.2 案例场景
 
-![1575725341210](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1575725341210.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1575725341210.png)
 
 
 
 在业务系统中, 有以下表结构 ,但是由于用户与订单每天都会产生大量的数据, 单台服务器的数据存储及处理能力是有限的, 可以对数据库表进行拆分, 原有的数据库表: 
 
-![1575726526012](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1575726526012.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1575726526012.png?w650)
 
 
 
