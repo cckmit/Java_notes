@@ -1097,7 +1097,7 @@ C. property : 根据算法的要求执行
 
 #### 4.1.1 概述（想象购物快递的流程被垂直拆分）
 
-![1573622314361](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1573622314361.png)
+![image-20220405155132442](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220405155132442.png)
 
 
 
