@@ -231,7 +231,7 @@ drop database [if exists] 数据库名;
 
 
 
-- 操作
+- 表操作
 
 ```sql
 -- 查询当前数据库所有表

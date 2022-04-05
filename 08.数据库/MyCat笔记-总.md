@@ -276,6 +276,10 @@ tar -zxvf Mycat-server-1.6.7.3-release-20190927161129-linux.tar.gz -C /usr/local
 
 
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220405151431172.png)
+
+
+
 #### 2.2.2 逻辑库(schema)
 
 MyCat是一个数据库中间件，通常对实际应用来说，并不需要知道中间件的存在，业务开发人员只需要知道数据库的概念，所以数据库中间件可以被看做是一个或多个数据库集群构成的逻辑库。
@@ -582,6 +586,7 @@ bin/mycat status
 
 ```sql
 mysql -h 127.0.0.1 -P 8066 -u root -p
+
 ```
 
 通过Navicat等工具连接：
