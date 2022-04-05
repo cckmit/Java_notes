@@ -1,0 +1,18 @@
+spring:
+  profiles:
+    active: db, core, admin
+  messages:
+    encoding: UTF-8
+
+server:
+  port: 8001
+logging:
+  level:
+    root:  ERROR
+    org.springframework:  ERROR
+    org.mybatis:  ERROR
+    com.zjl.litemall.admin:  DEBUG
+    com.zjl.litemall:  ERROR
+
+swagger:
+  production: false

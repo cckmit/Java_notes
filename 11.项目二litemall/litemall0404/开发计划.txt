@@ -1,0 +1,137 @@
+第一个列入计划的项目
+每多一行代码都要记录清楚（不准确的地方进行特殊标记，后续修改优化）
+
+---------------------------------------------------------------------
+一、项目搭建
+新建maven父工程litemall0404
+新建maven工程litemall-admin-api
+新建maven工程litemall-db
+新建maven工程litemall-core
+添加git提交忽略文件.gitignore
+
+数据库准备：127.0.0.1    litemall
+
+引入shiro
+    shiro-spring-boot-web-starter
+
+---------------------------------------------------------------------
+二、litemall0404
+对于父工程litemall0404的pom:
+    基于maven高级特性聚合，litemall0404作为父模块，打包项目为pom:
+    基于maven继承特性，添加springboot父依赖<parent>：spring-boot-starter-parent 2.1.5.RELEASE
+    添加<properties>标签，统一定义版本
+    添加<modules>标签，声明子模块
+    添加<dependencyManagement>标签，依赖传递？？？
+        mybatis-spring-boot-starter
+        spring-boot-starter-json
+        pagehelper-spring-boot-starter
+        shiro-spring-boot-web-starter
+        hibernate-validator
+
+        mysql-connector-java
+        druid-spring-boot-starter
+
+        springfox-swagger2
+        springfox-swagger-ui
+        kaptcha
+        swagger-bootstrap-ui
+        weixin-java-pay
+    添加<dependencies>标签，添加依赖
+        spring-boot-starter-test
+    添加<build><plugins>标签，编译插件 maven-compiler-plugin
+
+---------------------------------------------------------------------
+三、litemall-admin-api
+    对于litemall-admin-api的pom:
+        添加<build><plugins>标签，spring-boot-maven-plugin做什么用的？？？
+        添加打包方式为jar
+        添加依赖
+            litemall-core
+            litemall-db
+            shiro-spring-boot-web-starter
+            springfox-swagger-ui
+            springfox-swagger2
+            kaptcha
+            swagger-bootstrap-ui
+    建包：com.zjl.litemall.db
+    新建配置文件: application.yml
+    新建启动类AdminApiApplication
+
+
+    开发接口
+        开发AuthController
+            @RestController
+            @RequestMapping("/admin/auth")
+                /login接口
+                /info接口
+        开发ProfileController
+            /admin/profile/nnotice
+
+    建包util
+        拷贝状态码定义类  AdminResponseCode
+        Permission
+        PermissionUtil
+    建包annotation
+        RequiresPermissionsDesc
+    建包vo
+    建包shiro
+        AdminAuthorizingRealm
+        AdminWebSessionManager
+    建包config
+        ShiroConfig
+
+
+
+
+---------------------------------------------------------------------
+四、litemall-db（初步完成）
+生成了domain、example、mapper接口dao及其xml映射（这里需要整理下mybatis的笔记，规范下说法）
+service层需要后续开发！！！
+
+
+
+    对于litemall-db的pom:（1插件、1打包方式、5依赖、2配置文件、）
+        添加<build><plugins>标签，mybatis-generator-maven-plugin。这里下来需要做下笔记
+        添加打包方式为jar
+        添加依赖
+            spring-boot-starter-json
+            mybatis-spring-boot-starter
+            pagehelper-spring-boot-starter
+            mysql-connector-java
+            druid-spring-boot-starter
+    新建配置文件
+        application.yml：主配置文件、日志级别（注意更改个人目录）
+        application-db.yml：数据源配置、分页配置
+    建包：com.zjl.litemall.db
+    建util包:拷贝6个工具类，OrderUtil.java除外
+    建mybatis包，拷贝3个工具类，配置文件中要使用到
+    拷贝sql数据库文件
+    建mybatis-generator包，拷贝generatorConfig.xml配置文件（注意要进行路径的修改）
+        这是核心
+        下来研究下这里面的配置
+        下来考虑下整个数据层解决方案是否可替换
+
+    生成代码
+    建service包
+        AdminService
+        RoleService
+        PermissionService
+
+---------------------------------------------------------------------
+五、litemall-core
+    对于litemall-core的pom:
+        添加打包方式为jar
+    添加依赖
+        spring-boot-starter-web
+        litemall-db
+        weixin-java-pay
+    建包：com.zjl.litemall.core
+    建包：util
+        拷贝JacksonUtil工具类（下来研究分析下这个类）
+        拷贝ResponseUtil全局统一返回值
+    建包config
+        CorsConfig
+
+
+
+

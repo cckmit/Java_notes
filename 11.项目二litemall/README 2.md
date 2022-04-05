@@ -2,10 +2,8 @@
 
 
 
-#### 1. 项目来源
+## 1. 项目地址
 
-> 项目地址：
->
 > 王道项目二
 >
 > 码云：https://gitee.com/linlinjava/litemall         
@@ -14,19 +12,19 @@
 
 
 
-#### 2. 项目简介
+## 2. 项目简介
 
 又一个小商场系统，Spring Boot后端 + Vue管理员前端 + 微信小程序用户前端 + Vue用户移动端。
 
-##### 2.1 项目架构
+### 2.1 项目架构
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/project-structure.png)
 
-##### 2.2 技术栈
+### 2.2 技术栈
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/technology-stack.png)
 
-##### 2.3 功能
+### 2.3 功能
 
 ###### 小商城功能
 
@@ -60,10 +58,9 @@
 
 
 <hr>
+## 3. 项目完成情况
 
-#### 3. 项目完成情况
-
-##### 3.1 个人维护地址（从0开始搭建，git推送）
+### 3.1 个人维护地址（从0开始搭建，git推送）
 
 https://gitee.com/Lemonade19/litemall-0224
 
@@ -75,7 +72,7 @@ https://gitee.com/Lemonade19/litemall-0224
 
 
 
-##### 3.2 本地起一套服务
+### 3.2 本地起一套服务
 
 
 
@@ -85,7 +82,7 @@ https://gitee.com/Lemonade19/litemall-0224
 
 
 
-##### 3.3 阿里云服务器上部署
+### 3.3 阿里云服务器上部署
 
 ```sh
 # 环境准备
@@ -160,7 +157,7 @@ https://www.cnblogs.com/zxiaoy/p/14927922.html
 
 
 
-#### 4. 项目分析和总结
+## 4. 项目分析和总结
 
 ```lua
 litemall
@@ -225,6 +222,26 @@ if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
 
 
 
+## 5. 从0开发
+
+> 第一个列入计划的项目
+>
+> 每多一行代码都要记录清楚
+
+
+
+见开发计划.txt
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -234,8 +251,7 @@ if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
 
 
 <hr>
-
-#### 5. 致谢
+## 6. 致谢
 
 > 本项目基于或参考以下项目：
 
@@ -274,7 +290,7 @@ if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
 
 
 
-#### 7. 推荐
+## 7. 推荐
 
 1. [Flutter_Mall](https://github.com/youxinLu/mall)
 
