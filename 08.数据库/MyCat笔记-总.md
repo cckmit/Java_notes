@@ -903,7 +903,7 @@ table 标签定义了MyCat中逻辑库schema下的逻辑表 , 所有需要拆分
 
 定义的逻辑表所属的dataNode , 该属性需要与dataNode标签中的name属性的值对应。 如果一张表拆分的数据，存储在多个数据节点上，多个节点的名称使用","分隔 。
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1574955059453.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1574955059453.png?w=600)
 
 
 
@@ -1119,13 +1119,355 @@ C. property : 根据算法的要求执行
 
 
 
+#### 4.1.3 准备工作
+
+1). 准备三台数据库实例
+
+```sql
+39.101.189.62
+101.42.229.218
+49.232.132.201
+```
+
+
+
+2). 在三台数据库实例中建库建表
+
+```sql
+## 分别建库：user_db、goods_db、order_db
+
+## 将准备好的三个SQL脚本, 分别导入到三台MySQL实例中: 登录MySQL数据库之后, 使用source命令导入。
+source /opt/user.sql
+source /opt/goods.sql
+source /opt/order.sql
+```
+
+
+
+
+
+
+
+#### 4.1.4 schema.xml的配置
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+	
+	<schema name="ITCAST_DB" checkSQLschema="false" sqlMaxLimit="100">
+		<table name="tb_areas_city" dataNode="dn1" primaryKey="id" />
+		<table name="tb_areas_provinces" dataNode="dn1" primaryKey="id" />
+		<table name="tb_areas_region" dataNode="dn1" primaryKey="id" />
+		<table name="tb_user" dataNode="dn1" primaryKey="id" />
+		<table name="tb_user_address" dataNode="dn1" primaryKey="id" />
+		
+		<table name="tb_goods_base" dataNode="dn2" primaryKey="id" />
+		<table name="tb_goods_desc" dataNode="dn2" primaryKey="goods_id" />
+		<table name="tb_goods_item_cat" dataNode="dn2" primaryKey="id" />
+		
+		<table name="tb_order_item" dataNode="dn3" primaryKey="id" />
+		<table name="tb_order_master" dataNode="dn3" primaryKey="order_id" />
+		<table name="tb_order_pay_log" dataNode="dn3" primaryKey="out_trade_no" />
+	</schema>
+	
+	
+	<dataNode name="dn1" dataHost="host1" database="user_db" />
+	<dataNode name="dn2" dataHost="host2" database="goods_db" />
+	<dataNode name="dn3" dataHost="host3" database="order_db" />
+	
+    
+	<dataHost name="host1" maxCon="1000" minCon="10" balance="0"
+		writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM1" url="192.168.192.157:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+    
+    <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+		writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM2" url="192.168.192.158:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+    
+    <dataHost name="host3" maxCon="1000" minCon="10" balance="0"
+		writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM3" url="192.168.192.159:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+    
+</mycat:schema>
+```
+
+
+
+#### 4.1.5 server.xml的配置
+
+```xml
+<user name="root" defaultAccount="true">
+    <property name="password">123456</property>
+    <property name="schemas">ITCAST_DB</property>
+</user>
+
+<user name="test">
+    <property name="password">123456</property>
+    <property name="schemas">ITCAST_DB</property>
+</user>
+
+<user name="user">
+    <property name="password">123456</property>
+    <property name="schemas">ITCAST_DB</property>
+    <property name="readOnly">true</property>
+</user>
+```
+
+
+
+重启MyCat并登陆
+
+#### 4.1.6 测试
+
+1). 查询数据
+
+```
+select * from tb_goods_base;
+select * from tb_user;
+select * from tb_order_master;
+```
+
+
+
+2). 插入数据
+
+```sql
+insert  into tb_user_address(id,user_id,province_id,city_id,town_id,mobile,address,contact,is_default,notes,create_date,alias) values (null,'java00001',NULL,NULL,NULL,'13900112222','钟楼','张三','0',NULL,NULL,NULL)
+```
+
+```sql
+insert  into tb_order_item(id,item_id,goods_id,order_id,title,price,num,total_fee,pic_path,seller_id) values (100,19,149187842867954,3,'3G 6','1.00',5,'5.00',NULL,'qiandu')
+```
+
+
+
+3). 测试跨分片的查询
+
+```sql
+SELECT order_id , payment ,receiver, province , city , area FROM tb_order_master o , tb_areas_provinces p , tb_areas_city c , tb_areas_region r
+WHERE o.receiver_province = p.provinceid AND o.receiver_city = c.cityid AND o.receiver_region = r.areaid ;
+```
+
+当运行上述的SQL语句时, MyCat会报错, 原因是因为当前SQL语句涉及到跨域的join操作 ;
+
+下面我们通过配置全局表解决，从而不再涉及跨库的操作。
+
+
+
+#### 4.1.7 全局表配置
+
+1). 将数据节点user_db中的关联的字典表 tb_areas_provinces , tb_areas_city , tb_areas_region中的数据备份 ;
+
+```sql
+mysqldump -uroot -p123456 user_db tb_areas_provinces  > provinces;
+mysqldump -uroot -p123456 user_db tb_areas_city > city;
+mysqldump -uroot -p123456 user_db tb_areas_region > region;
+```
+
+
+
+2). 将备份的表结构及数据信息, 远程同步到其他两个数据节点的数据库中;
+
+```sql
+scp city root@101.42.229.218:/opt/sql
+scp city root@49.232.132.201:/opt/sql
+
+scp provinces root@101.42.229.218:/opt/sql
+scp provinces root@49.232.132.201:/opt/sql
+
+scp region root@101.42.229.218:/opt/sql
+scp region root@49.232.132.201:/opt/sql
+```
+
+
+
+3). 导入到对应的数据库中
+
+```
+mysql -uroot -p goods_db < city
+source /opt/sql/city
+
+mysql -uroot -p goods_db < provinces 
+mysql -uroot -p goods_db < region 
+```
+
+
+
+4). MyCat逻辑表中的配置 `,dn2,dn3`
+
+```xml
+<table name="tb_areas_city" dataNode="dn1,dn2,dn3" primaryKey="id" type="global"/>
+<table name="tb_areas_provinces" dataNode="dn1,dn2,dn3" primaryKey="id"  type="global"/>
+<table name="tb_areas_region" dataNode="dn1,dn2,dn3" primaryKey="id"  type="global"/>
+```
+
+
+
+5). 重启MyCat
+
+```bash
+[root@192 sql]# cd /usr/local/mycat/bin
+[root@192 bin]# ./mycat restart
+```
+
+
+
+6). 测试
+
+再次执行相同的连接查询 , 是可以正常查询出对应的数据的 ;
+
+```sql
+SELECT order_id , payment ,receiver, province , city , area FROM tb_order_master o , tb_areas_provinces p , tb_areas_city c , tb_areas_region r
+WHERE o.receiver_province = p.provinceid AND o.receiver_city = c.cityid AND o.receiver_region = r.areaid ;
+```
+
+
+
+当我们对Mycat全局表进行增删改的操作时, 其他节点主机上的后端MySQL数据库中的数据时会同步变化的;
+
+```
+update tb_areas_city set city = '石家庄' where id = 5;
+```
+
+
+
+
+
 ### 4.2 水平拆分
 
+#### 4.2.1 概述
+
+根据表中的数据的逻辑关系，将同一个表中的数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1577151764698.png?w=600)
+
+
+
+在业务系统中, 有一张表(日志表), 业务系统每天都会产生大量的日志数据 , 单台服务器的数据存储及处理能力是有限的, 可以对数据库表进行拆分, 原有的数据库表拆分成以下表 : 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1577152168606.png)
 
 
 
 
 
+#### 4.2.3 准备工作
+
+1). 准备三台数据库实例
+
+```sql
+	39.101.189.62
+	101.42.229.218
+	49.232.132.201
+```
+
+2). 在三台数据库实例中创建数据库
+
+```sql
+create database log_db DEFAULT CHARACTER SET utf8mb4;
+```
+
+
+
+#### 4.2.4 schema.xml的配置
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+	
+	<schema name="LOG_DB" checkSQLschema="false" sqlMaxLimit="100">
+		<table name="tb_log" dataNode="dn1,dn2,dn3" primaryKey="id"  rule="mod-long" />
+	</schema>
+	
+	<dataNode name="dn1" dataHost="host1" database="log_db" />
+	<dataNode name="dn2" dataHost="host2" database="log_db" />
+	<dataNode name="dn3" dataHost="host3" database="log_db" />
+	
+    
+	<dataHost name="host1" maxCon="1000" minCon="10" balance="0" writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM1" url="192.168.192.157:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+    
+    <dataHost name="host2" maxCon="1000" minCon="10" balance="0" writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM2" url="192.168.192.158:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+    
+    <dataHost name="host3" maxCon="1000" minCon="10" balance="0" writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM3" url="192.168.192.159:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+    
+</mycat:schema>
+```
+
+
+
+#### 4.2.5 server.xml的配置
+
+```xml
+<user name="root" defaultAccount="true">
+    <property name="password">123456</property>
+    <property name="schemas">LOG_DB</property>
+</user>
+
+<user name="test">
+    <property name="password">123456</property>
+    <property name="schemas">LOG_DB</property>
+</user>
+
+<user name="user">
+    <property name="password">123456</property>
+    <property name="schemas">LOG_DB</property>
+    <property name="readOnly">true</property>
+</user>
+```
+
+
+
+#### 4.2.6 测试
+
+1). 在MyCat数据库中执行建表语句
+
+```sql
+CREATE TABLE `tb_log` (
+  `id` bigint(20) NOT NULL COMMENT 'ID',
+  `model_name` varchar(200) DEFAULT NULL COMMENT '模块名',
+  `model_value` varchar(200) DEFAULT NULL COMMENT '模块值',
+  `return_value` varchar(200) DEFAULT NULL COMMENT '返回值',
+  `return_class` varchar(200) DEFAULT NULL COMMENT '返回值类型',
+  `operate_user` varchar(20) DEFAULT NULL COMMENT '操作用户',
+  `operate_time` varchar(20) DEFAULT NULL COMMENT '操作时间',
+  `param_and_value` varchar(500) DEFAULT NULL COMMENT '请求参数名及参数值',
+  `operate_class` varchar(200) DEFAULT NULL COMMENT '操作类',
+  `operate_method` varchar(200) DEFAULT NULL COMMENT '操作方法',
+  `cost_time` bigint(20) DEFAULT NULL COMMENT '执行方法耗时, 单位 ms',
+  `source` int(1) DEFAULT NULL COMMENT '来源 : 1 PC , 2 Android , 3 IOS',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+2). 插入数据
+
+```sql
+INSERT INTO `tb_log` (`id`, `model_name`, `model_value`, `return_value`, `return_class`, `operate_user`, `operate_time`, `param_and_value`, `operate_class`, `operate_method`, `cost_time`,`source`) VALUES('1','user','insert','success','java.lang.String','10001','2020-02-26 18:12:28','{\"age\":\"20\",\"name\":\"Tom\",\"gender\":\"1\"}','cn.itcast.controller.UserController','insert','10',1);
+INSERT INTO `tb_log` (`id`, `model_name`, `model_value`, `return_value`, `return_class`, `operate_user`, `operate_time`, `param_and_value`, `operate_class`, `operate_method`, `cost_time`,`source`) VALUES('2','user','insert','success','java.lang.String','10001','2020-02-26 18:12:27','{\"age\":\"20\",\"name\":\"Tom\",\"gender\":\"1\"}','cn.itcast.controller.UserController','insert','23',1);
+INSERT INTO `tb_log` (`id`, `model_name`, `model_value`, `return_value`, `return_class`, `operate_user`, `operate_time`, `param_and_value`, `operate_class`, `operate_method`, `cost_time`,`source`) VALUES('3','user','update','success','java.lang.String','10001','2020-02-26 18:16:45','{\"age\":\"20\",\"name\":\"Tom\",\"gender\":\"1\"}','cn.itcast.controller.UserController','update','34',1);
+INSERT INTO `tb_log` (`id`, `model_name`, `model_value`, `return_value`, `return_class`, `operate_user`, `operate_time`, `param_and_value`, `operate_class`, `operate_method`, `cost_time`,`source`) VALUES('4','user','update','success','java.lang.String','10001','2020-02-26 18:16:45','{\"age\":\"20\",\"name\":\"Tom\",\"gender\":\"1\"}','cn.itcast.controller.UserController','update','13',2);
+INSERT INTO `tb_log` (`id`, `model_name`, `model_value`, `return_value`, `return_class`, `operate_user`, `operate_time`, `param_and_value`, `operate_class`, `operate_method`, `cost_time`,`source`) VALUES('5','user','insert','success','java.lang.String','10001','2020-02-26 18:30:31','{\"age\":\"200\",\"name\":\"TomCat\",\"gender\":\"0\"}','cn.itcast.controller.UserController','insert','29',3);
+INSERT INTO `tb_log` (`id`, `model_name`, `model_value`, `return_value`, `return_class`, `operate_user`, `operate_time`, `param_and_value`, `operate_class`, `operate_method`, `cost_time`,`source`) VALUES('6','user','find','success','java.lang.String','10001','2020-02-26 18:30:31','{\"age\":\"200\",\"name\":\"TomCat\",\"gender\":\"0\"}','cn.itcast.controller.UserController','find','29',2);
+```
 
 
 
@@ -1135,6 +1477,1962 @@ C. property : 根据算法的要求执行
 
 ### 4.3 分片规则
 
+MyCat的分片规则配置在conf目录下的rule.xml文件中定义 ; 
+
+
+
+环境准备 : 
+
+1). schema.xml中的内容做好备份 , 并配置逻辑库; 
+
+```xml
+<schema name="PARTITION_DB" checkSQLschema="false" sqlMaxLimit="100">
+	<table name="" dataNode="dn1,dn2,dn3" rule=""/>
+</schema>
+
+
+<dataNode name="dn1" dataHost="host1" database="partition_db" />
+<dataNode name="dn2" dataHost="host2" database="partition_db" />
+<dataNode name="dn3" dataHost="host3" database="partition_db" />
+
+
+<dataHost name="host1" maxCon="1000" minCon="10" balance="0"
+writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+    <heartbeat>select user()</heartbeat>
+    <writeHost host="hostM1" url="192.168.192.157:3306" user="root" password="itcast"></writeHost>
+</dataHost>	
+
+<dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+    <heartbeat>select user()</heartbeat>
+    <writeHost host="hostM2" url="192.168.192.158:3306" user="root" password="itcast"></writeHost>
+</dataHost>	
+
+<dataHost name="host3" maxCon="1000" minCon="10" balance="0"
+writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+    <heartbeat>select user()</heartbeat>
+    <writeHost host="hostM3" url="192.168.192.159:3306" user="root" password="itcast"></writeHost>
+</dataHost>	
+```
+
+2). 在MySQL的三个节点的数据库中 , 创建数据库partition_db
+
+```
+create database partition_db DEFAULT CHARACTER SET utf8mb4;
+```
+
+
+
+#### 4.3.1 取模分片
+
+```xml
+<tableRule name="mod-long">
+    <rule>
+        <columns>id</columns>
+        <algorithm>mod-long</algorithm>
+    </rule>
+</tableRule>
+
+<function name="mod-long" class="io.mycat.route.function.PartitionByMod">
+    <property name="count">3</property>
+</function>
+```
+
+配置说明 : 
+
+| 属性      | 描述                             |
+| --------- | -------------------------------- |
+| columns   | 标识将要分片的表字段             |
+| algorithm | 指定分片函数与function的对应关系 |
+| class     | 指定该分片算法对应的类           |
+| count     | 数据节点的数量                   |
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220405175614895.png)
+
+
+
+
+
+#### 4.3.2 范围分片
+
+根据指定的字段及其配置的范围与数据节点的对应情况， 来决定该数据属于哪一个分片 ， 配置如下： 
+
+```xml
+<tableRule name="auto-sharding-long">
+	<rule>
+		<columns>id</columns>
+		<algorithm>rang-long</algorithm>
+	</rule>
+</tableRule>
+
+<function name="rang-long" class="io.mycat.route.function.AutoPartitionByLong">
+	<property name="mapFile">autopartition-long.txt</property>
+    <property name="defaultNode">0</property>
+</function>
+```
+
+autopartition-long.txt 配置如下： 
+
+```properties
+# range start-end ,data node index
+# K=1000,M=10000.
+0-500M=0
+500M-1000M=1
+1000M-1500M=2
+```
+
+含义为 ： 0 - 500 万之间的值 ， 存储在0号数据节点 ； 500万 - 1000万之间的数据存储在1号数据节点 ； 1000万 - 1500 万的数据节点存储在2号节点 ；
+
+
+
+配置说明: 
+
+| 属性        | 描述                                                         |
+| ----------- | ------------------------------------------------------------ |
+| columns     | 标识将要分片的表字段                                         |
+| algorithm   | 指定分片函数与function的对应关系                             |
+| class       | 指定该分片算法对应的类                                       |
+| mapFile     | 对应的外部配置文件                                           |
+| type        | 默认值为0 ; 0 表示Integer , 1 表示String                     |
+| defaultNode | 默认节点 <br />默认节点的所用:枚举分片时,如果碰到不识别的枚举值, 就让它路由到默认节点 ; 如果没有默认值,碰到不识别的则报错 。 |
+
+**测试: **
+
+配置
+
+```xml
+<table name="tb_log" dataNode="dn1,dn2,dn3" rule="auto-sharding-long"/>
+```
+
+数据
+
+```sql
+1). 创建表
+CREATE TABLE `tb_log` (
+  id bigint(20) NOT NULL COMMENT 'ID',
+  operateuser varchar(200) DEFAULT NULL COMMENT '姓名',
+  operation int(2) DEFAULT NULL COMMENT '1: insert, 2: delete, 3: update , 4: select',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+2). 插入数据
+insert into tb_log (id,operateuser ,operation) values(1,'Tom',1);
+insert into tb_log (id,operateuser ,operation) values(2,'Cat',2);
+insert into tb_log (id,operateuser ,operation) values(3,'Rose',3);
+insert into tb_log (id,operateuser ,operation) values(4,'Coco',2);
+insert into tb_log (id,operateuser ,operation) values(5,'Lily',1);
+```
+
+
+
+#### 4.3.3 枚举分片
+
+通过在配置文件中配置可能的枚举值, 指定数据分布到不同数据节点上, 本规则适用于按照省份或状态拆分数据等业务 , 配置如下: 
+
+```xml
+<tableRule name="sharding-by-intfile">
+    <rule>
+        <columns>status</columns>
+        <algorithm>hash-int</algorithm>
+    </rule>
+</tableRule>
+
+<function name="hash-int" class="io.mycat.route.function.PartitionByFileMap">
+    <property name="mapFile">partition-hash-int.txt</property>
+    <property name="type">0</property>
+    <property name="defaultNode">0</property>
+</function>
+```
+
+partition-hash-int.txt ，内容如下 :
+
+```
+1=0
+2=1
+3=2
+```
+
+配置说明: 
+
+| 属性        | 描述                                                         |
+| ----------- | ------------------------------------------------------------ |
+| columns     | 标识将要分片的表字段                                         |
+| algorithm   | 指定分片函数与function的对应关系                             |
+| class       | 指定该分片算法对应的类                                       |
+| mapFile     | 对应的外部配置文件                                           |
+| type        | 默认值为0 ; 0 表示Integer , 1 表示String                     |
+| defaultNode | 默认节点 ; 小于0 标识不设置默认节点 , 大于等于0代表设置默认节点 ; <br />默认节点的所用:枚举分片时,如果碰到不识别的枚举值, 就让它路由到默认节点 ; 如果没有默认值,碰到不识别的则报错 。 |
+
+测试: 
+
+配置
+
+```xml
+<table name="tb_user" dataNode="dn1,dn2,dn3" rule="sharding-by-enum-status"/>
+```
+
+数据
+
+```sql
+1). 创建表
+CREATE TABLE `tb_user` (
+  id bigint(20) NOT NULL COMMENT 'ID',
+  username varchar(200) DEFAULT NULL COMMENT '姓名',
+  status int(2) DEFAULT '1' COMMENT '1: 未启用, 2: 已启用, 3: 已关闭',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+2). 插入数据
+insert into tb_user (id,username ,status) values(1,'Tom',1);
+insert into tb_user (id,username ,status) values(2,'Cat',2);
+insert into tb_user (id,username ,status) values(3,'Rose',3);
+insert into tb_user (id,username ,status) values(4,'Coco',2);
+insert into tb_user (id,username ,status) values(5,'Lily',1);
+```
+
+
+
+
+
+#### 4.3.4 范围求模算法
+
+该算法为先进行范围分片, 计算出分片组 , 再进行组内求模。
+
+**优点**： 综合了范围分片和求模分片的优点。 分片组内使用求模可以保证组内的数据分布比较均匀， 分片组之间采用范围分片可以兼顾范围分片的特点。
+
+**缺点**： 在数据范围时固定值（非递增值）时，存在不方便扩展的情况，例如将 dataNode Group size 从 2 扩展为 4 时，需要进行数据迁移才能完成 ； 如图所示： 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200110193319982.png) 
+
+
+
+配置如下： 
+
+```xml
+<tableRule name="auto-sharding-rang-mod">
+	<rule>
+		<columns>id</columns>
+		<algorithm>rang-mod</algorithm>
+	</rule>
+</tableRule>
+
+<function name="rang-mod" class="io.mycat.route.function.PartitionByRangeMod">
+	<property name="mapFile">autopartition-range-mod.txt</property>
+    <property name="defaultNode">0</property>
+</function>
+```
+
+autopartition-range-mod.txt 配置格式 :
+
+```
+#range  start-end , data node group size
+0-500M=1
+500M1-2000M=2
+```
+
+在上述配置文件中, 等号前面的范围代表一个分片组 , 等号后面的数字代表该分片组所拥有的分片数量;
+
+
+
+配置说明: 
+
+| 属性        | 描述                                                         |
+| ----------- | ------------------------------------------------------------ |
+| columns     | 标识将要分片的表字段名                                       |
+| algorithm   | 指定分片函数与function的对应关系                             |
+| class       | 指定该分片算法对应的类                                       |
+| mapFile     | 对应的外部配置文件                                           |
+| defaultNode | 默认节点 ; 未包含以上规则的数据存储在defaultNode节点中, 节点从0开始 |
+
+
+
+**测试:**
+
+配置
+
+```xml
+<table name="tb_stu" dataNode="dn1,dn2,dn3" rule="auto-sharding-rang-mod"/>
+```
+
+数据
+
+```sql
+1). 创建表
+    CREATE TABLE `tb_stu` (
+      id bigint(20) NOT NULL COMMENT 'ID',
+      username varchar(200) DEFAULT NULL COMMENT '姓名',
+      status int(2) DEFAULT '1' COMMENT '1: 未启用, 2: 已启用, 3: 已关闭',
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+2). 插入数据
+    insert into tb_stu (id,username ,status) values(1,'Tom',1);
+    insert into tb_stu (id,username ,status) values(2,'Cat',2);
+    insert into tb_stu (id,username ,status) values(3,'Rose',3);
+    insert into tb_stu (id,username ,status) values(4,'Coco',2);
+    insert into tb_stu (id,username ,status) values(5,'Lily',1);
+    
+    insert into tb_stu (id,username ,status) values(5000001,'Roce',1);
+    insert into tb_stu (id,username ,status) values(5000002,'Jexi',2);
+    insert into tb_stu (id,username ,status) values(5000003,'Mini',1);
+```
+
+
+
+
+
+#### 4.3.5 固定分片hash算法
+
+该算法类似于十进制的求模运算，但是为二进制的操作，例如，取 id 的二进制低 10 位 与 1111111111 进行位 & 运算。
+
+最小值：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200112180630348.png) 
+
+最大值：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200112180643493.png) 
+
+
+
+**优点**： 这种策略比较灵活，可以均匀分配也可以非均匀分配，各节点的分配比例和容量大小由partitionCount和partitionLength两个参数决定
+
+**缺点**：和取模分片类似。
+
+配置如下 ： 
+
+```xml
+<tableRule name="sharding-by-long-hash">
+    <rule>
+        <columns>id</columns>
+        <algorithm>func1</algorithm>
+    </rule>
+</tableRule>
+
+<function name="func1" class="org.opencloudb.route.function.PartitionByLong">
+    <property name="partitionCount">2,1</property>
+    <property name="partitionLength">256,512</property>
+</function>
+```
+
+在示例中配置的分片策略，希望将数据水平分成3份，前两份各占 25%，第三份占 50%。
+
+
+
+配置说明: 
+
+| 属性            | 描述                             |
+| --------------- | -------------------------------- |
+| columns         | 标识将要分片的表字段名           |
+| algorithm       | 指定分片函数与function的对应关系 |
+| class           | 指定该分片算法对应的类           |
+| partitionCount  | 分片个数列表                     |
+| partitionLength | 分片范围列表                     |
+
+约束 : 
+
+1). 分片长度 : 默认最大2^10 , 为 1024 ;
+
+2). count, length的数组长度必须是一致的 ;
+
+3). 两组数据的对应情况: (partitionCount[0]partitionLength[0])=(partitionCount[1]partitionLength[1])
+
+以上分为三个分区:0-255,256-511,512-1023
+
+
+
+**测试:**
+
+配置
+
+```xml
+<table name="tb_brand" dataNode="dn1,dn2,dn3" rule="sharding-by-long-hash"/>
+```
+
+数据
+
+```sql
+1). 创建表
+    CREATE TABLE `tb_brand` (
+      id int(11) NOT NULL COMMENT 'ID',
+      name varchar(200) DEFAULT NULL COMMENT '名称',
+      firstChar char(1)  COMMENT '首字母',
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+2). 插入数据
+    insert into tb_brand (id,name ,firstChar) values(1,'七匹狼','Q');
+    insert into tb_brand (id,name ,firstChar) values(529,'八匹狼','B');
+    insert into tb_brand (id,name ,firstChar) values(1203,'九匹狼','J');
+    insert into tb_brand (id,name ,firstChar) values(1205,'十匹狼','S');
+    insert into tb_brand (id,name ,firstChar) values(1719,'六匹狼','L');
+```
+
+
+
+
+
+#### 4.3.6 取模范围算法
+
+该算法先进行取模，然后根据取模值所属范围进行分片。
+
+**优点**：可以自主决定取模后数据的节点分布
+
+**缺点**：dataNode 划分节点是事先建好的，需要扩展时比较麻烦。
+
+ 配置如下:
+
+```xml
+<tableRule name="sharding-by-pattern">
+	<rule>
+		<columns>id</columns>
+		<algorithm>sharding-by-pattern</algorithm>
+	</rule>
+</tableRule>
+
+<function name="sharding-by-pattern" class="io.mycat.route.function.PartitionByPattern">
+	<property name="mapFile">partition-pattern.txt</property>
+    <property name="defaultNode">0</property>
+    <property name="patternValue">96</property>
+</function>
+```
+
+partition-pattern.txt 配置如下: 
+
+```
+0-32=0
+33-64=1
+65-96=2
+```
+
+在mapFile配置文件中, 1-32即代表id%96后的分布情况。如果在1-32, 则在分片0上 ; 如果在33-64, 则在分片1上 ; 如果在65-96, 则在分片2上。
+
+
+
+配置说明: 
+
+| 属性         | 描述                                                       |
+| ------------ | ---------------------------------------------------------- |
+| columns      | 标识将要分片的表字段                                       |
+| algorithm    | 指定分片函数与function的对应关系                           |
+| class        | 指定该分片算法对应的类                                     |
+| mapFile      | 对应的外部配置文件                                         |
+| defaultNode  | 默认节点 ; 如果id不是数字, 无法求模, 将分配在defaultNode上 |
+| patternValue | 求模基数                                                   |
+
+
+
+**测试:**
+
+配置
+
+```xml
+<table name="tb_mod_range" dataNode="dn1,dn2,dn3" rule="sharding-by-pattern"/>
+```
+
+数据
+
+```sql
+1). 创建表
+    CREATE TABLE `tb_mod_range` (
+      id int(11) NOT NULL COMMENT 'ID',
+      name varchar(200) DEFAULT NULL COMMENT '名称',
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+2). 插入数据
+    insert into tb_mod_range (id,name) values(1,'Test1');
+    insert into tb_mod_range (id,name) values(2,'Test2');
+    insert into tb_mod_range (id,name) values(3,'Test3');
+    insert into tb_mod_range (id,name) values(4,'Test4');
+    insert into tb_mod_range (id,name) values(5,'Test5');
+```
+
+
+
+<font color='red'>注意 : 取模范围算法只能针对于数字类型进行取模运算 ; 如果是字符串则无法进行取模分片 ;</font>
+
+
+
+
+
+#### 4.3.7 字符串hash求模范围算法
+
+与取模范围算法类似, 该算法支持数值、符号、字母取模，首先截取长度为 prefixLength 的子串，在对子串中每一个字符的 ASCII 码求和，然后对求和值进行取模运算（sum%patternValue），就可以计算出子串的分片数。
+
+**优点**：可以自主决定取模后数据的节点分布
+
+**缺点**：dataNode 划分节点是事先建好的，需要扩展时比较麻烦。
+
+
+
+配置如下：
+
+```xml
+<tableRule name="sharding-by-prefixpattern">
+	<rule>
+		<columns>id</columns>
+		<algorithm>sharding-by-prefixpattern</algorithm>
+	</rule>
+</tableRule>
+
+<function name="sharding-by-prefixpattern" class="io.mycat.route.function.PartitionByPrefixPattern">
+	<property name="mapFile">partition-prefixpattern.txt</property>
+    <property name="prefixLength">5</property>
+    <property name="patternValue">96</property>
+</function>
+```
+
+partition-prefixpattern.txt 配置如下: 
+
+```
+# range start-end ,data node index
+# ASCII
+# 48-57=0-9
+# 64、65-90=@、A-Z
+# 97-122=a-z
+###### first host configuration
+0-32=0
+33-64=1
+65-96=2
+```
+
+
+
+配置说明: 
+
+| 属性         | 描述                                                         |
+| ------------ | ------------------------------------------------------------ |
+| columns      | 标识将要分片的表字段                                         |
+| algorithm    | 指定分片函数与function的对应关系                             |
+| class        | 指定该分片算法对应的类                                       |
+| mapFile      | 对应的外部配置文件                                           |
+| prefixLength | 截取的位数; 将该字段获取前prefixLength位所有ASCII码的和, 进行求模sum%patternValue ,获取的值，在通配范围内的即分片数 ; |
+| patternValue | 求模基数                                                     |
+
+如 : 
+
+```
+字符串 :
+	gf89f9a
+	
+截取字符串的前5位进行ASCII的累加运算 : 
+	g - 103
+	f - 102
+	8 - 56
+	9 - 57
+	f - 102
+	
+    sum求和 : 103 + 102 + + 56 + 57 + 102 = 420
+    求模 : 420 % 96 = 36
+    
+```
+
+附录 ASCII码表 : 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1577267028771.png) 
+
+
+
+**测试:**
+
+配置
+
+```xml
+<table name="tb_u" dataNode="dn1,dn2,dn3" rule="sharding-by-prefixpattern"/>
+```
+
+数据
+
+```sql
+1). 创建表
+    CREATE TABLE `tb_u` (
+      username varchar(50) NOT NULL COMMENT '用户名',
+      age int(11) default 0 COMMENT '年龄',
+      PRIMARY KEY (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+2). 插入数据
+    insert into tb_u (username,age) values('Test100001',18);
+    insert into tb_u (username,age) values('Test200001',20);
+    insert into tb_u (username,age) values('Test300001',19);
+    insert into tb_u (username,age) values('Test400001',25);
+    insert into tb_u (username,age) values('Test500001',22);
+```
+
+
+
+#### 4.3.8 应用指定算法
+
+由运行阶段由应用自主决定路由到那个分片 , 直接根据字符子串（必须是数字）计算分片号 , 配置如下 : 
+
+```xml
+<tableRule name="sharding-by-substring">
+	<rule>
+		<columns>id</columns>
+		<algorithm>sharding-by-substring</algorithm>
+	</rule>
+</tableRule>
+
+<function name="sharding-by-substring" class="io.mycat.route.function.PartitionDirectBySubString">
+	<property name="startIndex">0</property> <!-- zero-based -->
+	<property name="size">2</property>
+	<property name="partitionCount">3</property>
+	<property name="defaultPartition">0</property>
+</function>
+```
+
+配置说明: 
+
+| 属性             | 描述                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| columns          | 标识将要分片的表字段                                         |
+| algorithm        | 指定分片函数与function的对应关系                             |
+| class            | 指定该分片算法对应的类                                       |
+| startIndex       | 字符子串起始索引                                             |
+| size             | 字符长度                                                     |
+| partitionCount   | 分区(分片)数量                                               |
+| defaultPartition | 默认分片(在分片数量定义时, 字符标示的分片编号不在分片数量内时,使用默认分片) |
+
+示例说明 : 
+
+id=05-100000002 , 在此配置中代表根据id中从 startIndex=0，开始，截取siz=2位数字即05，05就是获取的分区，如果没传默认分配到defaultPartition 。
+
+
+
+**测试:**
+
+配置
+
+```xml
+<table name="tb_app" dataNode="dn1,dn2,dn3" rule="sharding-by-substring"/>
+```
+
+数据
+
+```sql
+1). 创建表
+    CREATE TABLE `tb_app` (
+      id varchar(10) NOT NULL COMMENT 'ID',
+      name varchar(200) DEFAULT NULL COMMENT '名称',
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+2). 插入数据
+	insert into tb_app (id,name) values('00-00001','Testx00001');
+    insert into tb_app (id,name) values('01-00001','Test100001');
+    insert into tb_app (id,name) values('01-00002','Test200001');
+    insert into tb_app (id,name) values('02-00001','Test300001');
+    insert into tb_app (id,name) values('02-00002','TesT400001');
+    
+```
+
+
+
+
+
+#### 4.3.9 字符串hash解析算法
+
+截取字符串中的指定位置的子字符串, 进行hash算法， 算出分片 ， 配置如下： 
+
+```xml
+<tableRule name="sharding-by-stringhash">
+	<rule>
+		<columns>user_id</columns>
+		<algorithm>sharding-by-stringhash</algorithm>
+	</rule>
+</tableRule>
+
+<function name="sharding-by-stringhash" class="io.mycat.route.function.PartitionByString">
+	<property name="partitionLength">512</property> <!-- zero-based -->
+	<property name="partitionCount">2</property>
+	<property name="hashSlice">0:2</property>
+</function>
+```
+
+配置说明: 
+
+| 属性            | 描述                                                         |
+| --------------- | ------------------------------------------------------------ |
+| columns         | 标识将要分片的表字段                                         |
+| algorithm       | 指定分片函数与function的对应关系                             |
+| class           | 指定该分片算法对应的类                                       |
+| partitionLength | hash求模基数 ; length*count=1024 (出于性能考虑)              |
+| partitionCount  | 分区数                                                       |
+| hashSlice       | hash运算位 , 根据子字符串的hash运算 ; 0 代表 str.length() , -1 代表 str.length()-1 , 大于0只代表数字自身 ; 可以理解为substring（start，end），start为0则只表示0 |
+
+
+
+**测试:** 
+
+配置
+
+```xml
+<table name="tb_strhash" dataNode="dn1,dn2,dn3" rule="sharding-by-stringhash"/>
+```
+
+数据
+
+```sql
+1). 创建表
+create table tb_strhash(
+	name varchar(20) primary key,
+	content varchar(100)
+)engine=InnoDB DEFAULT CHARSET=utf8mb4;
+
+2). 插入数据
+INSERT INTO tb_strhash (name,content) VALUES('T1001', UUID());
+INSERT INTO tb_strhash (name,content) VALUES('ROSE', UUID());
+INSERT INTO tb_strhash (name,content) VALUES('JERRY', UUID());
+INSERT INTO tb_strhash (name,content) VALUES('CRISTINA', UUID());
+INSERT INTO tb_strhash (name,content) VALUES('TOMCAT', UUID());
+```
+
+
+
+原理: 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200112234530612.png) 
+
+
+
+
+
+#### 4.3.10 一致性hash算法
+
+一致性Hash算法有效的解决了分布式数据的拓容问题 , 配置如下: 
+
+```xml
+<tableRule name="sharding-by-murmur">
+    <rule>
+        <columns>id</columns>
+        <algorithm>murmur</algorithm>
+    </rule>
+</tableRule>
+
+<function name="murmur" class="io.mycat.route.function.PartitionByMurmurHash">
+    <property name="seed">0</property>
+    <property name="count">3</property><!--  -->
+    <property name="virtualBucketTimes">160</property>
+    <!-- <property name="weightMapFile">weightMapFile</property> -->
+    <!-- <property name="bucketMapPath">/etc/mycat/bucketMapPath</property> -->
+</function>
+```
+
+配置说明: 
+
+| 属性               | 描述                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| columns            | 标识将要分片的表字段                                         |
+| algorithm          | 指定分片函数与function的对应关系                             |
+| class              | 指定该分片算法对应的类                                       |
+| seed               | 创建murmur_hash对象的种子，默认0                             |
+| count              | 要分片的数据库节点数量，必须指定，否则没法分片               |
+| virtualBucketTimes | 一个实际的数据库节点被映射为这么多虚拟节点，默认是160倍，也就是虚拟节点数是物理节点数的160倍;virtualBucketTimes*count就是虚拟结点数量 ; |
+| weightMapFile      | 节点的权重，没有指定权重的节点默认是1。以properties文件的格式填写，以从0开始到count-1的整数值也就是节点索引为key，以节点权重值为值。所有权重值必须是正整数，否则以1代替 |
+| bucketMapPath      | 用于测试时观察各物理节点与虚拟节点的分布情况，如果指定了这个属性，会把虚拟节点的murmur hash值与物理节点的映射按行输出到这个文件，没有默认值，如果不指定，就不会输出任何东西 |
+
+
+
+**测试：**
+
+配置
+
+```xml
+<table name="tb_order" dataNode="dn1,dn2,dn3" rule="sharding-by-murmur"/>
+```
+
+数据
+
+```sql
+1). 创建表
+create table tb_order(
+	id int(11) primary key,
+	money int(11),
+	content varchar(200)
+)engine=InnoDB ;
+
+2). 插入数据
+INSERT INTO tb_order (id,money,content) VALUES(1, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(212, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(312, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(412, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(534, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(621, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(754563, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(8123, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(91213, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(23232, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(112321, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(21221, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(112132, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(12132, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(124321, 100 , UUID());
+INSERT INTO tb_order (id,money,content) VALUES(212132, 100 , UUID());
+```
+
+
+
+
+
+#### 4.3.11 日期分片算法
+
+按照日期来分片
+
+```xml
+<tableRule name="sharding-by-date">
+    <rule>
+        <columns>create_time</columns>
+        <algorithm>sharding-by-date</algorithm>
+    </rule>
+</tableRule>
+
+<function name="sharding-by-date" class="io.mycat.route.function.PartitionByDate">
+	<property name="dateFormat">yyyy-MM-dd</property>
+	<property name="sBeginDate">2020-01-01</property>
+	<property name="sEndDate">2020-12-31</property>
+    <property name="sPartionDay">10</property>
+</function>
+```
+
+配置说明: 
+
+| 属性        | 描述                                                         |
+| ----------- | ------------------------------------------------------------ |
+| columns     | 标识将要分片的表字段                                         |
+| algorithm   | 指定分片函数与function的对应关系                             |
+| class       | 指定该分片算法对应的类                                       |
+| dateFormat  | 日期格式                                                     |
+| sBeginDate  | 开始日期                                                     |
+| sEndDate    | 结束日期，如果配置了结束日期，则代码数据到达了这个日期的分片后，会重复从开始分片插入 |
+| sPartionDay | 分区天数，默认值 10 ，从开始日期算起，每个10天一个分区       |
+
+注意：配置规则的表的 dataNode 的分片，必须和分片规则数量一致，例如 2020-01-01 到 2020-12-31 ，每10天一个分片，一共需要37个分片。
+
+
+
+
+
+#### 4.3.12 单月小时算法
+
+单月内按照小时拆分, 最小粒度是小时 , 一天最多可以有24个分片, 最小1个分片, 下个月从头开始循环, 每个月末需要手动清理数据。
+
+配置如下 ： 
+
+```xml
+<tableRule name="sharding-by-hour">
+    <rule>
+        <columns>create_time</columns>
+        <algorithm>sharding-by-hour</algorithm>
+    </rule>
+</tableRule>
+
+<function name="sharding-by-hour" class="io.mycat.route.function.LatestMonthPartion">
+	<property name="splitOneDay">24</property>
+</function>
+```
+
+配置说明: 
+
+| 属性        | 描述                                                         |
+| ----------- | ------------------------------------------------------------ |
+| columns     | 标识将要分片的表字段 ； 字符串类型（yyyymmddHH）， 需要符合JAVA标准 |
+| algorithm   | 指定分片函数与function的对应关系                             |
+| splitOneDay | 一天切分的分片数                                             |
+
+
+
+#### 4.3.13 自然月分片算法
+
+使用场景为按照月份列分区, 每个自然月为一个分片, 配置如下: 
+
+```xml
+<tableRule name="sharding-by-month">
+    <rule>
+        <columns>create_time</columns>
+        <algorithm>sharding-by-month</algorithm>
+    </rule>
+</tableRule>
+
+<function name="sharding-by-month" class="io.mycat.route.function.PartitionByMonth">
+	<property name="dateFormat">yyyy-MM-dd</property>
+	<property name="sBeginDate">2020-01-01</property>
+	<property name="sEndDate">2020-12-31</property>
+</function>
+```
+
+配置说明: 
+
+| 属性       | 描述                                                         |
+| ---------- | ------------------------------------------------------------ |
+| columns    | 标识将要分片的表字段                                         |
+| algorithm  | 指定分片函数与function的对应关系                             |
+| class      | 指定该分片算法对应的类                                       |
+| dateFormat | 日期格式                                                     |
+| sBeginDate | 开始日期                                                     |
+| sEndDate   | 结束日期，如果配置了结束日期，则代码数据到达了这个日期的分片后，会重复从开始分片插入 |
+
+
+
+#### 4.3.14 日期范围hash算法
+
+其思想和范围取模分片一样，先根据日期进行范围分片求出分片组，再根据时间hash使得短期内数据分布的更均匀 ;
+
+优点 : 可以避免扩容时的数据迁移，又可以一定程度上避免范围分片的热点问题
+
+注意 : 要求日期格式尽量精确些，不然达不到局部均匀的目的
+
+```xml
+<tableRule name="range-date-hash">
+    <rule>
+        <columns>create_time</columns>
+        <algorithm>range-date-hash</algorithm>
+    </rule>
+</tableRule>
+
+<function name="range-date-hash" class="io.mycat.route.function.PartitionByRangeDateHash">
+	<property name="dateFormat">yyyy-MM-dd HH:mm:ss</property>
+	<property name="sBeginDate">2020-01-01 00:00:00</property>
+	<property name="groupPartionSize">6</property>
+    <property name="sPartionDay">10</property>
+</function>
+```
+
+配置说明: 
+
+| 属性             | 描述                                   |
+| ---------------- | -------------------------------------- |
+| columns          | 标识将要分片的表字段                   |
+| algorithm        | 指定分片函数与function的对应关系       |
+| class            | 指定该分片算法对应的类                 |
+| dateFormat       | 日期格式 , 符合Java标准                |
+| sBeginDate       | 开始日期 , 与 dateFormat指定的格式一致 |
+| groupPartionSize | 每组的分片数量                         |
+| sPartionDay      | 代表多少天为一组                       |
+
+
+
+## 5. MyCat高级
+
+### 5.1 MyCat 性能监控（主要是引入一个工具Mycat-web）
+
+#### 5.1.1 MyCat-web简介
+
+Mycat-web 是 Mycat 可视化运维的管理和监控平台，弥补了 Mycat 在监控上的空白。帮 Mycat 分担统计任务和配置管理任务。Mycat-web 引入了 ZooKeeper 作为配置中心，可以管理多个节点。Mycat-web 主要管理和监控 Mycat 的流量、连接、活动线程和内存等，具备 IP 白名单、邮件告警等模块，还可以统计 SQL 并分析慢 SQL 和高频 SQL 等。为优化 SQL 提供依据。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1577358192118.png)
+
+
+
+
+
+#### 5.1.2 MyCat-web下载
+
+下载地址 : https://github.com/MyCATApache/Mycat-download/blob/master/1.6-RELEASE/Mycat-server-1.6-RELEASE-20161028204710-linux.tar.gz
+
+
+
+
+
+#### 5.1.3 Mycat-web安装配置
+
+> 因为阿里云内存不够，所以我配置在了腾讯云服务器2上面。
+
+##### 5.1.3.1 安装
+
+1). 安装Zookeeper
+
+```
+A. 上传安装包 
+	alt + p -----> put D:\tmp\zookeeper-3.4.11.tar.gz
+	
+B. 解压
+	tar -zxvf zookeeper-3.4.11.tar.gz -C /usr/local/
+
+C. 创建数据存放目录
+	mkdir data
+
+D. 修改配置文件名称并配置
+	mv zoo_sample.cfg zoo.cfg
+
+E. 配置数据存放目录
+	dataDir=/usr/local/zookeeper-3.4.11/data
+	
+F. 启动Zookeeper
+	bin/zkServer.sh start
+```
+
+
+
+2). 安装Mycat-web
+
+```
+A. 上传安装包 
+	alt + p --------> put D:\tmp\Mycat-web-1.0-SNAPSHOT-20170102153329-linux.tar.gz
+	
+B. 解压
+	tar -zxvf Mycat-web-1.0-SNAPSHOT-20170102153329-linux.tar.gz -C /usr/local/
+
+C. 目录介绍
+    drwxr-xr-x. 2 root root  4096 Oct 19  2015 etc         ----> jetty配置文件
+    drwxr-xr-x. 3 root root  4096 Oct 19  2015 lib         ----> 依赖jar包
+    drwxr-xr-x. 7 root root  4096 Jan  1  2017 mycat-web   ----> mycat-web项目
+    -rwxr-xr-x. 1 root root   116 Oct 19  2015 readme.txt
+    -rwxr-xr-x. 1 root root 17125 Oct 19  2015 start.jar   ----> 启动jar
+    -rwxr-xr-x. 1 root root   381 Oct 19  2015 start.sh    ----> linux启动脚本
+
+D. 启动
+	sh start.sh
+	
+E. 访问
+	http://192.168.192.147:8082/mycat
+```
+
+如果Zookeeper与Mycat-web不在同一台服务器上 , 需要设置Zookeeper的地址 ; 在/usr/local/mycat-web/mycat-web/WEB-INF/classes/mycat.properties文件中配置 : 
+
+```properties
+zookeeper=39.101.189.62:2181
+```
+
+
+
+##### 5.1.3.2 配置
+
+配置监控哪一台MyCat
+
+
+
+#### 5.1.4 Mycat-web之MyCat性能监控
+
+在 Mycat-web 上可以进行 Mycat 性能监控，例如：内存分享、流量分析、连接分析、活动线程分析等等。 如下图: 
+
+A. MyCat内存分析: 
+
+
+
+
+
+MyCat的内存分析 , 反映了当前的内存使用情况与历史时间段的峰值、平均值。
+
+
+
+B. MyCat流量分析: 
+
+MyCat流量分析统计了历史时间段的流量峰值、当前值、平均值，是MyCat数据传输的重要指标， In代表输入， Out代表输出。
+
+
+
+C. MyCat连接分析
+
+MyCat连接分析, 反映了MyCat的连接数
+
+
+
+D. MyCat TPS分析
+
+MyCat TPS 是并发性能的重要参数指标, 指系统在每秒内能够处理的请求数量。 MyCat TPS的值越高 , 代表MyCat单位时间内能够处理的请求就越多, 并发能力也就越高。
+
+
+
+E. MyCat活动线程分析反映了MyCat线程的活动情况。
+
+F. MyCat缓存队列分析, 反映了当前在缓存队列中的任务数量。
+
+
+
+#### 5.1.5 Mycat-web之MySQL性能监控指标
+
+1). MySQL配置
+
+
+
+2). MySQL监控指标
+
+可以通过MySQL服务监控, 检测每一个MySQL节点的运行状态, 包含缓存命中率 、增删改查比例、流量统计、慢查询比例、线程、临时表等相关性能数据。
+
+#### 5.1.6 Mycat-web之SQL监控
+
+1). SQL 统计
+
+
+
+2). SQL表分析
+
+
+
+
+
+3). SQL监控
+
+
+
+4). 高频SQL
+
+
+
+5). 慢SQL统计
+
+
+
+6). SQL解析
+
+
+
+### 5.2 MyCat 读写分离
+
+#### 5.2.1 MySQL主从复制原理
+
+复制是指将主数据库的DDL 和 DML 操作通过二进制日志传到从库服务器中，然后在从库上对这些日志重新执行（也叫重做），从而使得从库和主库的数据保持同步。
+
+MySQL支持一台主库同时向多台从库进行复制， 从库同时也可以作为其他从服务器的主库，实现链状复制。
+
+
+
+MySQL主从复制的原理如下 :
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200103093716416.png)
+
+
+
+从上层来看，复制分成三步：
+
+- Master 主库在事务提交时，会把数据变更作为时间 Events 记录在二进制日志文件 Binlog 中。
+- 主库推送二进制日志文件 Binlog 中的日志事件到从库的中继日志 Relay Log 。
+
+- slave重做中继日志中的事件，将改变反映它自己的数据。
+
+
+
+MySQL 复制的优点：
+
+- 主库出现问题，可以快速切换到从库提供服务。
+- 可以在从库上执行查询操作，从主库中更新，实现读写分离，降低主库的访问压力。
+- 可以在从库中执行备份，以避免备份期间影响主库的服务。
+
+
+
+
+
+#### 5.2.2 MySQL一主一从搭建
+
+准备的两台机器: 
+
+| MySQL  | IP              | 端口号 |
+| ------ | --------------- | ------ |
+| Master | 192.168.192.157 | 3306   |
+| Slave  | 192.168.192.158 | 3306   |
+
+##### 5.2.2.1 master
+
+1） 在master 的配置文件（/usr/my.cnf）中，配置如下内容：
+
+```properties
+#mysql 服务ID,保证整个集群环境中唯一
+server-id=1
+
+#mysql binlog 日志的存储路径和文件名
+log-bin=/var/lib/mysql/mysqlbin
+
+#设置logbin格式
+binlog_format=STATEMENT
+
+#是否只读,1 代表只读, 0 代表读写
+read-only=0
+
+#忽略的数据, 指不需要同步的数据库
+#binlog-ignore-db=mysql
+
+#指定同步的数据库
+binlog-do-db=db01
+```
+
+
+
+2） 执行完毕之后，需要重启Mysql：
+
+```sql
+service mysql restart ;
+```
+
+
+
+3） 创建同步数据的账户，并且进行授权操作：
+
+```sql
+grant replication slave on *.* to 'itcast'@'192.168.192.158' identified by 'itcast';	
+
+flush privileges;
+```
+
+
+
+4） 查看master状态：
+
+```sql
+show master status;
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200103102209631.png) 
+
+字段含义:
+
+```
+File : 从哪个日志文件开始推送日志文件 
+Position ： 从哪个位置开始推送日志
+Binlog_Ignore_DB : 指定不需要同步的数据库
+```
+
+
+
+
+
+##### 5.2.2.2 slave
+
+1） 在 slave 端配置文件/usr/my.cnf中，配置如下内容：
+
+```properties
+#mysql服务端ID,唯一
+server-id=2
+
+#指定binlog日志
+log-bin=/var/lib/mysql/mysqlbin
+
+#启用中继日志
+relay-log=mysql-relay
+```
+
+
+
+2）  执行完毕之后，需要重启Mysql：
+
+```
+service mysql restart;
+```
+
+
+
+3） 执行如下指令 ：
+
+```sql
+change master to master_host= '192.168.192.157', master_user='itcast', master_password='itcast', master_log_file='mysqlbin.000001', master_log_pos=413;
+```
+
+指定当前从库对应的主库的IP地址，用户名，密码，从哪个日志文件开始的那个位置开始同步推送日志。
+
+
+
+4） 开启同步操作
+
+```
+start slave;
+
+show slave status;
+```
+
+
+
+5） 停止同步操作
+
+```
+stop slave;
+```
+
+
+
+##### 5.2.2.3 验证主从同步
+
+1） 在主库中创建数据库，创建表，并插入数据 ：
+
+```sql
+create database db01;
+
+use db01;
+
+create table user(
+	id int(11) not null auto_increment,
+	name varchar(50) not null,
+	sex varchar(1),
+	primary key (id)
+)engine=innodb default charset=utf8;
+
+insert into user(id,name,sex) values(null,'Tom','1');
+insert into user(id,name,sex) values(null,'Trigger','0');
+insert into user(id,name,sex) values(null,'Dawn','1');
+```
+
+
+
+2） 在从库中查询数据，进行验证 ：
+
+在从库中，可以查看到刚才创建的数据库。
+
+在该数据库中，查询到user表中的数据。
+
+
+
+#### 5.2.3 MyCat一主一从读写分离
+
+##### 5.2.3.1 读写分离原理
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200103140249789.png) 
+
+读写分离,简单地说是把对数据库的读和写操作分开,以对应不同的数据库服务器。主数据库提供写操作，从数据库提供读操作，这样能有效地减轻单台数据库的压力。
+
+通过MyCat即可轻易实现上述功能，不仅可以支持MySQL，也可以支持Oracle和SQL Server。
+
+MyCat控制后台数据库的读写分离和负载均衡由schema.xml文件datahost标签的balance属性控制。
+
+
+
+##### 5.2.3.2 读写分离配置
+
+配置如下： 
+
+1). 检查MySQL的主从复制是否运行正常 .
+
+2). 修改MyCat 的conf/schema.xml 配置如下:
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+	<schema name="ITCAST" checkSQLschema="true" sqlMaxLimit="100">
+		<table name="user" dataNode="dn1" primaryKey="id"/>
+	</schema>
+    
+	<dataNode name="dn1" dataHost="localhost1" database="db01" />
+    
+	<dataHost name="localhost1" maxCon="1000" minCon="10" balance="1" writeType="0" dbType="mysql" 	
+				dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM1" url="192.168.192.157:3306" user="root" password="itcast">
+			<readHost host="hostS1" url="192.168.192.158:3306" user="root" password="itcast" />
+		</writeHost>
+	</dataHost>  
+</mycat:schema>
+```
+
+
+
+3). 修改conf/server.xml
+
+```xml
+<user name="root" defaultAccount="true">
+    <property name="password">123456</property>
+    <property name="schemas">ITCAST</property>
+</user>
+
+<user name="test">
+    <property name="password">123456</property>
+    <property name="schemas">ITCAST</property>
+</user>
+
+<user name="user">
+    <property name="password">123456</property>
+    <property name="schemas">ITCAST</property>
+    <property name="readOnly">true</property>
+</user>
+```
+
+
+
+4). 配置完毕之后, 重启MyCat服务;
+
+
+
+属性含义说明: 
+
+```
+checkSQLschema
+	当该值设置为true时, 如果我们执行语句"select * from test01.user ;" 语句时, MyCat则会把schema字符去掉 , 可以避免后端数据库执行时报错 ;
+	
+	
+balance
+	负载均衡类型, 目前取值有4种:
+	
+	balance="0" : 不开启读写分离机制 , 所有读操作都发送到当前可用的writeHost上.
+	
+	balance="1" : 全部的readHost 与 stand by writeHost (备用的writeHost) 都参与select 语句的负载均衡,简而言之,就是采用双主双从模式(M1 --> S1 , M2 --> S2, 正常情况下，M2,S1,S2 都参与 select 语句的负载均衡。);
+    
+    balance="2" : 所有的读写操作都随机在writeHost , readHost上分发
+    
+    balance="3" : 所有的读请求随机分发到writeHost对应的readHost上执行, writeHost不负担读压力 ;balance=3 只在MyCat1.4 之后生效 .
+```
+
+
+
+##### 5.2.3.3 验证读写分离
+
+修改balance的值, 查询MyCat中的逻辑表中的数据变化; 
+
+
+
+
+
+#### 5.2.4 MySQL双主双从搭建
+
+##### 5.2.4.1 架构
+
+一个主机 Master1 用于处理所有写请求，它的从机 Slave1 和另一台主机 Master2 还有它的从机 Slave2 负责所有读请求。当 Master1 主机宕机后，Master2 主机负责写请求，Master1 、Master2 互为备机。架构图如下: 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200103170452653.png)
+
+
+
+
+
+##### 5.2.4.2 双主双从配置
+
+准备的机器如下: 
+
+| 编号 | 角色    | IP地址          | 端口号 |
+| ---- | ------- | --------------- | ------ |
+| 1    | Master1 | 192.168.192.157 | 3306   |
+| 2    | Slave1  | 192.168.192.158 | 3306   |
+| 3    | Master2 | 192.168.192.159 | 3306   |
+| 4    | Slave2  | 192.168.192.160 | 3306   |
+
+
+
+```bash
+# 断掉之前的主从关系：从库执行2条指令
+stop slave;
+reset master;
+```
+
+
+
+
+
+**1). 双主机配置**
+
+Master1配置: 
+
+```properties
+#主服务器唯一ID
+server-id=1
+
+#启用二进制日志
+log-bin=mysql-bin
+
+# 设置不要复制的数据库(可设置多个)
+# binlog-ignore-db=mysql
+# binlog-ignore-db=information_schema
+
+#设置需要复制的数据库
+binlog-do-db=db02
+binlog-do-db=db03
+binlog-do-db=db04
+
+#设置logbin格式
+binlog_format=STATEMENT
+
+# 在作为从数据库的时候，有写入操作也要更新二进制日志文件
+log-slave-updates
+```
+
+
+
+Master2配置: 
+
+```properties
+#主服务器唯一ID
+server-id=3
+
+#启用二进制日志
+log-bin=mysql-bin
+
+# 设置不要复制的数据库(可设置多个)
+#binlog-ignore-db=mysql
+#binlog-ignore-db=information_schema
+
+#设置需要复制的数据库
+binlog-do-db=db02
+binlog-do-db=db03
+binlog-do-db=db04
+
+#设置logbin格式
+binlog_format=STATEMENT
+
+# 在作为从数据库的时候，有写入操作也要更新二进制日志文件
+log-slave-updates
+```
+
+
+
+
+
+**2). 双从机配置**
+
+Slave1配置: 
+
+```properties
+#从服务器唯一ID
+server-id=2
+
+#启用中继日志
+relay-log=mysql-relay
+```
+
+
+
+Salve2配置:
+
+```properties
+#从服务器唯一ID
+server-id=4
+
+#启用中继日志
+relay-log=mysql-relay
+```
+
+
+
+**3). 双主机、双从机重启 mysql 服务**
+
+**4). 主机从机都关闭防火墙**
+
+**5). 在两台主机上建立帐户并授权 slave**
+
+
+
+```sql
+#在主机MySQL里执行授权命令
+GRANT REPLICATION SLAVE ON *.* TO 'itcast'@'%' IDENTIFIED BY 'itcast';
+
+flush privileges;
+```
+
+查询Master1的状态 : 
+
+```sql
+show master status;
+```
+
+
+
+查询Master2的状态 :
+
+```sql
+show master status;
+```
+
+
+
+**6). 在从机上配置需要复制的主机**
+
+Slave1 复制 Master1，Slave2 复制 Master2
+
+slave1 指令: 
+
+```sql
+CHANGE MASTER TO MASTER_HOST='192.168.192.157',
+MASTER_USER='itcast',
+MASTER_PASSWORD='itcast',
+MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=409;
+```
+
+
+
+slave2 指令:
+
+```sql
+CHANGE MASTER TO MASTER_HOST='192.168.192.159',
+MASTER_USER='itcast',
+MASTER_PASSWORD='itcast',
+MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=409;
+```
+
+
+
+**7). 启动两台从服务器复制功能 , 查看主从复制的运行状态**
+
+```sql
+start slave;
+
+show slave status\G;
+```
+
+
+
+**8). 两个主机互相复制**
+
+Master2 复制 Master1，Master1 复制 Master2
+
+Master1 执行指令: 
+
+```sql
+CHANGE MASTER TO MASTER_HOST='192.168.192.159',
+MASTER_USER='itcast',
+MASTER_PASSWORD='itcast',
+MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=409;
+```
+
+
+
+Master2 执行指令:
+
+```sql
+CHANGE MASTER TO MASTER_HOST='192.168.192.157',
+MASTER_USER='itcast',
+MASTER_PASSWORD='itcast',
+MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=409;
+```
+
+
+
+**9). 启动两台主服务器复制功能 , 查看主从复制的运行状态**
+
+```sql
+start slave;
+
+show slave status\G; 
+```
+
+
+
+
+
+**10). 验证**
+
+```sql
+create database db03;
+
+use db03;
+
+create table user(
+	id int(11) not null auto_increment,
+	name varchar(50) not null,
+	sex varchar(1),
+	primary key (id)
+)engine=innodb default charset=utf8;
+
+insert into user(id,name,sex) values(null,'Tom','1');
+insert into user(id,name,sex) values(null,'Trigger','0');
+insert into user(id,name,sex) values(null,'Dawn','1');
+
+
+insert into user(id,name,sex) values(null,'Jack Ma','1');
+insert into user(id,name,sex) values(null,'Coco','0');
+insert into user(id,name,sex) values(null,'Jerry','1');
+```
+
+
+
+在Master1上创建数据库: 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104095232047.png) 
+
+
+
+在Master1上创建表 :
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104095521070.png) 
+
+
+
+**11). 停止从服务复制功能**
+
+```
+stop slave;
+```
+
+
+
+**12). 重新配置主从关系**
+
+```sql
+stop slave;
+reset master;
+```
+
+
+
+#### 5.2.5 MyCat双主双从读写分离
+
+##### 5.2.5.1 配置
+
+修改\<dataHost>的 balance属性，通过此属性配置读写分离的类型 ; 
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+	
+	<schema name="ITCAST" checkSQLschema="true" sqlMaxLimit="100">
+		<table name="user" dataNode="dn1" primaryKey="id"/>
+	</schema>
+	
+	<dataNode name="dn1" dataHost="localhost1" database="db03" />
+
+	<dataHost name="localhost1" maxCon="1000" minCon="10" balance="1" writeType="0" dbType="mysql" 	
+				dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM1" url="192.168.192.147:3306" user="root" password="itcast">
+			<readHost host="hostS1" url="192.168.192.149:3306" user="root" password="itcast" />
+		</writeHost>
+		
+		<writeHost host="hostM2" url="192.168.192.150:3306" user="root" password="itcast">
+			<readHost host="hostS2" url="192.168.192.151:3306" user="root" password="itcast" />
+		</writeHost>
+	</dataHost>
+    
+</mycat:schema>
+```
+
+
+
+1). balance
+
+1 : 代表 全部的 readHost 与 stand by writeHost 参与 select 语句的负载均衡，简单的说，当双主双从模式(M1->S1，M2->S2，并且 M1 与 M2 互为主备)，正常情况下，M2,S1,S2 都参与 select 语句的负载均衡 ;
+
+2). writeType
+
+0 : 写操作都转发到第1台writeHost, writeHost1挂了, 会切换到writeHost2上;
+
+1 : 所有的写操作都随机地发送到配置的writeHost上 ;
+
+3). switchType
+
+-1 : 不自动切换
+
+1 : 默认值, 自动切换
+
+2 : 表示基于MySQL的主从同步状态决定是否切换, 心跳语句 : show slave status
+
+
+
+##### 5.2.5.2 读写分离验证
+
+查询数据 : select * from user;
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104101106144.png) 
+
+插入数据 : insert into user(id,name,sex) values(null,'Dawn','1');
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104100956216.png) 
+
+
+
+
+
+##### 5.2.5.3 可用性验证
+
+关闭Master1 , 然后再执行写入的SQL语句 , 通过日志查询当前写入操作, 操作的是那台服务器 ;
+
+
+
+## 6. MyCat高可用集群搭建
+
+### 6.1 集群架构
+
+#### 6.1.1 MyCat实现读写分离架构
+
+在上面的章节, 我们已经讲解过了通过MyCat来实现MySQL的读写分离, 从而完成MySQL集群的负载均衡 , 如下面的结构图: 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104144550132.png)
+
+
+
+但是以上架构存在问题 , 由于MyCat中间件是单节点的服务, 前端客户端所有的压力过来都直接请求这一台MyCat , 存在单点故障。所以这个时候， 我们就需要考虑MyCat的集群 ；
+
+
+
+#### 6.1.2 MyCat集群架构
+
+通过MyCat来实现后端MySQL的负载均衡 ， 通过HAProxy再实现MyCat集群的负载均衡 ; 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104151016408.png)
+
+
+
+HAProxy 负责将请求分发到 MyCat 上，起到负载均衡的作用，同时 HAProxy 也能检测到 MyCat 是否存活，HAProxy 只会将请求转发到存活的 MyCat 上。如果一台 MyCat 服务器宕机，HAPorxy 转发请求时不会转发到宕机的 MyCat 上，所以 MyCat 依然可用。
+
+
+
+**HAProxy介绍:**
+
+HAProxy 是一个开源的、高性能的基于TCP(第四层)和HTTP(第七层)应用的负载均衡软件。 使用HAProxy可以快速、可靠地实现基于TCP与HTTP应用的负载均衡解决方案。
+
+具有以下优点： 
+
+①. 可靠性和稳定性好, 可以与硬件级的F5负载均衡服务器媲美 ;
+
+②. 处理能力强, 最高可以通过维护4w-5w个并发连接, 单位时间处理的最大请求数达到2w个 ;
+
+③. 支持多种负载均衡算法 ;
+
+④. 有功能强大的监控界面, 通过此页面可以实时了解系统的运行情况 ;
+
+
+
+但是， 上述的架构也是存在问题的， 因为所以的客户端请求都是先到达HAProxy, 由HAProxy再将请求再向下分发, 如果HAProxy宕机的话, 就会造成整个MyCat集群不能正常运行, 依然存在单点故障。
+
+
+
+#### 6.1.3 MyCat的高可用集群
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104153537319.png)
+
+
+
+**图解说明：**
+1). HAProxy 实现了 MyCat 多节点的集群高可用和负载均衡，而 HAProxy 自身的高可用则可以通过Keepalived 来实现。因此，HAProxy 主机上要同时安装 HAProxy 和 Keepalived，Keepalived 负责为该服务器抢占 vip（虚拟 ip），抢占到 vip 后，对该主机的访问可以通过原来的 ip访问，也可以直接通过 vip访问。
+
+2). Keepalived 抢占 vip 有优先级，在 keepalived.conf 配置中的 priority 属性决定。但是一般哪台主机上的Keepalived服务先启动就会抢占到vip，即使是slave，只要先启动也能抢到（要注意避免Keepalived的资源抢占问题）。
+
+3). HAProxy 负责将对 vip 的请求分发到 MyCat 集群节点上，起到负载均衡的作用。同时 HAProxy 也能检测到 MyCat 是否存活，HAProxy 只会将请求转发到存活的 MyCat 上。
+
+4). 如果 Keepalived+HAProxy 高可用集群中的一台服务器宕机，集群中另外一台服务器上的 Keepalived会立刻抢占 vip 并接管服务，此时抢占了 vip 的 HAProxy 节点可以继续提供服务。
+
+5). 如果一台 MyCat 服务器宕机，HAPorxy 转发请求时不会转发到宕机的 MyCat 上，所以 MyCat 依然可用。
+
+
+
+综上：MyCat 的高可用及负载均衡由 HAProxy 来实现，而 HAProxy 的高可用，由 Keepalived 来实现。
+
+
+
+**keepalived介绍:**
+
+Keepalived是一种基于VRRP协议来实现的高可用方案,可以利用其来避免单点故障。 通常有两台甚至多台服务器运行Keepalived，一台为主服务器(Master), 其他为备份服务器, 但是对外表现为一个虚拟IP(VIP), 主服务器会发送特定的消息给备份服务器, 当备份服务器接收不到这个消息时, 即认为主服务器宕机, 备份服务器就会接管虚拟IP, 继续提供服务, 从而保证了整个集群的高可用。
+VRRP(虚拟路由冗余协议-Virtual Router Redundancy Protocol)协议是用于实现路由器冗余的协议，VRRP 协议将两台或多台路由器设备虚拟成一个设备，对外提供虚拟路由器 IP(一个或多个)，而在路由器组内部，如果实际拥有这个对外 IP 的路由器如果工作正常的话就是 MASTER，或者是通过算法选举产生。MASTER 实现针对虚拟路由器 IP 的各种网络功能，如 ARP 请求，ICMP，以及数据的转发等；其他设备不拥有该虚拟 IP，状态是 BACKUP，除了接收 MASTER 的VRRP 状态通告信息外，不执行对外的网络功能。当主机失效时，BACKUP 将接管原先 MASTER 的网络功能。VRRP 协议使用多播数据来传输 VRRP 数据，VRRP 数据使用特殊的虚拟源 MAC 地址发送数据而不是自身网卡的 MAC 地址，VRRP 运行时只有 MASTER 路由器定时发送 VRRP 通告信息，表示 MASTER 工作正常以及虚拟路由器 IP(组)，BACKUP 只接收 VRRP 数据，不发送数据，如果一定时间内没有接收到 MASTER 的通告信息，各 BACKUP 将宣告自己成为 MASTER，发送通告信息，重新进行 MASTER 选举状态。
+
+
+
+### 6.2 高可用集群搭建
+
+#### 6.2.1 部署环境规划
+
+| 名称                      |       IP        | 端口 | 用户名/密码 |
+| :------------------------ | :-------------: | :--: | :---------: |
+| MySQL Master              | 192.168.192.157 | 3306 | root/itcast |
+| MySQL Slave               | 192.168.192.158 | 3306 | root/itcast |
+| MyCat节点1                | 192.168.192.157 | 8066 | root/123456 |
+| MyCat节点2                | 192.168.192.158 | 8066 | root/123456 |
+| HAProxy节点1/keepalived主 | 192.168.192.159 |      |             |
+| HAProxy节点2/keepalived备 | 192.168.192.160 |      |             |
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200104153537320.png) 
+
+
+
+#### 6.2.2 MySQL主从复制搭建
+
+#### 6.2.3 MyCat安装配置
+
+#### 6.2.4 HAProxy安装配置
+
+#### 6.2.5 Keepalived安装配置
+
+
+
+
+
+
+
+## 7. MyCat架构剖析
+
+### 7.1 MyCat总体架构介绍
+
+#### 7.1.1 源码下载及导入
+
+
+
+#### 7.1.2 总体架构
+
+MyCat在逻辑上由几个模块组成: 通信协议、路由解析、结果集处理、数据库连接、监控等模块。如图所示： 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200107230122662.png) 
+
+1). 通信协议模块： 通信协议模块承担底层的收发数据、线程回调处理工作， MyCat通信协议默认采用Reactor模式，在协议层采用MySQL协议；
+
+2). 路由解析模块: 负责对传入的SQL语句进行语法解析, 解析语句的条件、类型、关键字等，并进行优化；
+
+3). SQL执行模块: 负责从连接池中获取连接, 再根据路由解析的结果, 把SQL语句分发到相应的节点执行;
+
+4). 数据库连接模块: 负责创建、管理、维护后端的连接池。为减少每次建立数据库连接的开销，数据库使用连接池机制对连接声明周期进行管理；
+
+5). 结果集处理模块: 负责对跨分片的查询结果进行汇聚、排序、截取等；
+
+6). 监控管理模块: 负责MyCat的连接、内存等资源进行监控和管理。监控主要通过管理指令及监控服务展现一些监控数据； 管理则主要通过轮询事件来检测和释放不适用的资源；
+
+
+
+#### 7.1.3 总体执行流程
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200107233001248.png) 
+
+
+
+
+
+### 7.2 MyCat网络I/O架构及实现
+
+#### 7.2.1 BIO、NIO与AIO
+
+
+
+1). BIO
+
+BIO(同步阻塞I/O) 通常由一个单独的Acceptor线程负责监听客户端的连接, 接收到客户端的连接请求后, 会为每个客户端创建一个新的线程进行处理, 处理完成之后, 再给客户端返回结果, 销毁线程 。
+
+每个客户端请求接入时， 都需要开启一个线程进行处理， 一个线程只能处理一个客户端连接。 当客户端变多时，会创建大量的处理线程， 每个线程都需要分配栈空间和CPU， 并且频繁的线程上下文切换也会造成性能的浪费。所以该模式， 无法满足高性能、高并发接入的需求。
+
+
+
+2). NIO
+
+NIO(同步非阻塞I/O)基于Reactor模式作为底层通信模型，Reactor模式可以将事件驱动的应用进行事件分派, 将客户端发送过来的服务请求分派给合适的处理类(handler)。当Socket有流可读或可写入Socket时, 操作系统会通知相应的应用程序进行处理, 应用程序再将流读取到缓冲区或写入操作系统。 这时已经不是一个连接对应一个处理线程了， 而是一个有效的请求对应一个线程， 当没有数据时， 就没有工作线程来处理。
+
+NIO 的最大优点体现在线程轮询访问Selector, 当read或write到达时则处理, 未到达时则继续轮询。
+
+
+
+3). AIO
+
+AIO，全程 Asynchronous IO(异步非阻塞的IO), 是一种非阻塞异步的通信模式。在NIO的基础上引入了新的异步通道的概念，并提供了异步文件通道和异步套接字通道的实现。AIO中客户端的I/O请求都是由OS先完成了再通知服务器应用去启动线程进行处理。
+
+AIO与NIO的主要区别在于回调与轮询, 客户端不需要关注服务处理事件是否完成, 也不需要轮询, 只需要关注自己的回调函数。
+
+
+
+#### 7.2.2 通信架构
+
+在MyCat中实现了NIO与AIO两种I/O模式, 可以通过配置文件server.xml进行指定 : 
+
+```xml
+<property name="usingAIO">1</property>
+```
+
+usingAIO为1代表使用AIO模型 , 为0表示使用NIO模型;
+
+
+
+
+
+### 7.3 Mycat实现MySQL协议
+
+#### 7.3.1 MySQL协议简介
+
+##### 7.3.1.1 概述
+
+MySQL协议处于应用层之下、TCP/IP之上, 在MySQL客户端和服务端之间使用。包含了链接器、MySQL代理、主从复制服务器之间通信，并支持SSL加密、传输数据的压缩、连接和身份验证及数据交互等。其中，握手认证阶段和命令执行阶段是MySQL协议中的两个重要阶段。
 
 
 
@@ -1144,6 +3442,11 @@ C. property : 根据算法的要求执行
 
 
 
+### 7.4 MyCat线程架构与实现
+
+#### 7.4.1 MyCat线程池实现
+
+在MyCat中大量用到了线程池， 通过线程池来避免频繁的创建和销毁线程而造成的系统性能的浪费。在MyCat中使用的线程池是JDK中提供的线程池 ThreadPoolExecutor 的子类 NameableExecutor ， 构造方法如下： 
 
 
 
@@ -1151,11 +3454,694 @@ C. property : 根据算法的要求执行
 
 
 
+### 7.5 MyCat内存管理及缓存框架与实现
+
+这里所提到的内存管理指的是MyCat缓冲区管理, 众所周知设置缓冲区的唯一目的是提高系统的性能, 缓冲区通常是部分常用的数据存放在缓冲池中以便系统直接访问, 避免使用磁盘IO访问磁盘数据, 从而提高性能。
+
+#### 7.5.1 内存管理
+
+1). 缓冲池组成
+
+缓冲池的最小单位为chunk, 默认的chunk大小为4096字节(DEFAULT_BUFFER_CHUNK_SIZE), BufferPool的总大小为4096 x processors x 1000(其中processors为处理器数量)。对I/O进程而言, 他们共享一个缓冲池。缓冲池有两种类型： 本地缓存线程（以$_开头的线程）缓冲区和其他缓冲区， 分配buffer时, 优先获取ThreadLocalPool中的buffer, 没有命中时会获取BufferPool中的buffer。
+
+
+
+2). 分配MyCat缓冲池
+
+分配缓冲池时, 可以指定大小, 也可以用默认值。
+
+A. allocate(): 先检测是否为本地线程， 当执行线程为本地缓存线程时， localBufferPool取出一个可用的buffer。如果不是， 则从ConcurrentLinkedQueue队列中取出一个buffer进行分配, 如果队列没有可用的buffer, 则创建一个直接缓冲区。
+
+B. allocate(size): 如果用户指定的size不大于chunkSize, 则调用allocate()进行分配; 反之则调用createTempBuffer(size)创建临时非直接缓冲区。
+
+
+
+3). MyCat缓冲池的回收
+
+回收时先判断buffer是否有效, 有如下情况时缓冲池不回收。
+
+A. 不是直接缓冲区
+
+B. buffer是空的
+
+C. buffer的容量大于chunkSize
 
 
 
 
 
+
+
+### 7.6 MyCat连接池架构与实现
+
+这里我们所讨论的连接池是MyCat的后端连接池， 也就是MyCat后端与各个数据库节点之间的连接架构。
+
+1). 连接池创建
+
+MyCat按照每个dataHost创建一个连接池, 根据schema.xml文件的配置取得最小的连接数minCon,  并初始化minCon个连接。在初始化连接时， 还需要判定用户选择的是JDBC还是原生的MySQL协议， 以便于创建对应的连接。
+
+2). 连接池分配
+
+分配连接就是从连接池队列中取出一个连接， 在取出一个连接时， MyCat需要根据负载均衡（balance属性）的类型选择不同的数据源， 因为连接和数据源绑在一起，所以需要知道MyCat读写的是那些数据源， 才能分配响应的连接。 
+
+
+
+
+
+### 7.7 MyCat主从切换架构与实现
+
+#### 7.7.1 MyCat主从切换概述
+
+MyCat实现MySQL读写分离的目的在于降低单节点数据库的访问压力,  原理就是让主数据库执行增删改操作, 从数据库执行查询操作, 利用MySQL数据库的复制机制将Master的数据同步到slave上。
+
+当master宕机后，slave承载的业务如何切换到master继续提供服务，以及slave宕机后如何将master切换到slave上。手动切换数据源很简单， 但不是运维工作的首选，本节重点就是讲解如何实现自动切换。
+
+MyCat的读写分离依赖于MySQL的主从同步, 也就是说MyCat没有实现数据的主从同步功能, 但是实现了自动切换功能。
+
+
+
+### 7.8 MyCat核心技术
+
+## 8. MyCat综合案例
+
+### 8.1 案例概述
+
+#### 8.1.1 案例介绍
+
+本案例将模拟电商项目中的商品管理、订单管理、基础信息管理、日志管理模块，对整个系统中的数据表进行分片操作，将根据不同的业务需求，采用不同的分片方式 。
+
+#### 8.1.2 系统架构
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200201153127417.png)
+
+
+
+本案例涉及到的模块： 
+
+1). 商品微服务
+
+2). 订单微服务
+
+3). 日志微服务
+
+
+
+
+
+#### 8.1.3 技术选型
+
+- SpringBoot
+- SpringCloud
+- SpringMVC
+- Mybatis
+- SpringDataRedis
+- MySQL
+- Redis
+
+- Lombok
+
+
+
+### 8.2 案例需求
+
+1). 商品管理
+
+A. 添加商品
+
+B. 查询商品
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200201194027874.png)
+
+
+
+
+
+2). 订单管理
+
+A. 下订单
+
+B. 查询订单
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200201194121792.png)
+
+
+
+3). 日志管理
+
+A. 日志记录
+
+B. 日志查询
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200201194159102.png)
+
+
+
+
+
+
+
+### 8.3 案例环境搭建
+
+#### 8.3.1 数据库
+
+1). 省份表 tb_provinces
+
+| Field      | Type        | Comment  |
+| ---------- | ----------- | -------- |
+| provinceid | varchar(20) | 省份ID   |
+| province   | varchar(50) | 省份名称 |
+
+
+
+2). 市表 tb_cities
+
+| Field      | Type        | Comment  |
+| ---------- | ----------- | -------- |
+| cityid     | varchar(20) | 城市ID   |
+| city       | varchar(50) | 城市名称 |
+| provinceid | varchar(20) | 省份ID   |
+
+
+
+3). 区县表 tb_areas
+
+| Field  | Type        | Comment  |
+| ------ | ----------- | -------- |
+| areaid | varchar(20) | 区域ID   |
+| area   | varchar(50) | 区域名称 |
+| cityid | varchar(20) | 城市ID   |
+
+
+
+4). 商品分类表 tb_category
+
+| Field     | Type        | Comment  |
+| --------- | ----------- | -------- |
+| id        | int(20)     | 分类ID   |
+| name      | varchar(50) | 分类名称 |
+| goods_num | int(11)     | 商品数量 |
+| is_show   | char(1)     | 是否显示 |
+| is_menu   | char(1)     | 是否导航 |
+| seq       | int(11)     | 排序     |
+| parent_id | int(20)     | 上级ID   |
+
+
+
+
+
+5). 品牌表 tb_brand
+
+| Field  | Type          | Comment      |
+| ------ | ------------- | ------------ |
+| id     | int(11)       | 品牌id       |
+| name   | varchar(100)  | 品牌名称     |
+| image  | varchar(1000) | 品牌图片地址 |
+| letter | char(1)       | 品牌的首字母 |
+| seq    | int(11)       | 排序         |
+
+
+
+6). 商品SPU表 tb_spu
+
+| Field          | Type          | Comment      |
+| -------------- | ------------- | ------------ |
+| id             | varchar(20)   | 主键         |
+| sn             | varchar(60)   | 货号         |
+| name           | varchar(100)  | SPU名        |
+| caption        | varchar(100)  | 副标题       |
+| brand_id       | int(11)       | 品牌ID       |
+| category1_id   | int(20)       | 一级分类     |
+| category2_id   | int(10)       | 二级分类     |
+| category3_id   | int(10)       | 三级分类     |
+| template_id    | int(20)       | 模板ID       |
+| freight_id     | int(11)       | 运费模板id   |
+| image          | varchar(200)  | 图片         |
+| images         | varchar(2000) | 图片列表     |
+| sale_service   | varchar(50)   | 售后服务     |
+| introduction   | text          | 介绍         |
+| spec_items     | varchar(3000) | 规格列表     |
+| para_items     | varchar(3000) | 参数列表     |
+| sale_num       | int(11)       | 销量         |
+| comment_num    | int(11)       | 评论数       |
+| is_marketable  | char(1)       | 是否上架     |
+| is_enable_spec | char(1)       | 是否启用规格 |
+| is_delete      | char(1)       | 是否删除     |
+| status         | char(1)       | 审核状态     |
+
+
+
+7). 商品SKU表 tb_sku
+
+| Field         | Type          | Comment                         |
+| ------------- | ------------- | ------------------------------- |
+| id            | varchar(20)   | 商品id                          |
+| sn            | varchar(100)  | 商品条码                        |
+| name          | varchar(200)  | SKU名称                         |
+| price         | int(20)       | 价格（分）                      |
+| num           | int(10)       | 库存数量                        |
+| alert_num     | int(11)       | 库存预警数量                    |
+| image         | varchar(200)  | 商品图片                        |
+| images        | varchar(2000) | 商品图片列表                    |
+| weight        | int(11)       | 重量（克）                      |
+| create_time   | datetime      | 创建时间                        |
+| update_time   | datetime      | 更新时间                        |
+| spu_id        | varchar(20)   | SPUID                           |
+| category_id   | int(10)       | 类目ID                          |
+| category_name | varchar(200)  | 类目名称                        |
+| brand_name    | varchar(100)  | 品牌名称                        |
+| spec          | varchar(200)  | 规格                            |
+| sale_num      | int(11)       | 销量                            |
+| comment_num   | int(11)       | 评论数                          |
+| status        | char(1)       | 商品状态 1-正常，2-下架，3-删除 |
+| version       | int(255)      |                                 |
+
+
+
+8). 订单表 tb_order
+
+| Field             | Type          | Comment                                                      |
+| ----------------- | ------------- | ------------------------------------------------------------ |
+| id                | varchar(200)  | 订单id                                                       |
+| total_num         | int(11)       | 数量合计                                                     |
+| total_money       | int(11)       | 金额合计                                                     |
+| pre_money         | int(11)       | 优惠金额                                                     |
+| post_fee          | int(11)       | 邮费                                                         |
+| pay_money         | int(11)       | 实付金额                                                     |
+| pay_type          | varchar(1)    | 支付类型，1、在线支付、0 货到付款                            |
+| create_time       | datetime      | 订单创建时间                                                 |
+| update_time       | datetime      | 订单更新时间                                                 |
+| pay_time          | datetime      | 付款时间                                                     |
+| consign_time      | datetime      | 发货时间                                                     |
+| end_time          | datetime      | 交易完成时间                                                 |
+| close_time        | datetime      | 交易关闭时间                                                 |
+| shipping_name     | varchar(20)   | 物流名称                                                     |
+| shipping_code     | varchar(20)   | 物流单号                                                     |
+| username          | varchar(50)   | 用户名称                                                     |
+| buyer_message     | varchar(1000) | 买家留言                                                     |
+| buyer_rate        | char(1)       | 是否评价                                                     |
+| receiver_contact  | varchar(50)   | 收货人                                                       |
+| receiver_mobile   | varchar(12)   | 收货人手机                                                   |
+| receiver_province | varchar(200)  | 收货人省份                                                   |
+| receiver_city     | varchar(200)  | 收货人市                                                     |
+| receiver_area     | varchar(200)  | 收货人区/县                                                  |
+| receiver_address  | varchar(200)  | 收货人具体街道地址                                           |
+| source_type       | char(1)       | 订单来源：1:web，2：app，3：微信公众号，4：微信小程序 5 H5手机页面 |
+| transaction_id    | varchar(30)   | 交易流水号                                                   |
+| order_status      | char(1)       | 订单状态                                                     |
+| pay_status        | char(1)       | 支付状态 0:未支付 1:已支付                                   |
+| consign_status    | char(1)       | 发货状态 0:未发货 1:已发货 2:已送达                          |
+| is_delete         | char(1)       | 是否删除                                                     |
+
+
+
+9). 订单明细表 tb_order_item
+
+| Field        | Type         | Comment  |
+| ------------ | ------------ | -------- |
+| id           | varchar(200) | ID       |
+| category_id1 | int(11)      | 1级分类  |
+| category_id2 | int(11)      | 2级分类  |
+| category_id3 | int(11)      | 3级分类  |
+| spu_id       | varchar(200) | SPU_ID   |
+| sku_id       | varchar(200) | SKU_ID   |
+| order_id     | varchar(200) | 订单ID   |
+| name         | varchar(200) | 商品名称 |
+| price        | int(20)      | 单价     |
+| num          | int(10)      | 数量     |
+| money        | int(20)      | 总金额   |
+| pay_money    | int(11)      | 实付金额 |
+| image        | varchar(200) | 图片地址 |
+| weight       | int(11)      | 重量     |
+| post_fee     | int(11)      | 运费     |
+| is_return    | char(1)      | 是否退货 |
+
+
+
+10). 订单日志表 tb_order_log 
+
+| Field          | Type         | Comment  |
+| -------------- | ------------ | -------- |
+| id             | varchar(20)  | ID       |
+| operater       | varchar(50)  | 操作员   |
+| operate_time   | datetime     | 操作时间 |
+| order_id       | bigint(20)   | 订单ID   |
+| order_status   | char(1)      | 订单状态 |
+| pay_status     | char(1)      | 付款状态 |
+| consign_status | char(1)      | 发货状态 |
+| remarks        | varchar(100) | 备注     |
+
+
+
+11). 操作日志表 tb_operatelog
+
+| Field           | Type         | Comment               |
+| --------------- | ------------ | --------------------- |
+| id              | bigint(20)   | ID                    |
+| model_name      | varchar(200) | 模块名                |
+| model_value     | varchar(200) | 模块值                |
+| return_value    | varchar(200) | 返回值                |
+| return_class    | varchar(200) | 返回值类型            |
+| operate_user    | varchar(20)  | 操作用户              |
+| operate_time    | varchar(20)  | 操作时间              |
+| param_and_value | varchar(500) | 请求参数名及参数值    |
+| operate_class   | varchar(200) | 操作类                |
+| operate_method  | varchar(200) | 操作方法              |
+| cost_time       | bigint(20)   | 执行方法耗时, 单位 ms |
+
+
+
+12). 字典表 tb_dictionary
+
+| Field       | Type         | Comment       |
+| ----------- | ------------ | ------------- |
+| id          | int(11)      | 主键ID , 自增 |
+| codeid      | int(11)      | 码表ID        |
+| codetype    | varchar(2)   | 码值类型      |
+| codename    | varchar(50)  | 名称          |
+| codevalue   | varchar(50)  | 码值          |
+| description | varchar(100) | 描述          |
+| createtime  | datetime     | 创建时间      |
+| updatetime  | datetime     | 修改时间      |
+| createuser  | int(11)      | 创建人        |
+| updateuser  | int(11)      | 修改人        |
+
+
+
+#### 8.3.2 工程预览
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200201201704741.png) 
+
+```lua
+spring-boot-starter-parent
+    |- v_parent	--------------------> 父工程, 统一管理依赖版本
+        |- v_common ----------------> 通用工程, 存放通用的工具类及组件
+        |- v_model -----------------> 实体类
+        |- v_eureka ----------------> 注册中心
+        |- v_feign_api -------------> feign远程调用的客户端接口
+        |- v_gateway ---------------> 网关工程
+        |- v_manage_web ------------> 模拟前端工程
+        |- v_service_goods ---------> 商品微服务
+        |- v_service_log -----------> 日志微服务
+        |- v_service_order ---------> 订单微服务
+```
+
+
+
+
+
+#### 8.3.3 工程层级关系
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200205010155489.png) 
+
+
+
+
+
+#### 8.3.4 父工程搭建
+
+工程名: v_parent
+
+pom.xml
+
+```xml
+<!-- springBoot项目需要集成自父工程 -->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.1.4.RELEASE</version>
+</parent>
+
+<properties>
+    <skipTests>true</skipTests>
+</properties>
+
+<!--依赖包-->
+<dependencies>
+    <!--测试包-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Greenwich.SR1</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+
+        <!--MySQL数据库驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
+        </dependency>
+
+        <!--mybatis分页插件-->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.51</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.6</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+
+
+#### 8.3.5 基础工程搭建
+
+1). v_model
+
+该基础工程中存放的是与数据库对应的实体类 ;
+
+A. pom.xml
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+    </dependency>
+</dependencies>
+```
+
+
+
+B. 导入实体类
+
+
+
+2). v_common
+
+该基础工程中存放的是通用的组件及工具类 , 比如 分页实体类, 结果实体类, 状态码 等
+
+直接导入资料中提供的基础组件和工具类 ;
+
+
+
+3). v_feign_api
+
+该工程中, 主要存放的是Feign远程调用的客户端接口;
+
+pom.xml
+
+```xml
+<dependencies>
+    <!--web起步依赖-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- Feign起步依赖 -->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>cn.itcast</groupId>
+        <artifactId>v_common</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+        <groupId>cn.itcast</groupId>
+        <artifactId>v_model</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+</dependencies>
+```
+
+
+
+#### 8.3.6 Eureka Server搭建
+
+1). pom.xml
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+    </dependency>
+</dependencies>
+```
+
+
+
+2). 引导类
+
+```java
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaApplication.class,args);
+    }
+}
+```
+
+
+
+3). application.yml
+
+```yml
+spring:
+  application:
+    name: eureka
+server:
+  port: 8161
+eureka:
+  client:
+    register-with-eureka: false #是否将自己注册到eureka中
+    fetch-registry: false #是否从eureka中获取信息
+    service-url:
+      defaultZone: http://127.0.0.1:${server.port}/eureka/
+  server:
+    enable-self-preservation: true
+```
+
+
+
+#### 8.3.7 GateWay 网关搭建
+
+1). pom.xml
+
+```xml
+<!--网关依赖-->
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-gateway</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+</dependencies>
+```
+
+
+
+2). 引导类
+
+```java
+@SpringBootApplication
+@EnableEurekaClient
+public class GateWayApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GateWayApplication.class,args);
+    }
+}
+```
+
+
+
+3). application.yml
+
+```yml
+server:
+  port: 8001
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8161/eureka
+  instance:
+    prefer-ip-address: true
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: v_goods_route
+          uri: lb://goods
+          predicates:
+            - Path=/goods/**
+          filters:
+            - StripPrefix=1
+
+        - id: v_order_route
+          uri: lb://order
+          predicates:
+            - Path=/order/**
+          filters:
+            - StripPrefix=1
+```
+
+
+
+4). Cors配置类
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.util.pattern.PathPatternParser;
+
+@Configuration
+public class CorsConfig {
+
+    @Bean
+    public CorsWebFilter corsFilter(){
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
+        source.registerCorsConfiguration("/**", buildConfig());
+        return new CorsWebFilter(source);
+    }
+
+    private CorsConfiguration buildConfig(){
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+		//在生产环境上最好指定域名，以免产生跨域安全问题
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addAllowedMethod("*");
+        return corsConfiguration;
+    }
+}
+```
 
 
 
@@ -1201,26 +4187,6 @@ You will find that password in '/root/.mysql_secret'.
 ## 启动mysql
 https://www.cnblogs.com/maminghao/archive/2010/03/08/1680715.html
 ```
-
-
-
-
-
-
-
-
-
-
-
-jdk
-
-
-
-
-
-
-
-mycat
 
 
 
