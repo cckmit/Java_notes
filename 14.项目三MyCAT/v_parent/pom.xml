@@ -13,6 +13,10 @@
         <module>v_common</module>
         <module>v_feign_api</module>
         <module>v_eureka</module>
+        <module>v_gateway</module>
+        <module>v_service_goods</module>
+        <module>v_service_order</module>
+        <module>v_service_log</module>
     </modules>
 
     <!-- springBoot项目需要集成自父工程 -->

@@ -2,9 +2,25 @@
 
 
 
-# 基础篇
 
-## 前面
+
+# 写在前面
+
+
+
+### 推荐
+
+黑马程序员：https://www.bilibili.com/video/BV1Kr4y1i7ru?p=168&spm_id_from=pageDriver
+
+尚硅谷（宋红康）：https://www.bilibili.com/video/BV1iq4y1u7vj/?spm_id_from=autoNext
+
+黑马程序员（MyCat）：https://www.bilibili.com/video/BV17f4y1D7pm?p=98
+
+
+
+<hr>
+
+
 
 MySQL 是一款非常流行的数据库管理系统
 
@@ -57,6 +73,18 @@ MySQL主从复制的原理是什么?
 - 初级工程师
 - 中级工程师
 - 高级工程师
+
+
+
+
+
+<hr>
+
+
+
+
+
+# 基础篇
 
 
 
@@ -3744,6 +3772,32 @@ docker images;
 
 
 ### 17.5双主双从读写分离
+
+
+
+
+
+
+
+<hr>
+
+
+
+# 写在后面
+
+做个自律的人
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

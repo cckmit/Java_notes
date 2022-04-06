@@ -4145,6 +4145,1402 @@ public class CorsConfig {
 
 
 
+### 8.4 功能开发
+
+#### 8.4.1 商品管理模块
+
+需求 : 
+
+1). 根据ID查询商品SPU信息;
+
+2). 根据条件查询商品SPU列表;
+
+3). 根据ID查询商品SKU信息;
+
+![image-20200216225916691](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200216225916691.png) 
+
+
+
+概念: 
+
+1). SPU = Standard Product Unit  （标准产品单位）
+
+概念 : SPU 是商品信息聚合的最小单位，是一组可复用、易检索的标准化信息的集合，该集合描述了一个产品的特性。
+通俗点讲，属性值、特性相同的货品就可以称为一个 SPU
+
+**例如：华为P30 就是一个 SPU**
+
+
+
+2). SKU=stock keeping unit( 库存量单位)
+
+SKU  即库存进出计量的单位， 可以是以件、盒、托盘等为单位。
+SKU  是物理上不可分割的最小存货单元。在使用时要根据不同业态，不同管理模式来处理。在服装、鞋类商品中使用最多最普遍。
+
+**例如：红色 64G 全网通 的华为P30 就是一个 SKU**
+
+
+
+
+
+##### 8.4.1.1 创建工程
+
+pom.xml
+
+```xml
+ <dependencies>
+        <!-- Eureka客户端依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!--MySQL数据库驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <!--mybatis分页插件-->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!--web起步依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- redis 使用-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- fastJson依赖 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+
+        <!-- Feign依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.itcast</groupId>
+            <artifactId>v_common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.itcast</groupId>
+            <artifactId>v_model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.itcast</groupId>
+            <artifactId>v_feign_api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+```
+
+application.yml
+
+```yml
+server:
+  port: 9001
+spring:
+  application:
+    name: goods
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/v_shop?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 2143
+  main:
+    allow-bean-definition-overriding: true #当遇到同样名字的时候，是否允许覆盖注册
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:8161/eureka
+  instance:
+    prefer-ip-address: true
+```
+
+
+
+引导类
+
+```java
+@SpringBootApplication
+@EnableEurekaClient
+@EnableFeignClients(basePackages = "cn.itcast.feign")
+@MapperScan("cn.itcast.goods.mapper")
+public class GoodsApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GoodsApplication.class,args);
+    }
+}
+```
+
+
+
+##### 8.4.1.2 Mapper
+
+1). mapper接口定义
+
+```java
+public interface SpuMapper {
+
+    public TbSpu findById(String spuId);
+
+    public List<TbSpu> search(Map<String,Object> searchMap);
+
+}
+```
+
+```java
+public interface SkuMapper  {
+    //根据ID查询SKU
+    public TbSku findById(String skuId);
+
+}
+```
+
+
+
+2). mapper映射配置文件
+
+SpuMapper.xml
+
+```xml
+<mapper namespace="cn.itcast.goods.mapper.SpuMapper" >
+
+    <resultMap id="spuResultMap" type="cn.itcast.model.TbSpu">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="sn" jdbcType="VARCHAR" property="sn" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="caption" jdbcType="VARCHAR" property="caption" />
+        <result column="brand_id" jdbcType="INTEGER" property="brandId" />
+        <result column="category1_id" jdbcType="INTEGER" property="category1Id" />
+        <result column="category2_id" jdbcType="INTEGER" property="category2Id" />
+        <result column="category3_id" jdbcType="INTEGER" property="category3Id" />
+        <result column="template_id" jdbcType="INTEGER" property="templateId" />
+        <result column="freight_id" jdbcType="INTEGER" property="freightId" />
+        <result column="image" jdbcType="VARCHAR" property="image" />
+        <result column="images" jdbcType="VARCHAR" property="images" />
+        <result column="sale_service" jdbcType="VARCHAR" property="saleService" />
+        <result column="spec_items" jdbcType="VARCHAR" property="specItems" />
+        <result column="para_items" jdbcType="VARCHAR" property="paraItems" />
+        <result column="sale_num" jdbcType="INTEGER" property="saleNum" />
+        <result column="comment_num" jdbcType="INTEGER" property="commentNum" />
+        <result column="is_marketable" jdbcType="CHAR" property="isMarketable" />
+        <result column="is_enable_spec" jdbcType="CHAR" property="isEnableSpec" />
+        <result column="is_delete" jdbcType="CHAR" property="isDelete" />
+        <result column="status" jdbcType="CHAR" property="status" />
+    </resultMap>
+
+    <select id="findById" parameterType="java.lang.String" resultMap="spuResultMap">
+        select
+            *
+        from
+            tb_spu
+        where
+            id = #{spuId}
+    </select>
+
+    <select id="search" resultMap="spuResultMap">
+        select * from tb_spu
+        <where>
+            <if test="name != null and name != ''">
+                and name like '%${name}%'
+            </if>
+            <if test="caption != null and caption != ''" >
+                and caption like '%${caption}%'
+            </if>
+            <if test="brandId != null">
+                and brand_id = #{brandId}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+```
+
+   
+
+SkuMapper.xml
+
+```xml
+<mapper namespace="cn.itcast.goods.mapper.SkuMapper" >
+
+    <resultMap id="skuResultMap" type="cn.itcast.model.TbSku">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="sn" jdbcType="VARCHAR" property="sn" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="price" jdbcType="INTEGER" property="price" />
+        <result column="num" jdbcType="INTEGER" property="num" />
+        <result column="alert_num" jdbcType="INTEGER" property="alertNum" />
+        <result column="image" jdbcType="VARCHAR" property="image" />
+        <result column="images" jdbcType="VARCHAR" property="images" />
+        <result column="weight" jdbcType="INTEGER" property="weight" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="spu_id" jdbcType="VARCHAR" property="spuId" />
+        <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+        <result column="category_name" jdbcType="VARCHAR" property="categoryName" />
+        <result column="brand_name" jdbcType="VARCHAR" property="brandName" />
+        <result column="spec" jdbcType="VARCHAR" property="spec" />
+        <result column="sale_num" jdbcType="INTEGER" property="saleNum" />
+        <result column="comment_num" jdbcType="INTEGER" property="commentNum" />
+        <result column="status" jdbcType="CHAR" property="status" />
+        <result column="version" jdbcType="INTEGER" property="version" />
+    </resultMap>
+
+    <select id="findById" parameterType="java.lang.String" resultMap="skuResultMap">
+        select * from tb_sku where id = #{skuId}
+    </select>
+</mapper>
+```
+
+
+
+##### 8.4.1.3 Service
+
+1). 接口定义 
+
+```java
+public interface SkuService {
+    /**
+     * 根据ID查询SKU
+     * @param skuId
+     * @return
+     */
+    public TbSku findById(String skuId);
+}
+```
+
+```java
+public interface SpuService {
+    /**
+     * 根据ID查询
+     * @param id
+     * @return
+     */
+    TbSpu findById(String id);
+    /***
+     * 多条件分页查询
+     * @param searchMap
+     * @param page
+     * @param size
+     * @return
+     */
+    Page<TbSpu> findPage(Map<String, Object> searchMap, int page, int size);
+}
+```
+
+
+
+2).接口实现
+
+```java
+@Service
+public class SkuServiceImpl implements SkuService {
+    @Autowired
+    private SkuMapper skuMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    
+    @Override
+    public TbSku findById(String skuId) {
+        return skuMapper.findById(skuId);
+    }
+    
+}
+```
+
+```java
+@Service
+public class SpuServiceImpl implements SpuService {
+
+    @Autowired
+    private SpuMapper spuMapper;
+
+    /**
+     * 根据ID查询
+     * @param id
+     * @return
+     */
+    @Override
+    public TbSpu findById(String id){
+        return  spuMapper.findById(id);
+    }
+
+    /**
+     * 条件+分页查询
+     * @param searchMap 查询条件
+     * @param page 页码
+     * @param size 页大小
+     * @return 分页结果
+     */
+    @Override
+    public Page<TbSpu> findPage(Map<String,Object> searchMap, int page, int size){
+        PageHelper.startPage(page,size);
+        return (Page<TbSpu>) spuMapper.search(searchMap);
+    }
+
+}
+```
+
+
+
+##### 8.4.1.4 Controller
+
+```java
+@RestController
+@CrossOrigin(origins = "*")
+@RequestMapping("/sku")
+public class SkuController {
+    @Autowired
+    private SkuService skuService;
+    /***
+     * 根据ID查询数据
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public Result<TbSku> findById(@PathVariable("id") String id){
+        TbSku sku = skuService.findById(id);
+        return new Result(true,StatusCode.OK,"查询成功",sku);
+    }
+}
+```
+
+```java
+@RestController
+@CrossOrigin(origins = "*")
+@RequestMapping("/spu")
+public class SpuController {
+
+    @Autowired
+    private SpuService spuService;
+
+    /***
+     * 根据ID查询数据
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public Result<TbSpu> findById(@PathVariable("id") String id){
+        TbSpu spu = spuService.findById(id);
+        return new Result(true,StatusCode.OK,"查询成功",spu);
+    }
+    
+    /***
+     * 分页搜索实现
+     * @param searchMap
+     * @param page
+     * @param size
+     * @return
+     */
+    @PostMapping(value = "/search/{page}/{size}" )
+    public Result<TbSpu> findPage(@RequestBody Map searchMap, @PathVariable  Integer page, @PathVariable  Integer size){
+        com.github.pagehelper.Page<TbSpu> pageList = spuService.findPage(searchMap, page, size);
+        PageResult pageResult=new PageResult<TbSpu>(pageList.getTotal(),pageList.getResult());
+        return new Result<TbSpu>(true,StatusCode.OK,"查询成功",pageResult);
+    }
+}
+```
+
+
+
+
+
+#### 8.4.2 订单模块
+
+需求:
+
+1). 下单业务分析
+
+2). 根据条件分页查询订单
+
+表结构: 
+
+tb_order , tb_order_item , tb_order_log（便于数据追踪，因为订单信息需要更新）
+
+
+
+##### 8.4.2.1 创建工程
+
+1).pom.xml
+
+```xml
+ <dependencies>
+     <dependency>
+         <groupId>cn.itcast</groupId>
+         <artifactId>v_common</artifactId>
+         <version>1.0-SNAPSHOT</version>
+     </dependency>
+
+     <dependency>
+         <groupId>cn.itcast</groupId>
+         <artifactId>v_model</artifactId>
+         <version>1.0-SNAPSHOT</version>
+     </dependency>
+
+     <dependency>
+         <groupId>cn.itcast</groupId>
+         <artifactId>v_feign_api</artifactId>
+         <version>1.0-SNAPSHOT</version>
+     </dependency>
+
+     <!-- Eureka客户端依赖 -->
+     <dependency>
+         <groupId>org.springframework.cloud</groupId>
+         <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+     </dependency>
+	
+	<!-- springboot - Mybatis 起步依赖 -->
+    <dependency>
+        <groupId>org.mybatis.spring.boot</groupId>
+        <artifactId>mybatis-spring-boot-starter</artifactId>
+        <version>2.1.0</version>
+    </dependency>
+
+     <!--MySQL数据库驱动-->
+     <dependency>
+         <groupId>mysql</groupId>
+         <artifactId>mysql-connector-java</artifactId>
+     </dependency>
+
+     <!--mybatis分页插件-->
+     <dependency>
+         <groupId>com.github.pagehelper</groupId>
+         <artifactId>pagehelper-spring-boot-starter</artifactId>
+     </dependency>
+
+     <!--web起步依赖-->
+     <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-web</artifactId>
+     </dependency>
+
+     <!-- redis 使用-->
+     <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-data-redis</artifactId>
+     </dependency>
+
+     <!-- fastJson依赖 -->
+     <dependency>
+         <groupId>com.alibaba</groupId>
+         <artifactId>fastjson</artifactId>
+     </dependency>
+
+     <!-- Feign依赖 -->
+     <dependency>
+         <groupId>org.springframework.cloud</groupId>
+         <artifactId>spring-cloud-starter-openfeign</artifactId>
+     </dependency>
+
+</dependencies>
+```
+
+
+
+2). application.yml
+
+```yml
+server:
+  port: 9002
+spring:
+  application:
+    name: order
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/v_shop?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 2143
+  main:
+    allow-bean-definition-overriding: true #当遇到同样名字的时候，是否允许覆盖注册
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:8161/eureka
+  instance:
+    prefer-ip-address: true
+feign:
+  client:
+    config:
+      default:   #配置全局的feign的调用超时时间  如果 有指定的服务配置 默认的配置不会生效
+        connectTimeout: 60000 # 指定的是 消费者 连接服务提供者的连接超时时间 是否能连接  单位是毫秒
+        readTimeout: 20000  # 指定的是调用服务提供者的 服务 的超时时间（）  单位是毫秒
+```
+
+
+
+3). 引导类
+
+```java
+@SpringBootApplication
+@EnableEurekaClient
+@MapperScan(basePackages = "cn.itcast.order.mapper")
+public class OrderApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderApplication.class,args);
+    }
+}
+```
+
+
+
+##### 8.4.2.2 下单业务分析
+
+![image-20200217102815624](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200217102815624.png)
+
+
+
+##### 8.4.2.3 查询订单
+
+![image-20200217141007643](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200217141007643.png) 
+
+###### 8.4.2.3.1 Mapper
+
+1). mapper接口
+
+```java
+public interface OrderMapper  {
+    public List<TbOrder> search(Map<String,Object> searchMap);
+}
+```
+
+
+
+
+
+2). mapper映射配置文件
+
+OrderMapper.xml
+
+```xml
+<mapper namespace="cn.itcast.order.mapper.OrderMapper" >
+    <resultMap id="orderResultMap" type="cn.itcast.model.TbOrder">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="total_num" jdbcType="INTEGER" property="totalNum" />
+        <result column="total_money" jdbcType="INTEGER" property="totalMoney" />
+        <result column="pre_money" jdbcType="INTEGER" property="preMoney" />
+        <result column="post_fee" jdbcType="INTEGER" property="postFee" />
+        <result column="pay_money" jdbcType="INTEGER" property="payMoney" />
+        <result column="pay_type" jdbcType="VARCHAR" property="payType" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="pay_time" jdbcType="TIMESTAMP" property="payTime" />
+        <result column="consign_time" jdbcType="TIMESTAMP" property="consignTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="close_time" jdbcType="TIMESTAMP" property="closeTime" />
+        <result column="shipping_name" jdbcType="VARCHAR" property="shippingName" />
+        <result column="shipping_code" jdbcType="VARCHAR" property="shippingCode" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="buyer_message" jdbcType="VARCHAR" property="buyerMessage" />
+        <result column="buyer_rate" jdbcType="CHAR" property="buyerRate" />
+        <result column="receiver_contact" jdbcType="VARCHAR" property="receiverContact" />
+        <result column="receiver_mobile" jdbcType="VARCHAR" property="receiverMobile" />
+        <result column="receiver_province" jdbcType="VARCHAR" property="receiverProvince" />
+        <result column="receiver_city" jdbcType="VARCHAR" property="receiverCity" />
+        <result column="receiver_area" jdbcType="VARCHAR" property="receiverArea" />
+        <result column="receiver_address" jdbcType="VARCHAR" property="receiverAddress" />
+        <result column="source_type" jdbcType="CHAR" property="sourceType" />
+        <result column="transaction_id" jdbcType="VARCHAR" property="transactionId" />
+        <result column="order_status" jdbcType="CHAR" property="orderStatus" />
+        <result column="pay_status" jdbcType="CHAR" property="payStatus" />
+        <result column="consign_status" jdbcType="CHAR" property="consignStatus" />
+        <result column="is_delete" jdbcType="CHAR" property="isDelete" />
+    </resultMap>
+
+
+    <select id="search" resultType="cn.itcast.model.TbOrder">
+        SELECT
+            o.id ,
+            o.`create_time` createTime,
+            o.username ,
+            o.`total_money` totalMoney,
+            o.`total_num` totalNum,
+            o.`pay_type` payType,
+            o.`pay_status` payStatus,
+
+            p.`province` receiverProvince
+        FROM
+            tb_order o , tb_provinces p
+        WHERE
+            o.receiver_province = p.provinceid
+        <if test="orderId != null and orderId != ''">
+            and o.id = #{orderId}
+        </if>
+
+        <if test="payType != null and payType != ''">
+            and o.pay_type = #{payType}
+        </if>
+
+        <if test="username != null and username != ''">
+            and o.username = #{username}
+        </if>
+
+        <if test="payStatus != null and payStatus != ''">
+            and o.order_status = #{payStatus}
+        </if>
+    </select>
+</mapper>
+```
+
+
+
+###### 8.4.2.3.2 Service
+
+service接口
+
+```java
+public interface OrderService {
+
+    /***
+     * 新增
+     * @param order
+     */
+    void add(TbOrder order);
+
+    /***
+     * 多条件分页查询
+     * @param searchMap
+     * @param page
+     * @param size
+     * @return
+     */
+    Page<TbOrder> findPage(Map<String, Object> searchMap, int page, int size);
+
+}
+```
+
+service实现
+
+```java
+@Service
+public class OrderServiceImpl implements OrderService {
+    @Autowired
+    private OrderMapper orderMapper;
+    @Autowired
+    private OrderItemMapper orderItemMapper;
+    @Autowired
+    private IdWorker idWorker;
+
+    /**
+     * 增加
+     * @param order
+     */
+    @Override
+    public void add(TbOrder order){
+        //1.获取购物车的相关数据(redis)
+        
+        //2.统计计算:总金额,总数量
+        
+        //3.填充订单数据并保存到tb_order
+
+        //4.填充订单项数据并保存到tb_order_item
+
+        //5.记录订单日志
+        
+        //6.扣减库存并增加销量
+
+        //7.删除购物车数据(redis)
+
+      
+    }
+    
+    
+    /**
+     * 条件+分页查询
+     * @param searchMap 查询条件
+     * @param page 页码
+     * @param size 页大小
+     * @return 分页结果
+     */
+    @Override
+    public Page<TbOrder> findPage(Map<String,Object> searchMap, int page, int size){
+        PageHelper.startPage(page,size);
+        return (Page<TbOrder>)orderMapper.search(searchMap);
+    }
+}
+```
+
+
+
+
+
+###### 8.4.2.3.3 Controller
+
+```java
+@RestController
+@CrossOrigin(value = {"*"})
+@RequestMapping("/order")
+public class OrderController {
+
+    @Autowired
+    private OrderService orderService;
+
+
+    @PostMapping
+    @OperateLog
+    public Result add(@RequestBody TbOrder order){
+        //获取登录人名称
+        orderService.add(order);
+        return new Result(true,StatusCode.OK,"提交成功");
+    }
+
+
+    /***
+     * 分页搜索实现
+     * @param searchMap
+     * @param page
+     * @param size
+     * @return
+     */
+    @PostMapping(value = "/search/{page}/{size}" )
+    @OperateLog
+    public Result findPage(@RequestBody Map searchMap, @PathVariable  Integer page, @PathVariable  Integer size){
+        Page<TbOrder> pageList = orderService.findPage(searchMap, page, size);
+        PageResult pageResult=new PageResult(pageList.getTotal(),pageList.getResult());
+        return new Result(true,StatusCode.OK,"查询成功",pageResult);
+    }
+}
+```
+
+
+
+
+
+
+
+#### 8.4.3 日志模块
+
+表结构: 
+
+tb_operatelog
+
+
+
+需求: 
+
+1). 记录日志
+
+2). 查询日志
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200205224758890.png) 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200218031150324.png) 
+
+##### 8.4.3.1 创建工程
+
+1). pom.xml
+
+```xml
+    <dependencies>
+
+        <dependency>
+            <groupId>cn.itcast</groupId>
+            <artifactId>v_common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.itcast</groupId>
+            <artifactId>v_model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.itcast</groupId>
+            <artifactId>v_feign_api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <!-- Eureka客户端依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+
+        <!--MySQL数据库驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <!--mybatis分页插件-->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!--web起步依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- fastJson依赖 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+
+        <!-- Feign依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+    </dependencies>
+```
+
+
+
+2). application.yml
+
+```yml
+server:
+  port: 9003
+spring:
+  application:
+    name: log
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/v_shop?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 2143
+  main:
+    allow-bean-definition-overriding: true #当遇到同样名字的时候，是否允许覆盖注册
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:8161/eureka
+  instance:
+    prefer-ip-address: true
+```
+
+
+
+3). 引导类
+
+```java
+@SpringBootApplication
+@EnableEurekaClient
+@MapperScan(basePackages = "cn.itcast.log.mapper")
+public class LogApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(LogApplication.class,args);
+    }
+   
+    @Bean
+    public IdWorker idworker(){
+        return new IdWorker(0,0);
+    }
+}
+```
+
+
+
+
+
+**分布式ID生成**
+
+snowflake是 Twitter 开源的分布式ID生成算法，结果是一个long型的ID。其核心思想是：使用41bit作为毫秒数，10bit作为机器的ID（5个bit是数据中心，5个bit的机器ID），12bit作为毫秒内的流水号（意味着每个节点在每毫秒可以产生 4096 个 ID），最后还有一个符号位，永远是0 ;
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200218010603410.png) 
+
+使用方式: 
+
+```java
+IdWorker idWorker=new IdWorker(1,1);//0-31 , 0-31
+
+for(int i=0;i<10000;i++){
+	long id = idWorker.nextId();
+	System.out.println(id);
+}
+```
+
+
+
+
+
+
+
+##### 8.4.3.2 Mapper
+
+mapper接口
+
+```java
+public interface OperateLogMapper {
+
+    public void insert(TbOperatelog operationLog);
+
+    public List<TbOperatelog> search(Map searchMap);
+
+}
+```
+
+OperateLogMapper.xml
+
+```xml
+<mapper namespace="cn.itcast.log.mapper.OperateLogMapper" >
+
+    <resultMap id="operateLogResultMap" type="cn.itcast.model.TbOperatelog">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="model_name" jdbcType="VARCHAR" property="modelName" />
+        <result column="model_value" jdbcType="VARCHAR" property="modelValue" />
+        <result column="return_value" jdbcType="VARCHAR" property="returnValue" />
+        <result column="return_class" jdbcType="VARCHAR" property="returnClass" />
+        <result column="operate_user" jdbcType="VARCHAR" property="operateUser" />
+        <result column="operate_time" jdbcType="VARCHAR" property="operateTime" />
+        <result column="param_and_value" jdbcType="VARCHAR" property="paramAndValue" />
+        <result column="operate_class" jdbcType="VARCHAR" property="operateClass" />
+        <result column="operate_method" jdbcType="VARCHAR" property="operateMethod" />
+        <result column="cost_time" jdbcType="BIGINT" property="costTime" />
+    </resultMap>
+
+
+    <insert id="insert" parameterType="cn.itcast.model.TbOperatelog">
+    insert into tb_operatelog (id, model_name, model_value, 
+      return_value, return_class, operate_user, 
+      operate_time, param_and_value, operate_class, 
+      operate_method, cost_time)
+    values (#{id}, #{modelName}, #{modelValue}, 
+      #{returnValue}, #{returnClass}, #{operateUser}, 
+      #{operateTime}, #{paramAndValue}, #{operateClass}, 
+      #{operateMethod}, #{costTime})
+  </insert>
+
+
+    <select id="search" resultMap="operateLogResultMap">
+        select * from tb_operatelog
+        <where>
+            <if test="operateUser != null and operateUser != ''">
+                and operate_user = #{operateUser}
+            </if>
+            <if test="operateMethod != null and operateMethod != ''">
+                and operate_method = #{operateMethod}
+            </if>
+            <if test="returnClass != null and returnClass != ''">
+                and return_class = #{returnClass}
+            </if>
+            <if test="costTime != null and costTime != '' ">
+                and cost_time = #{costTime}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+```
+
+
+
+##### 8.4.3.3 Service
+
+接口
+
+```
+public interface OperateLogService {
+    public void insert(TbOperatelog operationLog);
+
+    public Page<TbOperatelog> findPage(Map searchMap, Integer pageNum , Integer pageSize);
+}
+```
+
+实现
+
+```java
+@Service
+@Transactional
+public class OperateLogServiceImpl implements OperateLogService {
+
+
+    @Autowired
+    private OperateLogMapper operateLogMapper;
+
+    public void insert(TbOperatelog operationLog){
+        long id = idworker.nextId();
+        operationLog.setId(id);
+        operateLogMapper.insert(operationLog);
+    }
+
+    public Page<TbOperatelog> findPage(Map searchMap, Integer pageNum , Integer pageSize){
+        System.out.println(searchMap);
+	
+        PageHelper.startPage(pageNum,pageSize);
+        List<TbOperatelog> list = operateLogMapper.search(searchMap);
+
+        return (Page<TbOperatelog>) list;
+    }
+
+}
+```
+
+
+
+
+
+##### 8.4.3.4 Controller
+
+```java
+@RestController
+@RequestMapping("/operateLog")
+public class OperateLogController {
+
+    @Autowired
+    private OperateLogService operateLogService;
+
+    @RequestMapping("/search/{page}/{size}")
+    public Result findList(@RequestBody Map dataMap, @PathVariable Integer page, @PathVariable  Integer size){
+
+        Page<TbOperatelog> pageList = operateLogService.findPage(dataMap, page, size);
+        PageResult pageResult=new PageResult(pageList.getTotal(),pageList.getResult());
+
+        return new Result(true, StatusCode.OK,"查询成功",pageResult);
+    }
+
+
+    @RequestMapping("/add")
+    public Result add(@RequestBody TbOperatelog operatelog){
+        operateLogService.insert(operatelog);
+        return new Result(true,StatusCode.OK,"添加成功");
+    }
+
+}
+```
+
+
+
+##### 8.4.3.5 AOP记录日志
+
+在需要记录操作日志的微服务中, 引入AOP记录日志的类 : 
+
+1). 自定义注解
+
+```java
+@Inherited
+@Documented
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface OperateLog {
+}
+```
+
+2). AOP通知类
+
+```java
+@Component
+@Aspect
+public class OperateAdvice {
+
+	@Autowired
+	private OperateLogFeign operateLogFeign;
+
+	@Around("execution(* cn.itcast.goods.controller.*.*(..)) && @annotation(operateLog)")
+	public Object insertLogAround(ProceedingJoinPoint pjp , OperateLog operateLog) throws Throwable{
+		System.out.println(" *********************************** 记录日志 [start]  ****************************** ");
+
+		TbOperatelog op = new TbOperatelog();
+
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		op.setOperateTime(sdf.format(new Date()));
+		op.setOperateUser("10000");
+		
+		op.setOperateClass(pjp.getTarget().getClass().getName());
+		op.setOperateMethod(pjp.getSignature().getName());
+
+		String paramAndValue = "";
+		Object[] args = pjp.getArgs();
+		if(args != null){
+			for (Object arg : args) {
+				if(arg instanceof String || arg instanceof Integer || arg instanceof Long){
+					paramAndValue += arg +",";
+				}else{
+					paramAndValue += JSON.toJSONString(arg)+",";
+				}
+			}
+			op.setParamAndValue(paramAndValue);
+		}
+
+		long start_time = System.currentTimeMillis();
+
+		//放行
+		Object object = pjp.proceed();
+
+		long end_time = System.currentTimeMillis();
+		op.setCostTime(end_time - start_time);
+
+		if(object != null){
+			op.setReturnClass(object.getClass().getName());
+			op.setReturnValue(object.toString());
+		}else{
+			op.setReturnClass("java.lang.Object");
+			op.setParamAndValue("void");
+		}
+
+		operateLogFeign.add(op);
+
+		System.out.println(" *********************************** 记录日志 [end]  ****************************** ");
+
+		return object;
+	}
+}
+```
+
+
+
+### 8.5 MyCat分片
+
+当前数据库的情况 :
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200209111951501.png) 
+
+由于当前项目是一个电商项目，项目上线后，随着项目的运营，业务系统的数据库中的数据与日俱增，特别是订单、日志等数据，如果数据量过大，这个时候就需要考虑通过MyCat分库分表。
+
+
+
+
+
+#### 8.5.1 分片分析
+
+1). 垂直拆分
+
+数据量过大，需要考虑扩容，可以通过MyCat来实现数据库表的垂直拆分，将同一块业务的数据库表拆分到同一个数据库服务中。拆分方式如下： 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200209110344132.png) 
+
+
+
+2). 全局表
+
+按照上述的方式进行表结构的拆分，可以解决扩容的问题，但是存在另一个问题：由于省、市、区县、数据字典表，在订单及商品等模块中都需要用到，还会涉及到多表连接查询，那么这个时候涉及到跨库的join操作，可以使用全局表来解决。结构图如下： 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200209111118652.png) 
+
+
+
+3). 水平拆分
+
+即使我们在上述的方案中使用垂直拆分，将系统中的表结构拆分到了三个数据库服务器中，但是对于当前这个比较繁忙的业务系统来说，每天都会产生大量的用户操作日志，长年累月，这张表的数据在单台服务器中已经存储不下了，这个时候，我们就可以使用MyCat的水平拆分来解决这个问题。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200209171203841.png) 
+
+
+
+  
+
+#### 8.5.2 服务器配置
+
+| 名称         |       IP        | 端口 | 用户名/密码 |
+| :----------- | :-------------: | :--: | :---------: |
+| MyCat-Server | 192.168.192.157 | 8066 | root/123456 |
+| MySQL-1      | 192.168.192.158 | 3306 | root/itcast |
+| MySQL-2      | 192.168.192.159 | 3306 | root/itcast |
+| MySQL-3      | 192.168.192.160 | 3306 | root/itcast |
+| MySQL-4      | 192.168.192.161 | 3306 | root/itcast |
+
+
+
+#### 8.5.3 schema.xml
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+	
+	<schema name="V_SHOP" checkSQLschema="false" sqlMaxLimit="100">
+       
+	   <table name="tb_areas" dataNode="dn1,dn2,dn3,dn4" primaryKey="areaid" type="global"/>
+	   <table name="tb_provinces" dataNode="dn1,dn2,dn3,dn4" primaryKey="provinceid" type="global"/>
+	   <table name="tb_cities" dataNode="dn1,dn2,dn3,dn4" primaryKey="cityid"  type="global"/>
+	   <table name="tb_dictionary" dataNode="dn1,dn2,dn3,dn4" primaryKey="id"  type="global"/>
+		
+		
+		<table name="tb_brand" dataNode="dn1" primaryKey="id" />
+		<table name="tb_category" dataNode="dn1" primaryKey="id" />
+		<table name="tb_sku" dataNode="dn1" primaryKey="id" />
+		<table name="tb_spu" dataNode="dn1" primaryKey="id" />
+		
+        
+		<table name="tb_order" dataNode="dn2" primaryKey="id" />
+		<table name="tb_order_item" dataNode="dn2" primaryKey="id" />
+		<table name="tb_order_log" dataNode="dn2" primaryKey="id" />
+		
+        
+		<table name="tb_operatelog" dataNode="dn3,dn4" primaryKey="id" rule="log-sharding-by-murmur"/>
+	</schema>
+    
+	
+	<dataNode name="dn1" dataHost="host1" database="v_goods" />
+	<dataNode name="dn2" dataHost="host2" database="v_order" />
+	<dataNode name="dn3" dataHost="host3" database="v_log" />
+	<dataNode name="dn4" dataHost="host4" database="v_log" />
+    
+	
+	<dataHost name="host1" maxCon="1000" minCon="10" balance="0"
+		writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM1" url="192.168.192.158:3306" user="root" password="itcast">	</writeHost>
+	</dataHost>	
+    
+    <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+		writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM2" url="192.168.192.159:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+    
+    <dataHost name="host3" maxCon="1000" minCon="10" balance="0"
+		writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM3" url="192.168.192.160:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+	
+	<dataHost name="host4" maxCon="1000" minCon="10" balance="0"
+		writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM4" url="192.168.192.161:3306" user="root" password="itcast"></writeHost>
+	</dataHost>	
+</mycat:schema>
+```
+
+
+
+
+
+#### 8.5.4 分片配置
+
+1). 配置Mycat的schema.xml
+
+
+
+2). 配置rule.xml
+
+```xml
+<tableRule name="log-sharding-by-murmur">
+    <rule>
+        <columns>id</columns>
+        <algorithm>log-murmur</algorithm>
+    </rule>
+</tableRule>
+
+<function name="log-murmur" class="io.mycat.route.function.PartitionByMurmurHash">
+    <property name="seed">0</property>
+    <property name="count">2</property>
+    <property name="virtualBucketTimes">160</property>
+</function>
+```
+
+
+
+3). 配置server.xml
+
+```xml
+<user name="root" defaultAccount="true">
+    <property name="password">GO0bnFVWrAuFgr1JMuMZkvfDNyTpoiGU7n/Wlsa151CirHQnANVk3NzE3FErx8v6pAcO0ctX3xFecmSr+976QA==</property>
+    <property name="schemas">V_SHOP</property>
+    <property name="readOnly">false</property>
+    <property name="benchmark">1000</property>
+    <property name="usingDecrypt">1</property>
+
+    <!-- 表级 DML 权限设置
+
+  <privileges check="true">
+   <schema name="ITCAST" dml="1111" >
+    <table name="TB_TEST" dml="1110"></table>
+   </schema>
+  </privileges>	
+  -->		
+</user>
+```
+
+
+
+4). 在各个MySQL数据库实例中创建数据库
+
+```
+MySQL-1 : v_goods
+MySQL-2 : v_order
+MySQL-3 : v_log
+MySQL-4 : v_log
+```
+
+
+
+5). 导出本地的SQL脚本 , 在MyCat中执行SQL脚本 , 创建数据表 ,并导入数据
+
+
+
+6). 连接测试
+
+
+
+#### 8.5.5 微服务连接MyCat
+
+```yml
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.192.157:8066/V_SHOP?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 123456
+```
+
+
+
+
+
+#### 8.5.6 配置MyCat-Web监控
+
+1). 启动Zookeeper
+
+2). 启动MyCat-Web
+
+3). 访问 
+
+http://192.168.192.157:8082/mycat
+
+界面: 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20200219231604626.png)
+
+
+
+
+
+
+
+
+
 
 
 
