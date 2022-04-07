@@ -1,5 +1,9 @@
 
 
+> 来自 JavaGuide 开源版
+
+
+
 
 
 ## 基础概念和常识
@@ -283,11 +287,11 @@ Catch Exception -> RuntimeException
 
 
 
-### 反射机制详解
+## 反射机制详解
 
-####  反射实战
+###  反射实战
 
-##### 获取 Class 对象的四种方式
+#### 获取 Class 对象的四种方式
 
 如果我们动态获取到这些信息，我们需要依靠 Class 对象。Class 类对象将一个类的方法、变量等信息告诉运行的程序。Java 提供了四种方式获取 Class 对象:
 
@@ -328,7 +332,7 @@ Class clazz = ClassLoader.loadClass("cn.javaguide.TargetObject");
 
 
 
-##### 反射的一些基本操作
+#### 反射的一些基本操作
 
 1. 创建一个我们要使用反射操作的类 `TargetObject`。
 
@@ -426,9 +430,9 @@ Class<?> targetClass = Class.forName("cn.javaguide.TargetObject");
 
 
 
-### 代理详解！静态代理+JDK/CGLIB 动态代理实战
+## 代理详解！静态代理+JDK/CGLIB 动态代理实战
 
-#### 1. 代理模式
+### 1. 代理模式
 
 代理模式是一种比较好理解的设计模式。简单来说就是 **我们使用代理对象来代替对真实对象(real object)的访问，这样就可以在不修改原目标对象的前提下，提供额外的功能操作，扩展目标对象的功能。**
 
@@ -444,13 +448,13 @@ Class<?> targetClass = Class.forName("cn.javaguide.TargetObject");
 
 
 
-#### 2. 静态代理
+### 2. 静态代理
 
 
 
 
 
-#### 3. 动态代理
+### 3. 动态代理
 
 相比于静态代理来说，动态代理更加灵活。我们不需要针对每个目标类都单独创建一个代理类，并且也不需要我们必须实现接口，我们可以直接代理实现类( *CGLIB 动态代理机制*)。
 
@@ -471,6 +475,100 @@ Class<?> targetClass = Class.forName("cn.javaguide.TargetObject");
 
 
 
+
+<hr>
+
+#### 3.1. JDK 动态代理机制
+
+##### 3.1.1. 介绍
+
+在 Java 动态代理机制中 `InvocationHandler` 接口和 `Proxy` 类是核心。
+
+`Proxy` 类中使用频率最高的方法是：`newProxyInstance()` ，这个方法主要用来生成一个代理对象。
+
+
+
+```java
+    public static Object newProxyInstance(ClassLoader loader,
+                                          Class<?>[] interfaces,
+                                          InvocationHandler h)
+        throws IllegalArgumentException
+    {
+        ......
+    }
+```
+
+这个方法一共有 3 个参数：
+
+1. **loader** :类加载器，用于加载代理对象。
+2. **interfaces** : 被代理类实现的一些接口；
+3. **h** : 实现了 `InvocationHandler` 接口的对象；
+
+要实现动态代理的话，还必须需要实现`InvocationHandler` 来自定义处理逻辑。 <font color=red>当我们的动态代理对象调用一个方法时，这个方法的调用就会被转发到实现`InvocationHandler` 接口类的 `invoke` 方法来调用。</font>
+
+
+
+```java
+public interface InvocationHandler {
+
+    /**
+     * 当你使用代理对象调用方法的时候实际会调用到这个方法
+     */
+    public Object invoke(Object proxy, Method method, Object[] args)
+        throws Throwable;
+}
+```
+
+`invoke()` 方法有下面三个参数：
+
+1. **proxy** :动态生成的代理类
+2. **method** : 与代理类对象调用的方法相对应
+3. **args** : 当前 method 方法的参数
+
+也就是说：**你通过`Proxy` 类的 `newProxyInstance()` 创建的代理对象在调用方法的时候，实际会调用到实现`InvocationHandler` 接口的类的 `invoke()`方法。** 你可以在 `invoke()` 方法中自定义处理逻辑，比如在方法执行前后做什么事情。
+
+
+
+##### 3.1.2. JDK 动态代理类使用步骤
+
+1. 定义一个接口及其实现类；
+2. 自定义` InvocationHandler `并重写`invoke`方法，在` invoke `方法中我们会调用原生方法（被代理类的方法）并自定义一些处理逻辑；
+3. 通过` Proxy.newProxyInstance(ClassLoader loader,Class<?>[] interfaces,InvocationHandler h) `方法创建代理对象；
+
+
+
+
+
+##### 3.1.3. 代码示例
+
+这样说可能会有点空洞和难以理解，我上个例子，大家感受一下吧！
+
+
+
+
+
+
+
+
+
+运行上述代码之后，控制台打印出：
+
+```text
+before method send
+send message:java
+after method send
+```
+
+
+
+
+
+
+
+#### 3.3. JDK 动态代理和 CGLIB 动态代理对比
+
+1. **JDK 动态代理只能代理实现了接口的类或者直接代理接口，而 CGLIB 可以代理未实现任何接口的类。** 另外， CGLIB 动态代理是通过生成一个被代理类的子类来拦截被代理类的方法调用，因此不能代理声明为 final 类型的类和方法。
+2. 就二者的效率来说，大部分情况都是 JDK 动态代理更优秀，随着 JDK 版本的升级，这个优势更加明显。
 
 
 
