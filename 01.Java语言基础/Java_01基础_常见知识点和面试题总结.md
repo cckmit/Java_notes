@@ -478,6 +478,8 @@ JDK 提供了很多内置的注解（比如 `@Override` 、`@Deprecated`），�
 
 ## 异常
 
+**Java 异常类层次结构图概览** ：
+
 
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408121814461.png)
@@ -489,6 +491,54 @@ JDK 提供了很多内置的注解（比如 `@Override` 、`@Deprecated`），�
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408121839125.png)
 
 
+
+### Exception 和 Error 有什么区别？
+
+在 Java 中，所有的异常都有一个共同的祖先 `java.lang` 包中的 `Throwable` 类。`Throwable` 类有两个重要的子类:
+
+- **`Exception`** :程序本身可以处理的异常，可以通过 `catch` 来进行捕获。`Exception` 又可以分为 Checked Exception (受检查异常，必须处理) 和 Unchecked Exception (不受检查异常，可以不处理)。
+- **`Error`** ：`Error` 属于程序无法处理的错误 ，我们没办法通过 `catch` 来进行捕获 。例如Java 虚拟机运行错误（`Virtual MachineError`）、虚拟机内存不够错误(`OutOfMemoryError`)、类定义错误（`NoClassDefFoundError`）等 。这些异常发生时，Java 虚拟机（JVM）一般会选择线程终止。
+
+
+
+
+
+###  Checked Exception 和 Unchecked Exception 有什么区别？
+
+**Checked Exception** 即受检查异常，Java 代码在编译过程中，如果受检查异常没有被 `catch`/`throw` 处理的话，就没办法通过编译 。
+
+比如下面这段 IO 操作的代码：
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408122251589.png)
+
+
+
+除了`RuntimeException`及其子类以外，其他的`Exception`类及其子类都属于受检查异常 。常见的受检查异常有： IO 相关的异常、`ClassNotFoundException` 、`SQLException`...。
+
+
+
+**Unchecked Exception** 即 **不受检查异常** ，Java 代码在编译过程中 ，我们即使不处理不受检查异常也可以正常通过编译。
+
+`RuntimeException` 及其子类都统称为非受检查异常，例如：`NullPointerException`、`NumberFormatException`（字符串转换为数字）、`ArrayIndexOutOfBoundsException`（数组越界）、`ClassCastException`（类型转换错误）、`ArithmeticException`（算术错误）等。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408122430104.png)
+
+
+
+
+
+
+
+### Throwable 类常用方法有哪些？
+
+- `String getMessage()`: 返回异常发生时的简要描述
+- `String toString()`: 返回异常发生时的详细信息
+- `String getLocalizedMessage()`: 返回异常对象的本地化信息。使用 `Throwable` 的子类覆盖这个方法，可以生成本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 `getMessage()`返回的结果相同
+- `void printStackTrace()`: 在控制台上打印 `Throwable` 对象封装的异常信息
 
 
 
@@ -517,7 +567,13 @@ try {
 }
 ```
 
+输出：
 
+```text
+Try to do something
+Catch Exception -> RuntimeException
+Finally
+```
 
 
 
@@ -561,6 +617,31 @@ Catch Exception -> RuntimeException
 
 
 ## I/O
+
+
+
+### Java 中 IO 流分为几种?
+
+- 按照流的流向分，可以分为输入流和输出流；
+- 按照操作单元划分，可以划分为字节流和字符流；
+- 按照流的角色划分为节点流和处理流。
+
+
+
+Java IO 流共涉及 40 多个类，这些类看上去很杂乱，但实际上很有规则，而且彼此之间存在非常紧密的联系， Java IO 流的 40 多个类都是从如下 4 个抽象类基类中派生出来的。
+
+
+
+- InputStream/Reader: 所有的输入流的基类，前者是字节输入流，后者是字符输入流。
+- OutputStream/Writer: 所有输出流的基类，前者是字节输出流，后者是字符输出流。
+
+
+
+
+
+
+
+
 
 
 
@@ -840,11 +921,90 @@ public interface InvocationHandler {
 
 这样说可能会有点空洞和难以理解，我上个例子，大家感受一下吧！
 
+**1.定义发送短信的接口**
+
+```java
+public interface SmsService {
+    String send(String message);
+}
+```
+
+**2.实现发送短信的接口**
+
+```java
+public class SmsServiceImpl implements SmsService {
+    public String send(String message) {
+        System.out.println("send message:" + message);
+        return message;
+    }
+}
+```
 
 
 
+**3.定义一个 JDK 动态代理类**
+
+```java
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+/**
+ * @author shuang.kou
+ * @createTime 2020年05月11日 11:23:00
+ */
+public class DebugInvocationHandler implements InvocationHandler {
+    /**
+     * 代理类中的真实对象
+     */
+    private final Object target;
+
+    public DebugInvocationHandler(Object target) {
+        this.target = target;
+    }
 
 
+    public Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+        //调用方法之前，我们可以添加自己的操作
+        System.out.println("before method " + method.getName());
+        Object result = method.invoke(target, args);
+        //调用方法之后，我们同样可以添加自己的操作
+        System.out.println("after method " + method.getName());
+        return result;
+    }
+}
+```
+
+`invoke()` 方法: 当我们的动态代理对象调用原生方法的时候，最终实际上调用到的是 `invoke()` 方法，然后 `invoke()` 方法代替我们去调用了被代理对象的原生方法。
+
+
+
+**4.获取代理对象的工厂类**
+
+```java
+public class JdkProxyFactory {
+    public static Object getProxy(Object target) {
+        return Proxy.newProxyInstance(
+                target.getClass().getClassLoader(), // 目标类的类加载
+                target.getClass().getInterfaces(),  // 代理需要实现的接口，可指定多个
+                new DebugInvocationHandler(target)   // 代理对象对应的自定义 InvocationHandler
+        );
+    }
+}
+```
+
+`getProxy()` ：主要通过`Proxy.newProxyInstance（）`方法获取某个类的代理对象
+
+
+
+**5.实际使用**
+
+```java
+SmsService smsService = (SmsService) JdkProxyFactory.getProxy(new SmsServiceImpl());
+smsService.send("java");
+```
+
+​	
 
 
 
@@ -858,7 +1018,111 @@ after method send
 
 
 
+####  3.2. CGLIB 动态代理机制
 
+##### 3.2.1. 介绍
+
+**JDK 动态代理有一个最致命的问题是其只能代理实现了接口的类。**
+
+**为了解决这个问题，我们可以用 CGLIB 动态代理机制来避免。**
+
+
+
+<hr>
+
+**在 CGLIB 动态代理机制中 `MethodInterceptor` 接口和 `Enhancer` 类是核心。**
+
+你需要自定义 `MethodInterceptor` 并重写 `intercept` 方法，`intercept` 用于拦截增强被代理类的方法。
+
+
+
+```java
+public interface MethodInterceptor
+extends Callback{
+    // 拦截被代理类中的方法
+    public Object intercept(Object obj, java.lang.reflect.Method method, Object[] args,
+                               MethodProxy proxy) throws Throwable;
+}
+```
+
+
+
+1. **obj** :被代理的对象（需要增强的对象）
+2. **method** :被拦截的方法（需要增强的方法）
+3. **args** :方法入参
+4. **proxy** :用于调用原始方法
+
+
+
+你可以通过 `Enhancer`类来动态获取被代理类，当代理类调用方法的时候，实际调用的是 `MethodInterceptor` 中的 `intercept` 方法。
+
+
+
+##### 3.2.2. CGLIB 动态代理类使用步骤
+
+1. 定义一个类；
+2. 自定义 `MethodInterceptor` 并重写 `intercept` 方法，`intercept` 用于拦截增强被代理类的方法，和 JDK 动态代理中的 `invoke` 方法类似；
+3. 通过 `Enhancer` 类的 `create()`创建代理类；
+
+
+
+#####  3.2.3. 代码示例
+
+不同于 JDK 动态代理不需要额外的依赖。[CGLIBopen in new window](https://github.com/cglib/cglib)(*Code Generation Library*) 实际是属于一个开源项目，如果你要使用它的话，需要手动添加相关依赖。
+
+```xml
+<dependency>
+  <groupId>cglib</groupId>
+  <artifactId>cglib</artifactId>
+  <version>3.3.0</version>
+</dependency>
+```
+
+**1.实现一个使用阿里云发送短信的类**
+
+```java
+package github.javaguide.dynamicProxy.cglibDynamicProxy;
+
+public class AliSmsService {
+    public String send(String message) {
+        System.out.println("send message:" + message);
+        return message;
+    }
+}
+```
+
+**2.自定义 `MethodInterceptor`（方法拦截器）**
+
+```java
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
+import java.lang.reflect.Method;
+
+/**
+ * 自定义MethodInterceptor
+ */
+public class DebugMethodInterceptor implements MethodInterceptor {
+
+
+    /**
+     * @param o           代理对象（增强的对象）
+     * @param method      被拦截的方法（需要增强的方法）
+     * @param args        方法入参
+     * @param methodProxy 用于调用原始方法
+     */
+    @Override
+    public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        //调用方法之前，我们可以添加自己的操作
+        System.out.println("before method " + method.getName());
+        Object object = methodProxy.invokeSuper(o, args);
+        //调用方法之后，我们同样可以添加自己的操作
+        System.out.println("after method " + method.getName());
+        return object;
+    }
+
+}
+```
 
 
 
