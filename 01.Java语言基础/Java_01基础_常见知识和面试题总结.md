@@ -71,6 +71,87 @@
 | `double`  | 64   | 8    | 0d      | 4.9E-324 ~ 1.7976931348623157E308          |
 | `boolean` | 1    |      | false   | true、false                                |
 
+对于 `boolean`，官方文档未明确定义，它依赖于 JVM 厂商的具体实现。逻辑上理解是占用 1 位，但是实际中会考虑计算机高效存储因素。
+
+另外，Java 的每种基本类型所占存储空间的大小不会像其他大多数语言那样随机器硬件架构的变化而变化。这种所占存储空间大小的不变性是 Java 程序比用其他大多数语言编写的程序更具可移植性的原因之一（《Java 编程思想》2.2 节有提到）。
+
+<br>
+
+**注意：**
+
+1. Java 里使用 `long` 类型的数据一定要在数值后面加上 **L**，否则将作为整型解析。
+2. `char a = 'h'`char :单引号，`String a = "hello"` :双引号。
+
+这八种基本类型都有对应的包装类分别为：`Byte`、`Short`、`Integer`、`Long`、`Float`、`Double`、`Character`、`Boolean` 。
+
+包装类型不赋值就是 `Null` ，而基本类型有默认值且不是 `Null`。
+
+
+
+另外，这个问题建议还可以先从 JVM 层面来分析。
+
+基本数据类型直接存放在 Java 虚拟机**栈中的局部变量表中**，而包装类型属于对象类型，我们知道对象实例都存在于**堆**中。相比于对象类型， 基本数据类型占用的空间非常小。
+
+> 《深入理解 Java 虚拟机》 ：局部变量表主要存放了编译期可知的基本数据类型 **（boolean、byte、char、short、int、float、long、double）**、**对象引用**（reference 类型，它不同于对象本身，可能是一个指向对象起始地址的引用指针，也可能是指向一个代表对象的句柄或其他与此对象相关的位置）。
+
+
+
+
+
+### 包装类型的常量池技术了解么？
+
+Java 基本类型的包装类的大部分都实现了常量池技术。
+
+`Byte`,`Short`,`Integer`,`Long` 这 4 种包装类默认创建了数值 **[-128，127]** 的相应类型的缓存数据，`Character` 创建了数值在 **[0,127]** 范围的缓存数据，`Boolean` 直接返回 `True` or `False`。
+
+**Integer 缓存源码：**
+
+```java
+public static Integer valueOf(int i) {
+    if (i >= IntegerCache.low && i <= IntegerCache.high)
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+    return new Integer(i);
+}
+private static class IntegerCache {
+    static final int low = -128;
+    static final int high;
+    static {
+        // high value may be configured by property
+        int h = 127;
+    }
+}
+```
+
+
+
+
+
+下面我们来看一下问题。下面的代码的输出结果是 `true` 还是 `false` 呢？
+
+```java
+Integer i1 = 40;
+Integer i2 = new Integer(40);
+System.out.println(i1==i2);
+```
+
+`Integer i1=40` 这一行代码会发生装箱，也就是说这行代码等价于 `Integer i1=Integer.valueOf(40)` 。因此，`i1` 直接使用的是常量池中的对象。而`Integer i2 = new Integer(40)` 会直接创建新的对象。
+
+因此，答案是 `false` 。你答对了吗？
+
+
+
+
+
+<br>
+
+记住：**所有整型包装类对象之间值的比较，全部使用 equals 方法比较**。
+
+![img](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/20210422164544846.png)
+
+
+
+
+
 
 
 
@@ -101,9 +182,24 @@ int n = i;   //拆箱
 
 
 
+因此，
+
+- `Integer i = 10` 等价于 `Integer i = Integer.valueOf(10)`
+- `int n = i` 等价于 `int n = i.intValue()`;
 
 
 
+注意：**如果频繁拆装箱的话，也会严重影响系统的性能。我们应该尽量避免不必要的拆装箱操作。**
+
+```java
+private static long sum() {
+    // 应该使用 long 而不是 Long
+    Long sum = 0L;
+    for (long i = 0; i <= Integer.MAX_VALUE; i++)
+        sum += i;
+    return sum;
+}
+```
 
 
 
@@ -111,7 +207,18 @@ int n = i;   //拆箱
 
 ## 面向对象基础
 
+### 面向对象和面向过程的区别
 
+两者的主要区别在于解决问题的方式不同：
+
+
+
+- 面向过程把解决问题的过程拆成一个个方法，通过一个个方法的执行解决问题。
+- 面向对象会先抽象出对象，然后用对象执行方法的方式解决问题。
+
+
+
+另外，面向对象开发的程序一般更易维护、易复用、易扩展。
 
 
 
@@ -121,7 +228,140 @@ int n = i;   //拆箱
 
 ## Java常见对象
 
+### Object
 
+#### Object 类的常见方法有哪些？
+
+Object 类是一个特殊的类，是所有类的父类。它主要提供了以下 11 个方法：
+
+```java
+public final native Class<?> getClass()//native方法，用于返回当前运行时对象的Class对象，使用了final关键字修饰，故不允许子类重写。
+
+public native int hashCode() //native方法，用于返回对象的哈希码，主要使用在哈希表中，比如JDK中的HashMap。
+public boolean equals(Object obj)//用于比较2个对象的内存地址是否相等，String类对该方法进行了重写用户比较字符串的值是否相等。
+
+protected native Object clone() throws CloneNotSupportedException//naitive方法，用于创建并返回当前对象的一份拷贝。一般情况下，对于任何对象 x，表达式 x.clone() != x 为true，x.clone().getClass() == x.getClass() 为true。Object本身没有实现Cloneable接口，所以不重写clone方法并且进行调用的话会发生CloneNotSupportedException异常。
+
+public String toString()//返回类的名字@实例的哈希码的16进制的字符串。建议Object所有的子类都重写这个方法。
+
+public final native void notify()//native方法，并且不能重写。唤醒一个在此对象监视器上等待的线程(监视器相当于就是锁的概念)。如果有多个线程在等待只会任意唤醒一个。
+
+public final native void notifyAll()//native方法，并且不能重写。跟notify一样，唯一的区别就是会唤醒在此对象监视器上等待的所有线程，而不是一个线程。
+
+public final native void wait(long timeout) throws InterruptedException//native方法，并且不能重写。暂停线程的执行。注意：sleep方法没有释放锁，而wait方法释放了锁 。timeout是等待时间。
+
+public final void wait(long timeout, int nanos) throws InterruptedException//多了nanos参数，这个参数表示额外时间（以毫微秒为单位，范围是 0-999999）。 所以超时的时间还需要加上nanos毫秒。
+
+public final void wait() throws InterruptedException//跟之前的2个wait方法一样，只不过该方法一直等待，没有超时时间这个概念
+
+protected void finalize() throws Throwable { }//实例被垃圾回收器回收的时候触发的操作
+```
+
+
+
+
+
+
+
+### String
+
+#### String、StringBuffer、StringBuilder 的区别？String 为什么是不可变的?
+
+**可变性**
+
+简单的来说：`String` 类中使用 `final` 关键字修饰字符数组来保存字符串，所以`String` 对象是不可变的。
+
+```java
+public final class String implements java.io.Serializable, Comparable<String>, CharSequence {
+    private final char value[];
+	//...
+}
+```
+
+
+
+`StringBuilder` 与 `StringBuffer` 都继承自 `AbstractStringBuilder` 类，在 `AbstractStringBuilder` 中也是使用字符数组保存字符串，不过没有使用 `final` 和 `private` 关键字修饰，最关键的是这个 `AbstractStringBuilder` 类还提供了很多修改字符串的方法比如 `append` 方法。
+
+```java
+abstract class AbstractStringBuilder implements Appendable, CharSequence {
+    char[] value;
+    public AbstractStringBuilder append(String str) {
+        if (str == null)
+            return appendNull();
+        int len = str.length();
+        ensureCapacityInternal(count + len);
+        str.getChars(0, len, value, count);
+        count += len;
+        return this;
+    }
+  	//...
+}
+```
+
+
+
+**线程安全性**
+
+`String` 中的对象是不可变的，也就可以理解为常量，线程安全。`AbstractStringBuilder` 是 `StringBuilder` 与 `StringBuffer` 的公共父类，定义了一些字符串的基本操作，如 `expandCapacity`、`append`、`insert`、`indexOf` 等公共方法。`StringBuffer` 对方法加了同步锁或者对调用的方法加了同步锁，所以是线程安全的。`StringBuilder` 并没有对方法进行加同步锁，所以是非线程安全的。
+
+**性能**
+
+每次对 `String` 类型进行改变的时候，都会生成一个新的 `String` 对象，然后将指针指向新的 `String` 对象。`StringBuffer` 每次都会对 `StringBuffer` 对象本身进行操作，而不是生成新的对象并改变对象引用。相同情况下使用 `StringBuilder` 相比使用 `StringBuffer` 仅能获得 10%~15% 左右的性能提升，但却要冒多线程不安全的风险。
+
+<br>
+
+**对于三者使用的总结：**
+
+1. 操作少量的数据: 适用 `String`
+2. 单线程操作字符串缓冲区下操作大量数据: 适用 `StringBuilder`
+3. 多线程操作字符串缓冲区下操作大量数据: 适用 `StringBuffer`
+
+
+
+
+
+#### 字符串拼接用“+” 还是 StringBuilder?
+
+Java 语言本身并不支持运算符重载，“+”和“+=”是专门为 String 类重载过的运算符，也是 Java 中仅有的两个重载过的元素符。
+
+
+
+```java
+String str1 = "he";
+String str2 = "llo";
+String str3 = "world";
+String str4 = str1 + str2 + str3;
+```
+
+
+
+对象引用和“+”的字符串拼接方式，实际上是通过 `StringBuilder` 调用 `append()` 方法实现的，拼接完成之后调用 `toString()` 得到一个 `String` 对象 。
+
+
+
+#### String#equals() 和 Object#equals() 有何区别？
+
+`String` 中的 `equals` 方法是被重写过的，比较的是 String 字符串的值是否相等。 `Object` 的 `equals` 方法是比较的对象的内存地址。
+
+
+
+#### 字符串常量池的作用了解吗？
+
+**字符串常量池** 是 JVM 为了提升性能和减少内存消耗针对字符串（String 类）专门开辟的一块区域，主要目的是为了避免字符串的重复创建。
+
+
+
+```java
+String aa = "ab"; // 放在常量池中
+String bb = "ab"; // 从常量池中查找
+System.out.println(aa==bb);// true
+```
+
+
+
+JDK1.7 之前运行时常量池逻辑包含字符串常量池存放在方法区。JDK1.7 的时候，字符串常量池被从方法区拿到了堆中。
+
+你可以在 JVM 部分找到更多关于字符串常量池的介绍。
 
 
 
@@ -219,6 +459,8 @@ public interface Override extends Annotation{
 }
 ```
 
+<br>
+
 注解只有被解析之后才会生效，常见的解析方法有两种：
 
 - **编译期直接扫描** ：编译器在编译 Java 代码的时候扫描对应的注解并处理，比如某个方法使用`@Override` 注解，编译器在编译的时候就会检测当前的方法是否重写了父类对应的方法。
@@ -230,7 +472,21 @@ JDK 提供了很多内置的注解（比如 `@Override` 、`@Deprecated`），�
 
 
 
+
+
+
+
 ## 异常
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408121814461.png)
+
+
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408121839125.png)
 
 
 
