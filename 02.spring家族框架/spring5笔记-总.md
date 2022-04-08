@@ -12,7 +12,7 @@
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211450426.png?w=550)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211450426.png)
 
 
 
