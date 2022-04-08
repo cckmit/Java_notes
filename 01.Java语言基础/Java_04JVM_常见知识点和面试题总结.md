@@ -47,7 +47,7 @@ Java 虚拟机在执行 Java 程序的过程中会把它管理的内存划分成
 
 **JDK 1.8 之前：**
 
-![image-20220408132944429](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408132944429.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408132944429.png)
 
 
 
