@@ -12,7 +12,7 @@
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211119486.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211119486.png?w=600)
 
 
 
@@ -72,7 +72,7 @@ The Spring Framework consists of features organized into about 20 modules. These
 
 > 
 >
-> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648109242400-5b6481d2-d6fc-45ec-9840-c8b33f3a0491.png)
+> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648109242400-5b6481d2-d6fc-45ec-9840-c8b33f3a0491.png?w=600)
 
 **spring5**
 
