@@ -1,5 +1,33 @@
 
 
+## 写在前面
+
+
+
+整个Java体系最核心的框架，没有之一	
+
+面试必备 / 热点（从Spring的核心原理，到SpringMVC的执行流程，再到SpringBoot的自动配置）
+
+ 技术、思想提升（大量设计模式的应用和体现）（应用了很多技术）
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211119486.png)
+
+
+
+**参考与推荐如下资料：**
+
+
+
+
+
+
+
+
+
+<br>
+
 
 
 `spring4`官方文档
@@ -10,9 +38,17 @@ https://docs.spring.io/spring-framework/docs/4.3.9.RELEASE/spring-framework-refe
 
 https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-reference/index.html
 
+<br>
+
+[黑马220323 Spring高级课程](https://www.bilibili.com/video/BV1P44y1N7QG?spm_id_from=333.999.0.0)
 
 
 
+
+
+
+
+<hr>
 
 ## 1. 简介（这块内容来自官网）
 
