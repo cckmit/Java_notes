@@ -180,7 +180,7 @@ public interface UserMapper {
 
 <br>
 
-映射文件的命名规则
+**映射文件的命名规则：**
 
 - 表所对应的实体类的类名+Mapper.xml
 
@@ -194,7 +194,7 @@ public interface UserMapper {
 
 <br>
 
-MyBatis中可以面向接口操作数据，要保证两个一致：
+**MyBatis中可以面向接口操作数据，要保证两个一致：**
 
 - mapper接口的全类名和映射文件的命名空间（namespace）保持一致
 - mapper接口中方法的方法名和映射文件中编写SQL的标签的id属性保持一致
