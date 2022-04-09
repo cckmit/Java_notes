@@ -178,15 +178,15 @@ public interface UserMapper {
 | 属性     | 字段/列    |
 | 对象     | 记录/行    |
 
+<br>
 
-
-1. 映射文件的命名规则
+映射文件的命名规则
 
 - 表所对应的实体类的类名+Mapper.xml
 
 > 例如：表t_user，映射的实体类为User，所对应的映射文件为UserMapper.xml
 
-- 因此一个映射文件对应一个实体类，对应一张表的操作。
+- 因此一个映射文件对应一个实体类，对应一张表的操作
 
 - MyBatis映射文件用于编写SQL，访问以及操作表中的数据
 
@@ -194,7 +194,7 @@ public interface UserMapper {
 
 <br>
 
-2. MyBatis中可以面向接口操作数据，要保证两个一致：
+MyBatis中可以面向接口操作数据，要保证两个一致：
 
 - mapper接口的全类名和映射文件的命名空间（namespace）保持一致
 - mapper接口中方法的方法名和映射文件中编写SQL的标签的id属性保持一致
