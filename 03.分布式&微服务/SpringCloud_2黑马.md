@@ -143,31 +143,31 @@ tags:
 >
 > 自动化部署：工具Jenkins，Docker打包形成镜像
 
-![image-20211211113438830](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211113438830.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211113438830.png)
 
 
 
 **需要学习的微服务知识**
 
-![微服务1](https://gitee.com/lemonade19/blog-img/raw/master/img/微服务1.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/微服务1.png)
 
 
 
-![image-20211211120632882](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120632882.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120632882.png)
 
 
 
 **学习路径**
 
-![image-20211211120655865](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120655865.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120655865.png)
 
 **分层次教学**
 
-![image-20211211122543190](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211122543190.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211122543190.png)
 
 **知识层次**
 
-![学习层次](https://gitee.com/lemonade19/blog-img/raw/master/img/学习层次.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/学习层次.png)
 
 
 
