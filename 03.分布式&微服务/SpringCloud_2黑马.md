@@ -149,11 +149,13 @@ tags:
 
 **需要学习的微服务知识**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/微服务1.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/%E5%BE%AE%E6%9C%8D%E5%8A%A11.png)
 
 
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120632882.png)
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211120632882.png)
 
 
 
