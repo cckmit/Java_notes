@@ -180,15 +180,142 @@ MyBatis Plus 提供 TypeHandler 字段类型处理器，用于 JavaType 与 Jdbc
 
 ③ 禁止在 Controller、Service 中，**直接**进行 MyBatis Plus 操作。原因是：大量 MyBatis 操作散落在 Service 中，会导致 Service 的代码越来乱，无法聚焦业务逻辑。
 
-![image-20220410095055620](/Users/cat/Library/Application%20Support/typora-user-images/image-20220410095055620.png)
+![image-20220410095055620](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410095055620.png)
+
+
+
+并且，通过只允许将 MyBatis Plus 操作编写 Mapper 层，更好的实现 SELECT 查询的复用，而不是 Service 会存在很多相同且重复的 SELECT 查询的逻辑。
+
+<br>
+
+
+
+④ Mapper 的 SELECT 查询方法的命名，采用 Spring Data 的 ["Query methods"](https://docs.spring.io/spring-data/jpa/docs/2.2.0.RELEASE/reference/html/#jpa.query-methods.query-creation)策略，方法名使用 `selectBy查询条件` 规则。例如说：
+
+![SELECT 命名示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/07.png)
+
+<br>
+
+⑤ 优先使用 LambdaQueryWrapper 条件构造器，使用方法获得字段名，避免手写 `"字段"` 可能写错的情况。例如说：
+
+![LambdaQueryWrapper 条件构造器](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/08.png)
+
+<br>
+
+⑥ 简单的单表查询，优先在 Mapper 中通过 `default` 方法实现。例如说：
+
+![单表查询](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/11.png)
+
+
+
+## 3. CRUD 接口
+
+[BaseMapperX](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java)接口，继承 MyBatis Plus 的 BaseMapper 接口，提供更强的 CRUD 操作能力。
 
 
 
 
 
+### 3.1 selectOne
+
+[`#selectOne(...)`](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L30-L44)方法，使用指定条件，查询单条记录。示例如下：
+
+![selectOne 示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/09.png)
 
 
 
+### 3.2 selectCount
+
+[`#selectList(...)`](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L58-L76)方法，使用指定条件，查询多条记录。示例如下：
+
+![selectCount 示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/10.png)
+
+
+
+### 3.3 selectList
+
+[`#selectList(...)`](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L58-L76)方法，使用指定条件，查询多条记录。示例如下：
+
+![selectList 示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/11-20220410095728066.png)
+
+
+
+### 3.4 selectPage
+
+针对 MyBatis Plus 分页查询的二次分装，在 [BaseMapperX ](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java)中实现，目的是使用项目自己的分页封装：
+
+- 【入参】查询前，将项目的分页参数 [PageParam](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageParam.java)，转换成 MyBatis Plus 的 IPage 对象。
+- 【出参】查询后，将 MyBatis Plus 的分页结果 IPage，转换成项目的分页结果 [PageResult](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageResult.java)。代码如下图：
+
+![BaseMapperX 实现](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/01-20220410095927878.png)
+
+<br>
+
+具体的使用示例，可见 [TenantMapper](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-module-system/yudao-module-system-impl/src/main/java/cn/iocoder/yudao/module/system/dal/mysql/tenant/TenantMapper.java)类中，定义 selectPage 查询方法。代码如下：
+
+```java
+@Mapper
+public interface TenantMapper extends BaseMapperX<TenantDO> {
+
+    default PageResult<TenantDO> selectPage(TenantPageReqVO reqVO) {
+        return selectPage(reqVO, new LambdaQueryWrapperX<TenantDO>()
+                .likeIfPresent(TenantDO::getName, reqVO.getName()) // 如果 name 不为空，则进行 like 查询
+                .likeIfPresent(TenantDO::getContactName, reqVO.getContactName())
+                .likeIfPresent(TenantDO::getContactMobile, reqVO.getContactMobile())
+                .eqIfPresent(TenantDO::getStatus, reqVO.getStatus()) // 如果 status 不为空，则进行 = 查询
+                .betweenIfPresent(TenantDO::getCreateTime, reqVO.getBeginCreateTime(), reqVO.getEndCreateTime()) // 如果 create 不为空，则进行 between 查询
+                .orderByDesc(TenantDO::getId)); // 按照 id 倒序
+    }
+    
+}
+
+```
+
+
+
+完整实战，可见 [《开发手册 —— 分页实现》](https://doc.iocoder.cn/page-feature) 文档。
+
+## 4. 批量插入
+
+绝大多数场景下，推荐使用 MyBatis Plus 提供的 IService 的 [`#saveBatch()`](https://github.com/baomidou/mybatis-plus/blob/34ebdf6ee6/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/service/IService.java#L66-L74)方法。示例 [PermissionServiceImpl](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-module-system/yudao-module-system-impl/src/main/java/cn/iocoder/yudao/module/system/service/permission/PermissionServiceImpl.java#L200-L230)如下：
+
+![saveBatch 示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/14.png)
+
+
+
+## 5. 条件构造器
+
+
+
+继承 MyBatis Plus 的条件构造器，拓展了 [LambdaQueryWrapperX](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/query/LambdaQueryWrapperX.java)和 [QueryWrapperX ](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/query/QueryWrapperX.java)类，主要是增加 xxxIfPresent 方法，用于判断值不存在的时候，不要拼接到条件中。例如说：
+
+
+
+![xxxIfPresent 方法](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/15.png)
+
+
+
+具体的使用示例如下：
+
+![LambdaQueryWrapperX 使用示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/16.png)
+
+
+
+
+
+## 6. Mapper XML
+
+默认配置下，MyBatis Mapper XML 需要写在各 `yudao-module-xxx-impl` 模块的 `resources/mapper` 目录下。示例 [TestDemoMapper.xml](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-module-infra/yudao-module-infra-impl/src/main/resources/mapper/test/TestDemoMapper.xml)如下：
+
+
+
+![TestDemoMapper.xml 示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/19.png)
+
+
+
+尽量避免数据库的连表（多表）查询，而是采用多次查询，Java 内存拼接的方式替代。例如说：
+
+![UserController 示例](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/20.png)
 
 
 
