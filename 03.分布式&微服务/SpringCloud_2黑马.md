@@ -130,31 +130,31 @@ tags:
 >
 > 自动化部署：工具Jenkins，Docker打包形成镜像
 
-![image-20211211113438830](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211113438830.png)
+![image-20211211113438830](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211113438830.png)
 
 
 
 **需要学习的微服务知识**
 
-![微服务1](https://gitee.com/code0002/blog-img/raw/master/img/微服务1.png)
+![微服务1](https://gitee.com/lemonade19/blog-img/raw/master/img/微服务1.png)
 
 
 
-![image-20211211120632882](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211120632882.png)
+![image-20211211120632882](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120632882.png)
 
 
 
 **学习路径**
 
-![image-20211211120655865](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211120655865.png)
+![image-20211211120655865](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120655865.png)
 
 **分层次教学**
 
-![image-20211211122543190](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211122543190.png)
+![image-20211211122543190](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211122543190.png)
 
 **知识层次**
 
-![学习层次](https://gitee.com/code0002/blog-img/raw/master/img/学习层次.png)
+![学习层次](https://gitee.com/lemonade19/blog-img/raw/master/img/学习层次.png)
 
 
 
@@ -179,7 +179,7 @@ tags:
 
 微服务这种方案需要技术框架来落地，全球的互联网公司都在积极尝试自己的微服务落地技术。在国内最知名的就是SpringCloud和阿里巴巴的Dubbo。
 
-![image-20211211125555526](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211125555526.png)
+![image-20211211125555526](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211125555526.png)
 
 
 
@@ -190,11 +190,11 @@ tags:
 SpringCloud是目前国内使用最广泛的微服务框架。官网地址：https://spring.io/projects/spring-cloud。
 SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了这些**组件的自动装配**，从而提供了良好的开箱即用体验：
 
-![image-20211211130417169](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211130417169.png)
+![image-20211211130417169](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211130417169.png)
 
 **SpringCloud与SpringBoot的版本兼容关系如下：**
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211130745877.png" alt="image-20211211130745877" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211130745877.png" alt="image-20211211130745877" style="zoom: 33%;" />
 
 
 
@@ -264,7 +264,7 @@ public class OrderService {
 
 
 
-![image-20211211162822962](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211162822962.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211162822962.png)
 
 基于RestTemplate发起的http请求实现远程调用
 http请求做远程调用是与语言无关的调用，只要知道对方的ip、端口、接口路径、请求参数即可。
@@ -274,7 +274,7 @@ http请求做远程调用是与语言无关的调用，只要知道对方的ip�
 服务提供者：一次业务中，被其它微服务调用的服务。（提供接口给其它微服务）
 服务消费者：一次业务中，调用其它微服务的服务。（调用其它微服务提供的接口）
 
-![image-20211211164700331](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211164700331.png)
+![image-20211211164700331](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211164700331.png)
 
 
 
@@ -306,7 +306,7 @@ http请求做远程调用是与语言无关的调用，只要知道对方的ip�
 
 ### 2、eureka原理
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211165752560.png" alt="image-20211211165752560" style="zoom: 40%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211165752560.png" alt="image-20211211165752560" style="zoom: 40%;" />
 
 
 
@@ -370,7 +370,7 @@ eureka:
 
 另外，我们可以将user-service多次启动， 模拟多实例部署，但为了避免端口冲突，需要修改端口设置：
 
-![image-20211211172410982](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211172410982.png)
+![image-20211211172410982](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211172410982.png)
 
 ### 5、服务发现
 
@@ -400,7 +400,7 @@ public RestTemplate restTemplate() {
 
 ### 负载均衡原理
 
-![image-20211211174139422](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211174139422.png)
+![image-20211211174139422](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211174139422.png)
 
 
 
@@ -408,11 +408,11 @@ public RestTemplate restTemplate() {
 
 Ribbon的负载均衡规则是一个叫做IRule的接口来定义的，每一个子接口都是一种规则：
 
-![image-20211211174332772](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211174332772.png)
+![image-20211211174332772](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211174332772.png)
 
 
 
-![image-20211211174904487](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211174904487.png)
+![image-20211211174904487](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211174904487.png)
 
 **通过定义IRule实现可以修改负载均衡规则，有两种方式：**
 
@@ -464,7 +464,7 @@ ribbon:
 
 Nacos是阿里巴巴的产品，现在是SpringCloud中的一个组件。相比Eureka功能更加丰富，在国内受欢迎程度较高。
 
-![image-20211211182315838](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211182315838.png)
+![image-20211211182315838](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211182315838.png)
 
 
 
@@ -505,11 +505,11 @@ spring:
 
 启动并测试：
 
-![image-20211211191456264](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211191456264.png)
+![image-20211211191456264](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211191456264.png)
 
 ### 3、服务分级存储模型
 
-![image-20211211194746398](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211194746398.png)
+![image-20211211194746398](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211194746398.png)
 
 **3.1 服务跨集群调用问题**
 
@@ -520,13 +520,13 @@ spring:
 
 修改application.yml，添加如下内容：
 
-![image-20211211231019257](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211231019257.png)
+![image-20211211231019257](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231019257.png)
 
 
 
 在Nacos控制台可以看到集群变化：（我们修改user-service集群属性配置，达到下面的效果：）
 
-![image-20211211231239040](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211231239040.png)
+![image-20211211231239040](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231239040.png)
 
 **3.3 总结：**
 
@@ -545,23 +545,23 @@ Nacos服务分级存储模型
 >
 > 进行如下设置：
 
-![image-20211211231610325](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211231610325.png)
+![image-20211211231610325](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231610325.png)
 
 > 1）修改order-service中的application.yml，设置集群为HZ：
 >
-> <img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211231905497.png" alt="image-20211211231905497" style="zoom:33%;" />
+> <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231905497.png" alt="image-20211211231905497" style="zoom:33%;" />
 >
 > 2）然后在order-service中设置负载均衡的IRule为**NacosRule**，这个规则**优先会寻找与自己同集群的服务**：
 >
 > NacosRule负载均衡策略：先本地，然后本地内随机
 >
-> <img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211231930721.png" alt="image-20211211231930721" style="zoom: 33%;" />
+> <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231930721.png" alt="image-20211211231930721" style="zoom: 33%;" />
 
 
 
 跨集群访问的警告信息：
 
-![image-20211211232440450](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211232440450.png)
+![image-20211211232440450](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211232440450.png)
 
 
 
@@ -577,11 +577,11 @@ Nacos提供了权重配置来控制访问频率，权重越大则访问频率越
 
 在Nacos控制台可以设置实例的权重值，首先选中实例后面的编辑按钮
 
-![image-20211211232908311](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211232908311.png)
+![image-20211211232908311](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211232908311.png)
 
 将权重设置为0.1，测试可以发现8081被访问到的频率大大降低
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211232935847.png" alt="image-20211211232935847" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211232935847.png" alt="image-20211211232935847" style="zoom: 33%;" />
 
 
 
@@ -598,15 +598,15 @@ Nacos提供了权重配置来控制访问频率，权重越大则访问频率越
 
 **1）在Nacos控制台可以创建namespace，用来隔离不同环境**
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211233943719.png" alt="image-20211211233943719" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211233943719.png" alt="image-20211211233943719" style="zoom:33%;" />
 
 **2）然后填写一个新的命名空间信息：**
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211234013400.png" alt="image-20211211234013400" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234013400.png" alt="image-20211211234013400" style="zoom:33%;" />
 
 **3）保存后会在控制台看到这个命名空间的id：**
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211211234038201.png" alt="image-20211211234038201" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234038201.png" alt="image-20211211234038201" style="zoom:33%;" />
 
 **4）修改order-service的application.yml，添加namespace：**
 
@@ -629,11 +629,11 @@ spring:
 
 **5）重启order-service后，再来查看控制台：**
 
-![image-20211211234615252](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211234615252.png)
+![image-20211211234615252](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234615252.png)
 
 **6）此时访问order-service，因为namespace不同，会导致找不到userservice，控制台会报错：**
 
-![image-20211211234632036](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211234632036.png)
+![image-20211211234632036](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234632036.png)
 
 
 
@@ -664,7 +664,7 @@ spring:
 
 
 
-![image-20211211235219524](https://gitee.com/code0002/blog-img/raw/master/img/image-20211211235219524.png)
+![image-20211211235219524](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211235219524.png)
 
 
 
@@ -690,21 +690,21 @@ spring:
 
 
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211212093955308.png" alt="image-20211212093955308" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212093955308.png" alt="image-20211212093955308" style="zoom:33%;" />
 
 #### Nacos实现配置管理
 
 在Nacos中添加配置信息：
 
-![image-20211212094350600](https://gitee.com/code0002/blog-img/raw/master/img/image-20211212094350600.png)
+![image-20211212094350600](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212094350600.png)
 
 在弹出表单中填写配置信息：
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211212094447628.png" alt="image-20211212094447628" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212094447628.png" alt="image-20211212094447628" style="zoom:33%;" />
 
 #### 微服务配置拉取
 
-![image-20211212094829855](https://gitee.com/code0002/blog-img/raw/master/img/image-20211212094829855.png)
+![image-20211212094829855](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212094829855.png)
 
 
 
@@ -807,13 +807,13 @@ public class PatternProperties {
 		[spring.application.name].yaml，例如：userservice.yaml
 无论profile如何变化，[spring.application.name].yaml这个文件一定会加载，因此多环境共享配置可以写入这个文件
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211212131127779.png" alt="image-20211212131127779" style="zoom:50%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212131127779.png" alt="image-20211212131127779" style="zoom:50%;" />
 
 
 
 **多种配置的优先级：**
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211212131225553.png" alt="image-20211212131225553" style="zoom:50%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212131225553.png" alt="image-20211212131225553" style="zoom:50%;" />
 
 
 
@@ -827,15 +827,15 @@ public class PatternProperties {
 
 不同微服务之间可以共享配置文件，通过下面的两种方式来指定：
 
-![image-20211212131623849](https://gitee.com/code0002/blog-img/raw/master/img/image-20211212131623849.png)
+![image-20211212131623849](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212131623849.png)
 
 
 
-![image-20211212131641085](https://gitee.com/code0002/blog-img/raw/master/img/image-20211212131641085.png)
+![image-20211212131641085](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212131641085.png)
 
 
 
-![image-20211212131834352](https://gitee.com/code0002/blog-img/raw/master/img/image-20211212131834352.png)
+![image-20211212131834352](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212131834352.png)
 
 
 
@@ -854,7 +854,7 @@ public class PatternProperties {
 
 
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211212132653512.png" alt="image-20211212132653512" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212132653512.png" alt="image-20211212132653512" style="zoom:33%;" />
 
 
 
@@ -1214,7 +1214,7 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 >
 > feign接口定义：发http请求的信息写出来就可以
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211213101049566.png" alt="image-20211213101049566" style="zoom:33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213101049566.png" alt="image-20211213101049566" style="zoom:33%;" />
 
 
 
@@ -1232,11 +1232,11 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 在order-service的启动类添加注解开启Feign的功能：@EnableFeignClients
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211213110316047.png" alt="image-20211213110316047" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213110316047.png" alt="image-20211213110316047" style="zoom: 33%;" />
 
 编写Feign客户端
 
-![image-20211213111042682](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213111042682.png)
+![image-20211213111042682](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213111042682.png)
 
 
 
@@ -1254,11 +1254,11 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 **方式一：配置文件方式**
 
-![image-20211213225807846](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213225807846.png)
+![image-20211213225807846](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213225807846.png)
 
 **方式二：java代码方式，需要先声明一个Bean：**
 
-![image-20211213225944483](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213225944483.png)
+![image-20211213225944483](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213225944483.png)
 
 
 
@@ -1322,13 +1322,13 @@ feign:
 
 方式一（继承）：给消费者的FeignClient和提供者的controller定义统一的父接口作为标准。
 
-![image-20211213232445655](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213232445655.png)
+![image-20211213232445655](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213232445655.png)
 
 
 
 方式二（抽取）：将FeignClient抽取为独立模块，并且把接口有关的POJO、默认的Feign配置都放到这个模块中，提供给所有消费者使用
 
-![image-20211213232535909](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213232535909.png)
+![image-20211213232535909](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213232535909.png)
 
 
 
@@ -1345,7 +1345,7 @@ feign:
 
 **当定义的FeignClient不在SpringBootApplication的扫描包范围时，这些FeignClient无法使用。有两种方式解决：**
 
-![image-20211213233439656](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213233439656.png)
+![image-20211213233439656](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213233439656.png)
 
 
 
@@ -1353,7 +1353,7 @@ feign:
 
 ### 1、为什么需要网关
 
-![image-20211213234142351](https://gitee.com/code0002/blog-img/raw/master/img/image-20211213234142351.png)
+![image-20211213234142351](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213234142351.png)
 
 **在SpringCloud中网关的实现包括两种：**
 		**gateway**
@@ -1407,11 +1407,11 @@ spring:
 
 
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214000039112.png" alt="image-20211214000039112" style="zoom: 43%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214000039112.png" alt="image-20211214000039112" style="zoom: 43%;" />
 
 
 
-![image-20211214000341355](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214000341355.png)
+![image-20211214000341355](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214000341355.png)
 
 > 网关搭建步骤：
 > 		创建项目，引入nacos服务发现和gateway依赖
@@ -1438,7 +1438,7 @@ spring:
 
 https://docs.spring.io/spring-cloud-gateway/docs/3.1.1-SNAPSHOT/reference/html/#gateway-request-predicates-factories
 
-![image-20211214001242768](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214001242768.png)
+![image-20211214001242768](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214001242768.png)
 
 > PredicateFactory的作用是什么？
 > 		读取用户定义的断言条件，对请求做出判断
@@ -1466,13 +1466,13 @@ spring:
 
 **GatewayFilter是网关中提供的一种过滤器，可以对进入网关的请求和微服务返回的响应做处理：**
 
-![image-20211214002520861](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214002520861.png)
+![image-20211214002520861](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214002520861.png)
 
 #### 过滤器工厂 GatewayFilterFactory
 
 **Spring提供了31种不同的路由过滤器工厂。例如：**
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214002728752.png" alt="image-20211214002728752" style="zoom: 50%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214002728752.png" alt="image-20211214002728752" style="zoom: 50%;" />
 
 
 
@@ -1480,7 +1480,7 @@ spring:
 
 实现方式：在gateway中修改application.yml文件，给userservice的路由添加过滤器：
 
-<img src="https://gitee.com/code0002/blog-img/raw/master/img/image-20211214003315444.png" alt="image-20211214003315444" style="zoom: 33%;" />
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214003315444.png" alt="image-20211214003315444" style="zoom: 33%;" />
 
 
 
@@ -1504,7 +1504,7 @@ spring:
 > 区别在于GatewayFilter通过配置定义，处理逻辑是固定的。而GlobalFilter的逻辑需要自己写代码实现。
 > 定义方式是实现GlobalFilter接口。
 
-![image-20211214005424921](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214005424921.png)
+![image-20211214005424921](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214005424921.png)
 
 
 
@@ -1561,7 +1561,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 }
 ```
 
-![image-20211214010241143](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214010241143.png)
+![image-20211214010241143](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214010241143.png)
 
 
 
@@ -1579,7 +1579,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 请求进入网关会碰到三类过滤器：当前路由的过滤器、DefaultFilter、GlobalFilter
 请求路由后，会将当前路由过滤器和DefaultFilter、GlobalFilter，合并到一个过滤器链（集合）中（设计模式之适配器模式），排序后依次执行每个过滤器
 
-![image-20211214010849607](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214010849607.png)
+![image-20211214010849607](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214010849607.png)
 
 
 
@@ -1592,7 +1592,7 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 
 > **可以参考下面几个类的源码来查看：**
 
-![image-20211214011320668](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214011320668.png)
+![image-20211214011320668](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214011320668.png)
 
 > 路由过滤器、defaultFilter、全局过滤器的执行顺序？
 > 		order值越小，优先级越高
@@ -1612,7 +1612,7 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 
 网关处理跨域采用的同样是CORS方案，并且只需要简单配置即可实现：
 
-![image-20211214012404184](https://gitee.com/code0002/blog-img/raw/master/img/image-20211214012404184.png)
+![image-20211214012404184](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214012404184.png)
 
 
 
