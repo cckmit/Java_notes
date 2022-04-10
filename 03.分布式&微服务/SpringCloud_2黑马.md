@@ -347,7 +347,7 @@ http请求做远程调用是与语言无关的调用，只要知道对方的ip�
 
 ### 2、eureka原理
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211165752560.png" alt="image-20211211165752560" style="zoom: 40%;" />
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211165752560.png" alt="image-20211211165752560" style="zoom: 40%;" />
 
 
 
