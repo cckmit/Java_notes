@@ -88,14 +88,19 @@ tags:
 # 常用总结与问题解决
 
 ## 常用总结
-> 项目布局  
->cloud_demo -- 父工程：定义版本    　　   
+```lua
+项目布局  
+cloud_demo -- 父工程：定义版本    　　   
 　　├── eureka-server -- 注册中心
 　　├── feign-api -- 远程调用接口定义
 　　├── gateway -- 网关配置
 　　├── order-service -- 订单服务
 　　├── user-service -- 用户服务
 　　└── pom.xml -- 父pom　
+```
+
+<br>
+
 
 
 > 注册中心eureka：
@@ -163,9 +168,11 @@ tags:
 
 ![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120655865.png)
 
+<br>
+
 **分层次教学**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211122543190.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211122543190.png)
 
 <br>
 
@@ -299,9 +306,10 @@ public class OrderService {
 
 
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211162822962.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211162822962.png)
 
 基于RestTemplate发起的http请求实现远程调用
+
 http请求做远程调用是与语言无关的调用，只要知道对方的ip、端口、接口路径、请求参数即可。
 
 ### 概念：提供者与消费者
@@ -443,7 +451,7 @@ public RestTemplate restTemplate() {
 
 ### 负载均衡原理
 
-![image-20211211174139422](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211174139422.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211174139422.png)
 
 
 
