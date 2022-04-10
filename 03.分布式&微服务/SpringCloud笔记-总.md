@@ -46,14 +46,14 @@ tags:
     - [2、配置热更新](#2配置热更新)
     - [3、配置共享](#3配置共享)
     - [4、搭建Nacos集群](#4搭建nacos集群)
-      - [搭建集群的基本步骤：](#搭建集群的基本步骤)
+      - [搭建集群的基本步骤](#搭建集群的基本步骤)
   - [二、Feign远程调用（HTTP客户端Feign）](#二feign远程调用http客户端feign)
     - [1、Feign替代RestTemplate](#1feign替代resttemplate)
       - [1.1 RestTemplate方式调用存在的问题](#11-resttemplate方式调用存在的问题)
       - [1.2 Feign的介绍](#12-feign的介绍)
       - [1.3 定义和使用Feign客户端](#13-定义和使用feign客户端)
     - [2、自定义配置](#2自定义配置)
-      - [配置Feign日志有两种方式：](#配置feign日志有两种方式)
+      - [配置Feign日志有两种方式](#配置feign日志有两种方式)
     - [3、Figen使用优化（性能调优）](#3figen使用优化性能调优)
       - [连接池配置](#连接池配置)
     - [4、最佳实践](#4最佳实践)
@@ -1768,6 +1768,339 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 网关处理跨域采用的同样是CORS方案，并且只需要简单配置即可实现：
 
 ![image-20211214012404184](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214012404184.png)
+
+
+
+CTJ网关配置
+
+```yaml
+server:
+  port: 7002
+  max-http-header-size: 65536
+#  ssl:
+#    enabled: true
+#    key-alias: client #证书别名
+#    key-store: classpath:keystore.p12  #证书位置
+#    key-store-password: 123456  #生成证书时的密码
+#    key-store-type: PKCS12  #证书类型
+  servlet:
+    session:
+      timeout: 30m # session会话超时时间，默认情况 下是30分钟（m）,不能小于1分钟
+      cookie:
+        name: ctjTokenId # 指定浏览器Cookie中关于SessionID保存的那个名称
+
+#http:
+#  port: 8080
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://127.0.0.1:9502/eureka/
+spring:
+  application:
+    name: gateway-server3
+  datasource:
+    url: jdbc:oracle:thin:@172.16.101.230:1521/ORCLPDB1
+    username: bj_frame
+    password: a
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+  session:
+    store-type: redis # session存储方式采用 redis
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    #password: 123456
+    timeout: 5000
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 10
+        min-idle: 10
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    gateway:
+      httpclient:
+        pool:
+          maxIdleTime: 10000
+        ssl:
+          use-insecure-trust-manager: true
+      default-filters:
+        - PreserveHostHeader
+      discovery:
+        locator:
+          enabled: true #开启服务发现
+          lowerCaseServiceId: true  #将请求路径上的服务名配置为小写
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+      routes:
+        #3.0路由配置-------------------------------------------------------------------------
+        #使用内嵌2.2界面时需要配置
+        - id: api
+          uri: lb://gateway-server3
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
+        - id: billtype-server
+          order: -2
+          uri: lb://billtype-server
+          predicates:
+            - Path=/billtype-server/restapi/**,/element-server2/restapi/**,/framework-server2/restapi/**,/framework-engin2/restapi/**,/4a-server/**
+          filters:
+            - StripPrefix=1
+        #本地访问前端服务时可不配
+        - id: gap3
+          #          uri: lb://gap3/gap3
+          uri: http://172.30.8.169:8000/gap3/
+          predicates:
+            - Path=/gap3/**
+        #-----------------------------------------------------------------------------------
+        - id: framework-web2
+          order: -2
+          uri: lb://framework-web2
+          predicates:
+            - Path=/framework-web2/**
+          filters:
+            - StripPrefix=1
+            - AddResponseHeaderExc=Cache-Control, private, /**/*.html
+        - id: oauth2-server3
+          order: -2
+          uri: lb://oauth2-server2
+          predicates:
+            - Path=/oauth/**,/loginServer/**,/userOnline,/setSn,/,/login,/ctjlogin,/css/**,/fonts/**,/images/**,/js/**,/loginOA/**,/ui/**,/user,/jxca,/jx/**
+          filters:
+            - StripPrefix=0
+            - PreserveHostHeader
+            - AddRequestHeader=X-Gateway-Forward, 1
+#            - name: RequestRateLimiter
+#              args:
+#                redis-rate-limiter.replenishRate: 10
+#                redis-rate-limiter.burstCapacity: 20
+  security:
+    oauth2:
+      client:
+        registration:
+          custom:
+#            client-id: client
+#            client-secret: VpebINQBVLSWuG7+xPpueA==
+            client-id: myid
+            client-secret: mysecret
+            scopes: read
+            authorization-grant-type: authorization_code
+            #对外访问地址，网关IP端口
+            redirect-uri: http://127.0.0.1:7002/login/oauth2/code/custom
+#            redirect-uri: http://127.0.0.1:8080/login/oauth2/code/custom
+        provider:
+          custom:
+            token-uri: http://127.0.0.1:${server.port}/oauth/token
+            user-info-uri: http://127.0.0.1:${server.port}/oauth/user
+            #对外访问地址，网关IP端口
+            authorization-uri: http://127.0.0.1:7002/oauth/authorize
+            userNameAttribute: userCode
+#            token-uri: http://shwardev.yonyougov.top:7000/crux-auth/oauth/token
+#            user-info-uri: http://shwardev.yonyougov.top:7000/crux-uc/api/user/me
+#            #对外访问地址，网关IP端口
+#            authorization-uri: http://shwardev.yonyougov.top:7000/crux-auth/oauth/authorize
+#            userNameAttribute: code
+  main:
+    allow-bean-definition-overriding: true
+#    web-application-type: reactive
+#ribbon负载配置
+ribbon:
+  ReadTimeout: 180000
+  ConnectTimeout: 3000
+  okhttp:
+    enabled: true
+#断路器配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: gateway
+ctj:
+  cookieName: X-SESSION-ID
+  #登录类型，oauth2:平台oauth2认证中心，ChuangZhi:创智（湖南医保），YunNan:（云南门户--三个），ctjlogin：平台自定义登录，使用redis共享用户信息
+  loginType: ctjlogin
+  #登录页，token校验失败跳转到此页面，可只配置路径（使用当前访问的IP端口），也可完整url(http://127.0.0.1:9999/login.html)
+  loginpage: /ctjlogin
+  #自定义单点登录，获取用户信息接口，loginType=oauth2时可不用配置，loginType=ctj时配置oauth2-server2地址，其他类型按第三方厂商提供地址配置
+  extGetUserUrl: http://oauth2-server2/user
+  # 重定向
+  redirect: true
+  # 用户信息缓存超时时间（分钟）,默认30
+  timeout: 30
+  #云南获取用户信息路径
+  extGetUserUrlForYunNan:
+    OA: http://10.124.14.149:8081/ynsczt/rest/auth/
+    CZ: http://10.124.14.204/czmh/kmvc/auth
+    DW: http://10.124.14.204/czmh/kmvc/auth
+  cas:
+    loginUrl: http://192.168.191.1:8089/cas/login
+    urlPrefix: http://192.168.191.45:8089/cas
+  gateway:
+    regionRoute:
+      enable: false
+    #允许Query参数包含特殊字符
+    enableSpecialChar: false
+    #静态资源，不进行登录拦截路径
+    publicResources:
+      - /
+      - /**/*.html
+      - /**/*.js
+      - /**/*.css
+      - /**/*.gif
+      - /**/*.jpg
+      - /**/*.jpeg
+      - /**/*.png
+      - /**/*.ico
+      - /**/*.ttf
+      - /**/*.woff
+      - /**/*.woff2
+      - /css/**
+      - /fonts/**
+      - /images/**
+      - /js/**
+      - /loginOA/**
+      - /ui/**
+      - /jxca
+      - /jx/**
+      - /login
+      - /ctjlogin
+      - /favicon.ico
+      - /oauth/**
+      - /actuator/**
+      - /frs-server2/**
+      - /loginServer/**
+      - /oauth2-server2/**
+      - /invalidateSession
+      - /framework-engin2/v1/tenant/tenantTreeByType
+      - /framework-server2/tenant/tenantTreeByType/**
+      - /frs-server2/frs2/file/v2/downloadById
+      #3.0-------------------------------------------------------------------------
+      - /element-server2/restapi/4a/bas/basmofdiv/order/tenant
+      - /4a-server/restapi/4a/bas/basmofdiv/order/tenant
+      - /gap3/**
+#      - /billtype-server/**
+      - /logout
+      - /user
+      - /api/**
+#logging:
+#  level:
+#    root: debug
+      - /billtype-server/**
+logging:
+  level:
+    root: info
+    org.springframework.security: debug
+#reactor:
+#  netty:
+#    http:
+#      server:
+#        accessLogEnabled: true
+
+#redis配置 和接入的环境使用同一个redis
+crux:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+  auth:
+    # true为调试模式  false为生产模式
+    debug: false
+    #oauth认证的客户端id
+    client-id: myid
+    #oauth客户端认证的key
+    client-key: mysecret
+  #    follower: true
+  context:
+    #api网关地址
+    gateway-url: http://192.168.50.210:8010
+    #==auth地址 1.0.5 版本 新增的配置==
+    auth-url: http://192.168.50.210:8020
+
+```
+
+
+
+**CORS跨域要配置的参数包括哪几个？**
+
+- 允许哪些域名跨域？
+- 允许哪些请求头？
+- 允许哪些请求方式？
+- 是否允许使用cookie？
+- 有效期是多久？
+
+
+
+
+
+# 服务异步通信RabbitMQ
+
+
+
+## 初识MQ
+
+### 同步通讯
+
+微服务间基于Feign的调用就属于同步方式，存在一些问题。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410171419640.png)
+
+
+
+同步调用存在的问题
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410171452063.png)
+
+
+
+
+
+
+
+### 异步通讯
+
+
+
+
+
+### MQ常见框架
+
+
+
+
+
+
+
+
+
+
+
+
+
+## RabbitMQ快速入门
+
+## SpringAMQP
+
+
+
+
 
 
 
