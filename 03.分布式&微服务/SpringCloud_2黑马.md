@@ -451,7 +451,7 @@ public RestTemplate restTemplate() {
 
 Ribbon的负载均衡规则是一个叫做IRule的接口来定义的，每一个子接口都是一种规则：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211174332772.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211174332772.png?w=600)
 
 
 
