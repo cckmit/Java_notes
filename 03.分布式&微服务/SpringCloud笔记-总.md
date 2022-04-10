@@ -2066,15 +2066,62 @@ crux:
 
 同步调用存在的问题
 
+> 耦合度高，违反开闭原则
+
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410171452063.png)
 
 
 
+```bash
+# 同步调用的优点：
+时效性较强，可以立即得到结果
 
+# 同步调用的问题：
+耦合度高
+性能和吞吐能力下降
+有额外的资源消耗
+有级联失败问题
+```
 
 
 
 ### 异步通讯
+
+异步调用常见实现就是事件驱动模式
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172708529.png)
+
+
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172743457.png)
+
+
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172812702.png)
+
+
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172834096.png)
+
+
+
+```bash
+# 异步通信的优点：
+耦合度低
+吞吐量提升
+故障隔离
+流量削峰
+
+# 异步通信的缺点：
+依赖于Broker的可靠性、安全性、吞吐能力
+架构复杂了，业务没有明显的流程线，不好追踪管理
+```
 
 
 
@@ -2082,13 +2129,9 @@ crux:
 
 ### MQ常见框架
 
+MQ （MessageQueue），中文是消息队列，字面来看就是存放消息的队列。也就是事件驱动架构中的Broker。
 
-
-
-
-
-
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410173618414.png)
 
 
 
@@ -2096,9 +2139,889 @@ crux:
 
 ## RabbitMQ快速入门
 
+### RabbitMQ概述和安装(可靠性、稳定性、高可用)
+
+RabbitMQ是基于Erlang语言开发的开源消息通信中间件，官网地址：https://www.rabbitmq.com/
+
+可以基于docker安装
+
+
+
+> 各个用户虚拟主机进行隔离
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410174040438.png)
+
+
+
+```bash
+# RabbitMQ中的几个概念：
+channel：操作MQ的工具
+exchange：路由消息到队列中
+queue：缓存消息
+virtual host：虚拟主机，是对queue、exchange等资源的逻辑分组
+```
+
+
+
+
+
+
+
+### 常见消息模型
+
+MQ的官方文档中给出了5个MQ的Demo示例，对应了几种不同的用法：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410174623504.png)
+
+
+
+> 前两种不是完整的消息驱动模型
+
+
+
+### 快速入门 HelloWorld案例
+
+官方的HelloWorld是基于最基础的消息队列模型来实现的，只包括三个角色：
+
+- publisher：消息发布者，将消息发送到队列queue
+- queue：消息队列，负责接受并缓存消息
+- consumer：订阅队列，处理队列中的消息
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410175654089.png)
+
+
+
+实现步骤：
+
+- 导入课前资料中的demo工程
+- 运行publisher服务中的测试类PublisherTest中的测试方法testSendMessage()
+- 查看RabbitMQ控制台的消息
+- 启动consumer服务，查看是否能接收消息
+
+
+
+<br>
+
+```bash
+# 基本消息队列的消息发送流程：
+建立connection
+创建channel
+利用channel声明队列
+利用channel向队列发送消息
+
+# 基本消息队列的消息接收流程：
+建立connection
+创建channel
+利用channel声明队列
+定义consumer的消费行为handleDelivery()
+利用channel将消费者与队列绑定
+```
+
+
+
+
+
 ## SpringAMQP
 
 
+
+SpringAmqp的官方地址：https://spring.io/projects/spring-amqp
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181100816.png)
+
+
+
+### Basic Queue 简单队列模型
+
+#### 利用SpringAMQP实现HelloWorld中的基础消息队列功能
+
+流程如下：
+
+步骤1：在父工程中引入spring-amqp的依赖
+
+> 因为publisher和consumer服务都需要amqp依赖，因此这里把依赖直接放到父工程mq-demo中
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181536945.png)
+
+
+
+<br>
+
+步骤2：在publisher服务中利用RabbitTemplate发送消息到simple.queue这个队列（使用很优雅）
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181655809.png)
+
+<br>
+
+在consumer服务中编写消费逻辑，绑定simple.queue这个队列
+
+![image-20220410181751954](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181751954.png)
+
+
+
+```bash
+# 什么是AMQP？
+应用间消息通信的一种协议，与语言和平台无关。
+
+# SpringAMQP如何发送消息？
+引入amqp的starter依赖
+配置RabbitMQ地址
+利用RabbitTemplate的convertAndSend方法
+
+# SpringAMQP如何接收消息？
+引入amqp的starter依赖
+yml配置RabbitMQ地址
+定义类，添加@Component注解
+类中声明方法，添加@RabbitListener注解，方法参数就是消息
+注意：消息一旦消费就会从队列删除，RabbitMQ没有消息回溯功能
+```
+
+
+
+
+
+### Work Queue 工作队列模型
+
+Work queue，工作队列，可以提高消息处理速度，避免队列消息堆积
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184405468.png)
+
+#### 模拟WorkQueue，实现一个队列绑定多个消费者
+
+```bash
+基本思路如下：
+在publisher服务中定义测试方法，每秒产生50条消息，发送到simple.queue
+在consumer服务中定义两个消息监听者，都监听simple.queue队列
+消费者1每秒处理50条消息，消费者2每秒处理10条消息
+```
+
+
+
+步骤1：生产者循环发送消息到simple.queue
+
+在publisher服务中添加一个测试方法，循环发送50条消息到simple.queue队列
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184817475.png)
+
+<br>
+
+步骤2：编写两个消费者，都监听simple.queue
+
+在consumer服务中添加一个消费者，也监听simple.queue：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184908534.png)
+
+
+
+#### 消费预取限制
+
+修改application.yml文件，设置preFetch这个值，可以控制预取消息的上限：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184948736.png)
+
+
+
+<br>
+
+```bash
+Work模型的使用：
+多个消费者绑定到一个队列，同一条消息只会被一个消费者处理
+通过设置prefetch来控制消费者预取的消息数量
+```
+
+
+
+### 发布、订阅模型-Fanout
+
+发布订阅模式与之前案例的区别就是允许将同一消息发送给多个消费者。实现方式是加入了exchange（交换机）。
+
+<br>
+
+常见exchange类型包括：
+
+- Fanout：广播
+- Direct：路由
+- Topic：话题
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410185817593.png)
+
+注意：exchange负责消息路由，而不是存储，路由失败则消息丢失
+
+<hr>
+
+
+
+Fanout Exchange 会将接收到的消息广播到每一个跟其绑定的queue
+
+![image-20220410194230317](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410194230317.png)
+
+#### 利用SpringAMQP演示FanoutExchange的使用
+
+```bash
+# 实现思路如下：
+在consumer服务中，利用代码声明队列、交换机，并将两者绑定
+在consumer服务中，编写两个消费者方法，分别监听fanout.queue1和fanout.queue2
+在publisher中编写测试方法，向itcast.fanout发送消息
+```
+
+
+
+步骤1：在consumer服务声明Exchange、Queue、Binding
+
+SpringAMQP提供了声明交换机、队列、绑定关系的API，例如：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410195551662.png)
+
+
+
+<br>
+
+在consumer服务创建一个类，添加@Configuration注解，并声明FanoutExchange、Queue和绑定关系对象Binding，代码如下：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410191341735.png)
+
+
+
+步骤2：在consumer服务声明两个消费者 
+
+在consumer服务的SpringRabbitListener类中，添加两个方法，分别监听fanout.queue1和fanout.queue2：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410191411663.png)
+
+
+
+步骤3：在publisher服务发送消息到FanoutExchange
+
+在publisher服务的SpringAmqpTest类中添加测试方法：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410195722519.png)
+
+
+
+<br>
+
+```bash
+# 交换机的作用是什么？
+接收publisher发送的消息
+将消息按照规则路由到与之绑定的队列
+不能缓存消息，路由失败，消息丢失
+FanoutExchange的会将消息路由到每个绑定的队列
+
+# 声明队列、交换机、绑定关系的Bean是什么？
+Queue
+FanoutExchange
+Binding
+```
+
+
+
+### 发布、订阅模型-Direct
+
+```bash
+# Direct Exchange 会将接收到的消息根据规则路由到指定的Queue，因此称为路由模式（routes）。
+每一个Queue都与Exchange设置一个BindingKey
+发布者发送消息时，指定消息的RoutingKey
+Exchange将消息路由到BindingKey与消息RoutingKey一致的队列
+```
+
+#### 利用SpringAMQP演示DirectExchange的使用
+
+
+
+
+
+```bash
+# 描述下Direct交换机与Fanout交换机的差异？
+Fanout交换机将消息路由给每一个与之绑定的队列
+Direct交换机根据RoutingKey判断路由给哪个队列
+如果多个队列具有相同的RoutingKey，则与Fanout功能类似
+
+# 基于@RabbitListener注解声明队列和交换机有哪些常见注解？
+@Queue
+@Exchange
+```
+
+
+
+
+
+### 发布、订阅模型-Topic消息转换器
+
+```bash
+TopicExchange与DirectExchange类似，区别在于routingKey必须是多个单词的列表，并且以 . 分割。
+Queue与Exchange指定BindingKey时可以使用通配符：
+#：代指0个或多个单词
+*：代指一个单词
+```
+
+
+
+> china.news 代表有中国的新闻消息；
+>
+> china.weather 代表中国的天气消息；
+>
+> japan.news 则代表日本新闻
+>
+> japan.weather 代表日本的天气消息；
+
+
+
+
+
+
+
+
+
+```bash
+# SpringAMQP中消息的序列化和反序列化是怎么实现的？
+利用MessageConverter实现的，默认是JDK的序列化
+注意发送方与接收方必须使用相同的MessageConverter
+```
+
+
+
+
+
+
+
+# 微服务保护Sentinel
+
+## 初识Sentinel
+
+### 雪崩问题及解决方案
+
+微服务**调用链路中**的某个服务故障，**引起整个链路中的所有微服务都不可用**，这就是雪崩。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410200833917.png)
+
+<br>
+
+解决雪崩问题的常见方式有四种：
+
+- 超时处理：设定超时时间，请求超过一定时间没有响应就返回错误信息，不会无休止等待
+- 舱壁模式：限定每个业务能使用的线程数，避免耗尽整个tomcat的资源，因此也叫线程隔离。
+- 熔断降级：由**断路器**统计业务执行的异常比例，如果超出阈值则会**熔断**该业务，拦截访问该业务的一切请求。
+- 流量控制：限制业务访问的QPS，避免服务因流量的突增而故障。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410201316755.png)
+
+
+
+```bash
+# 什么是雪崩问题？
+微服务之间相互调用，因为调用链中的一个服务故障，引起整个链路都无法访问的情况。
+
+# 如何避免因瞬间高并发流量而导致服务故障？
+流量控制
+
+# 如何避免因服务故障引起的雪崩问题？
+超时处理
+线程隔离
+降级熔断
+```
+
+
+
+### 服务保护技术对比
+
+|                | **Sentinel**                                   | **Hystrix**                   |
+| -------------- | ---------------------------------------------- | ----------------------------- |
+| 隔离策略       | 信号量隔离                                     | 线程池隔离/信号量隔离         |
+| 熔断降级策略   | 基于慢调用比例或异常比例                       | 基于失败比率                  |
+| 实时指标实现   | 滑动窗口                                       | 滑动窗口（基于 RxJava）       |
+| 规则配置       | 支持多种数据源                                 | 支持多种数据源                |
+| 扩展性         | 多个扩展点                                     | 插件的形式                    |
+| 基于注解的支持 | 支持                                           | 支持                          |
+| 限流           | 基于 QPS，支持基于调用关系的限流               | 有限的支持                    |
+| 流量整形       | 支持慢启动、匀速排队模式                       | 不支持                        |
+| 系统自适应保护 | 支持                                           | 不支持                        |
+| 控制台         | 开箱即用，可配置规则、查看秒级监控、机器发现等 | 不完善                        |
+| 常见框架的适配 | Servlet、Spring Cloud、Dubbo、gRPC 等          | Servlet、Spring Cloud Netflix |
+
+
+
+### Sentinel介绍和安装
+
+Sentinel是阿里巴巴开源的一款微服务流量控制组件。官网地址：https://sentinelguard.io/zh-cn/index.html
+
+<br>
+
+Sentinel 具有以下特征:
+
+- **丰富的应用场景**：Sentinel 承接了阿里巴巴近 10 年的双十一大促流量的核心场景，例如秒杀（即突发流量控制在系统容量可以承受的范围）、消息削峰填谷、集群流量控制、实时熔断下游不可用应用等。
+- **完备的实时监控**：Sentinel 同时提供实时的监控功能。您可以在控制台中看到接入应用的单台机器秒级数据，甚至 500 台以下规模的集群的汇总运行情况。
+- **广泛的开源生态**：Sentinel 提供开箱即用的与其它开源框架/库的整合模块，例如与 Spring Cloud、Dubbo、gRPC 的整合。您只需要引入相应的依赖并进行简单的配置即可快速地接入 Sentinel。
+- **完善的 SPI 扩展点**：Sentinel 提供简单易用、完善的 SPI 扩展接口。您可以通过实现扩展接口来快速地定制逻辑。例如定制规则管理、适配动态数据源等。
+
+
+
+<br>
+
+sentinel官方提供了UI控制台，方便我们对系统做限流设置。大家可以在GitHub下载。课前资料提供了下载好的jar包
+
+然后访问：localhost:8080 即可看到控制台页面，默认的账户和密码都是sentinel
+
+如果要修改Sentinel的默认端口、账户、密码，可以通过下列配置：
+
+| **配置项**                       | **默认值** | **说明**   |
+| -------------------------------- | ---------- | ---------- |
+| server.port                      | 8080       | 服务端口   |
+| sentinel.dashboard.auth.username | sentinel   | 默认用户名 |
+| sentinel.dashboard.auth.password | sentinel   | 默认密码   |
+
+举例如下
+
+```java
+java -jar sentinel-dashboard-1.8.1.jar -D server.port=8090
+```
+
+<br>
+
+要使用Sentinel肯定要结合微服务，这里我们使用SpringCloud实用篇中的cloud-demo工程。没有的小伙伴可以在课前资料中找到：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410202149071.png)
+
+
+
+
+
+### 微服务整合Sentinel
+
+我们在order-service中整合Sentinel，并且连接Sentinel的控制台，步骤如下
+
+- 引入sentinel依赖：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410202330363.png)
+
+<br>
+
+- 配置控制台地址：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410202350396.png)
+
+<br>
+
+- 访问微服务的任意端点，触发sentinel监控
+
+
+
+
+
+
+
+## 流量控制（Sentinel功能1 限流）（预防措施）
+
+### 簇点链路
+
+
+
+簇点链路：就是项目内的调用链路，链路中**被监控**的每个接口就是一个资源。默认情况下sentinel会监控SpringMVC的每一个端点（Endpoint），因此SpringMVC的每一个端点（Endpoint）就是调用链路中的一个资源。
+
+流控、熔断等都是**针对簇点链路中的资源**来设置的，因此我们可以点击对应资源后面的按钮来设置规则：
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410204340580.png)
+
+
+
+
+
+### 快速入门
+
+点击资源/order/{orderId}后面的流控按钮，就可以弹出表单。表单中可以添加流控规则，如下图所示：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410204519402.png)
+
+
+
+其含义是限制 /order/{orderId}这个资源的单机QPS为5，即每秒只允许5次请求，超出的请求会被拦截并报错。
+
+<br>
+
+案例：流控规则入门案例
+
+需求：给 /order/{orderId}这个资源设置流控规则，QPS不能超过 5。然后利用jemeter测试。
+
+- 设置流控规则（如上图）
+- jemeter测试
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410205010169.png)
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410204928665.png)
+
+
+
+QPS 不到2000
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410205747941.png)
+
+
+
+
+
+### 流控模式
+
+在添加限流规则时，点击高级选项，可以选择三种流控模式：
+
+- 直接：统计当前资源的请求，触发阈值时对当前资源直接限流，也是默认的模式
+- 关联：统计与当前资源相关的另一个资源，触发阈值时，对当前资源限流
+- 链路：统计从指定链路访问到本资源的请求，触发阈值时，对指定链路限流（请求的来源做判断从而限流）
+
+
+
+#### 关联（如支付的QPS达到阈值对查询业务限流）
+
+关联模式：统计与当前资源相关的另一个资源，触发阈值时，对当前资源限流
+
+使用场景：比如用户支付时需要修改订单状态，同时用户要查询订单。查询和修改操作会争抢数据库锁，产生竞争。业务需求是**优先支付**
+
+和**更新订单**的业务，因此当修改订单业务触发阈值时，需要**对查询订单业务限流**。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410210421070.png)
+
+当/write资源访问量触发阈值时，就会对/read资源限流，避免影响/write资源。
+
+<br>
+
+```bash
+# 需求：
+在OrderController新建两个端点：/order/query和/order/update，无需实现业务
+配置流控规则，当/order/update资源被访问的QPS超过5时，对/order/query请求限流
+```
+
+<br>
+
+满足下面条件可以使用关联模式：
+
+- 两个有竞争关系的资源
+
+- 一个优先级较高，一个优先级较低
+
+
+
+#### 链路
+
+链路模式：只针对从指定链路访问到本资源的请求做统计，判断是否超过阈值。
+
+例如有两条请求链路：
+
+- /test1  -> /common
+
+- /test2   -> /common
+
+如果只希望统计从/test2进入到/common的请求，则可以这样配置：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410211121924.png)
+
+<br>
+
+```bash
+# 需求：有查询订单(并发比较高)和创建订单业务，两者都需要查询商品（有并发上限）。针对从查询订单进入到查询商品的请求统计，并设置限流。
+
+# 步骤：
+在OrderService中添加一个queryGoods方法，不用实现业务
+在OrderController中，改造/order/query端点，调用OrderService中的queryGoods方法
+在OrderController中添加一个/order/save的端点，调用OrderService的queryGoods方法
+给queryGoods设置限流规则，从/order/query进入queryGoods的方法限制QPS必须小于2
+```
+
+
+
+Sentinel默认只标记Controller中的方法为资源，如果要标记其它方法，需要利用@SentinelResource注解，示例
+
+Sentinel默认会将Controller方法做context整合，导致链路模式的流控失效，需要修改application.yml，添加配置
+
+
+
+```bash
+流控模式有哪些？
+直接：对当前资源限流
+关联：高优先级资源触发阈值，对低优先级资源限流。
+链路：阈值统计时，只统计从指定资源进入当前资源的请求，是对请求来源的限流
+```
+
+
+
+### 流控效果
+
+流控效果是指请求达到流控阈值时应该采取的措施，包括三种：
+
+- 快速失败：达到阈值后，新的请求会被立即拒绝并抛出FlowException异常。**是默认的处理方式。**
+- warm up：预热模式，对超出阈值的请求同样是拒绝并抛出异常。但这种模式阈值会动态变化，从一个较小值逐渐增加到最大阈值
+- 排队等待：让所有的请求按照先后次序排队执行，两个请求的间隔不能小于指定时长
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410212231553.png)
+
+
+
+#### 流控效果-warm up
+
+warm up也叫预热模式，是应对服务冷启动的一种方案。请求阈值初始值是 threshold / coldFactor，持续指定时长后，逐渐提高到threshold值。而coldFactor的默认值是3。
+
+例如，我设置QPS的threshold为10，预热时间为5秒，那么初始阈值就是 10 / 3 ，也就是3，然后在5秒后逐渐增长到10。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410212737838.png)
+
+
+
+
+
+需求：给/order/{orderId}这个资源设置限流，最大QPS为10，利用warm up效果，预热时长为5秒
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410213200989.png)
+
+
+
+#### 流控效果-排队等待
+
+当请求超过QPS阈值时，快速失败和warm up 会拒绝新的请求并抛出异常。而排队等待则是让所有请求进入一个队列中，然后按照阈值允许的时间间隔依次执行。后来的请求必须等待前面执行完成，如果请求**预期的等待时间**超出最大时长，则会被拒绝。
+
+例如：QPS = 5，意味着每200ms处理一个队列中的请求；timeout = 2000，意味着预期等待超过2000ms的请求会被拒绝并抛出异常
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410213647010.png)
+
+> 流量整形，波浪形的变的很平缓
+
+
+
+需求：给/order/{orderId}这个资源设置限流，最大QPS为10，利用排队的流控效果，超时时长设置为5s
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410213942706.png)
+
+
+
+```bash
+# 流控效果有哪些？
+快速失败：QPS超过阈值时，拒绝新的请求
+warm up： QPS超过阈值时，拒绝新的请求；QPS阈值是逐渐提升的，可以避免冷启动时高并发导致服务宕机。
+排队等待：请求会进入队列，按照阈值允许的时间间隔依次执行请求；如果请求预期等待时长大于超时时间，直接拒绝
+```
+
+
+
+
+
+### 热点参数限流
+
+之前的限流是统计访问某个资源的所有请求，判断是否超过QPS阈值。而热点参数限流是**分别统计参数值相同的请求**，判断是否超过QPS阈值。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410214350729.png)
+
+代表的含义是：对hot这个资源的0号参数（第一个参数）做统计，每1秒相同参数值的请求数不能超过5
+
+
+
+在热点参数限流的高级选项中，可以对部分参数设置例外配置：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410214550590.png)
+
+结合上一个配置，这里的含义是对0号的long类型参数限流，每1秒相同参数的QPS不能超过5，有两个例外：
+
+- 如果参数值是100，则每1秒允许的QPS为10
+- 如果参数值是101，则每1秒允许的QPS为15
+
+
+
+```bash
+# 案例：给/order/{orderId}这个资源添加热点参数限流，规则如下：
+默认的热点参数规则是每1秒请求量不超过2
+给102这个参数设置例外：每1秒请求量不超过4
+给103这个参数设置例外：每1秒请求量不超过10
+```
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410214933671.png)
+
+
+
+**注意：热点参数限流对默认的SpringMVC资源无效**
+
+
+
+
+
+## 隔离和降级（Sentinel功能2和3）
+
+
+
+虽然限流可以尽量避免因高并发而引起的服务故障，但服务还会因为其它原因而故障。而要**将这些故障控制在一定范围，避免雪崩**，就要靠线程隔离（舱壁模式）和熔断降级手段了。
+
+不管是线程隔离还是熔断降级，都是对**客户端（调用方）**的保护。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410215953702.png)
+
+
+
+### FeignClient整合Sentinel
+
+**SpringCloud中，微服务调用都是通过Feign来实现的，因此做客户端保护必须整合Feign和Sentinel。**
+
+（1）修改OrderService的application.yml文件，开启Feign的Sentinel功能
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410220233859.png)
+
+（2）给FeignClient编写失败后的降级逻辑
+
+- 方式一：FallbackClass，无法对远程调用的异常做处理
+
+- 方式二：FallbackFactory，可以对远程调用的异常做处理，我们选择这种
+
+
+
+<br>
+
+步骤一：在feing-api项目中定义类，实现FallbackFactory：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410220520493.png)
+
+
+
+步骤二：在feing-api项目中的DefaultFeignConfiguration类中将UserClientFallbackFactory注册为一个Bean：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410220609279.png)
+
+
+
+步骤三：在feing-api项目中的UserClient接口中使用UserClientFallbackFactory：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410220634380.png)
+
+
+
+
+
+```bash
+# Sentinel支持的雪崩解决方案：
+线程隔离（仓壁模式）
+降级熔断
+
+# Feign整合Sentinel的步骤：
+在application.yml中配置：feign.sentienl.enable=true
+给FeignClient编写FallbackFactory并注册为Bean
+将FallbackFactory配置到FeignClient
+```
+
+
+
+
+
+### 线程隔离（舱壁模式）
+
+线程隔离有两种方式实现：
+
+- 线程池隔离
+
+- 信号量隔离（Sentinel默认采用）
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410220943858.png)
+
+
+
+```bash
+# 线程隔离的两种手段是？
+信号量隔离
+线程池隔离
+
+# 信号量隔离的特点是？
+基于计数器模式，简单，开销小
+
+# 线程池隔离的特点是？
+基于线程池模式，有额外开销，但隔离控制更强
+```
+
+
+
+### 熔断降级
+
+熔断降级是解决雪崩问题的重要手段。其思路是由断路器统计服务调用的异常比例、慢请求比例，如果**超出阈值则会熔断该服务**。即**拦截访问该服务的一切请求**；而当服务恢复时，断路器会放行访问该服务的请求。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410221236215.png)
+
+#### 熔断策略-慢调用
+
+慢调用：业务的响应时长（RT）大于指定时长的请求认定为慢调用请求。在指定时间内，如果请求数量超过设定的最小数量，慢调用比例大于设定的阈值，则触发熔断。
+
+
+
+#### 熔断策略-异常比例、异常数
+
+异常比例或异常数：统计指定时间内的调用，如果调用次数超过指定请求数，并且出现异常的比例达到设定的比例阈值（或超过指定异常数），则触发熔断。
+
+
+
+```bash
+# Sentinel熔断降级的策略有哪些？
+慢调用比例：超过指定时长的调用为慢调用，统计单位时长内慢调用的比例，超过阈值则熔断
+异常比例：统计单位时长内异常调用的比例，超过阈值则熔断
+异常数：统计单位时长内异常调用的次数，超过阈值则熔断
+```
+
+
+
+
+
+## 授权规则
+
+授权规则可以对调用方的来源做控制，有白名单和黑名单两种方式。
+
+- 白名单：来源（origin）在白名单内的调用者允许访问
+
+- 黑名单：来源（origin）在黑名单内的调用者不允许访问
+
+
+
+例如，我们限定只允许从网关来的请求访问order-service，那么流控应用中就填写网关的名称
+
+
+
+
+
+## 规则持久化
+
+### 规则管理模式
+
+Sentinel的控制台规则管理有三种模式
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410221734102.png)
+
+
+
+
+
+```bash
+# Sentinel的三种配置管理模式是什么？
+原始模式：保存在内存
+pull模式：保存在本地文件或数据库，定时去读取
+push模式：保存在nacos，监听变更实时更新
+```
+
+
+
+
+
+
+
+### 实现push模式（生产环境下）
 
 
 
