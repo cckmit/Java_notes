@@ -167,9 +167,11 @@ tags:
 
 ![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211122543190.png)
 
+<br>
+
 **知识层次**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/学习层次.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/%E5%AD%A6%E4%B9%A0%E5%B1%82%E6%AC%A1.png)
 
 
 
