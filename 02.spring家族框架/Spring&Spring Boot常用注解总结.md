@@ -4,7 +4,22 @@
 
 # Spring/Spring Boot 常用注解总结！
 
+| 分类       | 注解                                                         | 说明 |
+| ---------- | ------------------------------------------------------------ | ---- |
+|            | @SpringBootApplication                                       |      |
+| bean相关   | `@Autowired`、`@Component`,`@Repository`,`@Service`, `@Controller`、`@RestController`、`@Configuration` |      |
+| http请求   | `@GetMapping("users")` `@PostMapping("users")`               |      |
+| 前后端传值 | `@PathVariable` 和 `@RequestParam`、`@RequestBody`           |      |
+|            |                                                              |      |
+|            |                                                              |      |
+|            |                                                              |      |
+|            |                                                              |      |
 
+
+
+
+
+<br>
 
 ## 1. `@SpringBootApplication`
 

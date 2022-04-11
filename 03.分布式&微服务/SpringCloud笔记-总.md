@@ -2231,7 +2231,7 @@ MQ的官方文档中给出了5个MQ的Demo示例，对应了几种不同的用�
 
 SpringAmqp的官方地址：https://spring.io/projects/spring-amqp
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181100816.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181100816.png?w=600)
 
 
 
@@ -2313,7 +2313,7 @@ Work queue，工作队列，可以提高消息处理速度，避免队列消息�
 
 在consumer服务中添加一个消费者，也监听simple.queue：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184908534.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184908534.png?w=600)
 
 
 
@@ -2384,7 +2384,7 @@ SpringAMQP提供了声明交换机、队列、绑定关系的API，例如：
 
 在consumer服务创建一个类，添加@Configuration注解，并声明FanoutExchange、Queue和绑定关系对象Binding，代码如下：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410191341735.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410191341735.png?w=600)
 
 
 
