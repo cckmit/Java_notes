@@ -663,6 +663,8 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 
 
+<hr>
+
 #### 3 List接口
 
 ##### 概述
@@ -712,7 +714,7 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png?w=600)
 
 
 
@@ -725,6 +727,10 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 <br>
+
+
+
+<hr>
 
 
 
