@@ -46,6 +46,8 @@
 
 
 
+<br>
+
 #### 自定义泛型类
 
 定义类时同时定义了泛型的类就是泛型类。格式：
@@ -119,6 +121,83 @@ E T K V 是在定义泛型的时候使用的。
 ```bash
 # 案例：开发一个极品飞车的游戏，所有的汽车都能一起参与比赛。
 
+```
+
+<br>
+
+```java
+package genericity_limit;
+
+import java.util.ArrayList;
+
+/**
+ * @author cat
+ * @description
+ * @date 2022/4/11 下午9:00
+ */
+
+// https://www.bilibili.com/video/BV1Cv411372m?p=132
+// 黑马讲的很不错，理解了泛型的概述和优势、自定义泛型类/泛型方法/泛型接口、泛型通配符以及上下限（4月11日面试考题）
+public class GenericDemo {
+    public static void main(String[] args) {
+        ArrayList<BMW> bmws = new ArrayList<>();
+        bmws.add(new BMW());
+        bmws.add(new BMW());
+        bmws.add(new BMW());
+        go(bmws);
+
+        ArrayList<BENZ> benzs = new ArrayList<>();
+        benzs.add(new BENZ());
+        benzs.add(new BENZ());
+        benzs.add(new BENZ());
+        go(benzs);
+
+        // 不符合，狗不应该能够比赛
+        //ArrayList<genericity_limit.Dog> dogs = new ArrayList<>();
+        //dogs.add(new genericity_limit.Dog());
+        //dogs.add(new genericity_limit.Dog());
+        //dogs.add(new genericity_limit.Dog());
+        //go(dogs);
+    }
+
+    /**
+     * 所有车比赛
+     * @param cars
+     */
+    // 虽然BMW和BENZ都继承了Car, 但是ArrayList<genericity_limit.BMW>和ArrayList<genericity_limit.BENZ>与ArrayList<genericity_limit.Car>没有关系的！
+    // (1)类有继承关系，但是父子类各自的集合没有关系
+
+    //public static void go(ArrayList<genericity_limit.Car> cars){
+    // (2)使用泛型可以，但是狗不应该能够比赛，所以下面我们使用泛型的上下限
+            // ? extends genericity_limit.Car: ?必须是Car或者其子类   泛型上限
+            // ? super genericity_limit.Car ： ?必须是Car或者其父类   泛型下限
+    public static void go(ArrayList<? extends Car> cars){
+    //
+    //public static void go(ArrayList<genericity_limit.Car> cars){
+
+    }
+
+
+}
+
+// -------------------------------------
+// 不应该能比赛的狗
+class Dog{
+
+}
+
+
+class BENZ extends Car{
+
+}
+
+class BMW extends Car{
+
+}
+
+class Car{
+
+}
 ```
 
 
@@ -276,7 +355,7 @@ public class ThreadDemo22 {
 
 
 
-##### 方式三：JDK 5.0新增：实现Callable接口
+##### 方式三：JDK 5.0新增：实现Callable接口（Callable——FutureTask——Thread）
 
 前2种线程创建方式都存在一个问题：
 
@@ -542,7 +621,7 @@ stream把list转map
 
 
 
-### Set系列集合、Map集合体系
+### 六、Set系列集合、Map集合体系
 
 
 
@@ -670,6 +749,131 @@ Map结合Lambda遍历的API
 
 
 
+### 七、final
+
+final 关键字是最终的意思，可以修饰（方法，变量，类）
+
+- 修饰方法：表明该方法是最终方法，**不能被重写**。
+- 修饰变量：表示该变量第一次赋值后，**不能再次被赋值(有且仅能被赋值一次)**。
+- 修饰类：表明该类是最终类，**不能被继承**。
+
+<br>
+
+final修饰变量的注意
+
+- final修饰的变量是基本类型：那么**变量存储的数据值**不能发生改变。
+
+- final修饰的变量是引用类型：那么**变量存储的地址值**不能发生改变，但是地址指向的对象内容是可以发生变化的。
+
+
+
+
+
+### 八、static
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413121449979.png)
+
+
+
+#### 静态关键字static
+
+static是静态的意思，可以修饰**成员变量**和**成员方法**。
+
+static修饰成员变量表示该成员变量只在内存中**只存储一份**，可以**被共享访问、修改**。
+
+<br>
+
+
+
+##### 成员变量可以分为2类
+
+静态成员变量（有static修饰，**属于类，内存中加载一次**）: 常表示如在线人数信息、等**需要被共享的信息，可以被共享访问**。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413122148800.png)
+
+实例成员变量（无static修饰，存在于每个对象中）：常表示姓名name、年龄age、等**属于每个对象的信息**。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413122217452.png)
+
+
+
+
+
+##### static修饰成员变量的内存原理
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413122449532.png)
+
+
+
+##### 修饰成员方法的基本用法和内存原理
+
+静态成员方法（有static修饰，属于类），建议用类名访问，也可以用对象访问。
+
+实例成员方法（无static修饰，属于对象），只能用对象触发访问。
+
+
+
+> 表示对象自己的行为的，且方法中需要访问实例成员的，则该方法必须申明成实例方法。
+>
+> 如果该方法是以执行一个共用功能为目的，则可以申明成静态方法。
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413123218178.png)
+
+
+
+
+
+##### static实际应用案例：定义工具类
+
+工具类中定义的都是一些静态方法，每个方法都是以完成一个共用的功能为目的。
+
+工具类的好处：一是调用方便，二是提高了代码复用（一次编写，处处可用）
+
+<br>
+
+建议将工具类的**构造器进行私有**，工具类无需创建对象。
+
+建议里面**都是静态方法**，直接用类名访问即可。
+
+
+
+
+
+#### static应用知识：代码块
+
+##### 代码块的分类、作用
+
+代码块是类的5大成分之一（成员变量、构造器，方法，代码块，内部类），定义在类中方法外。
+
+在Java类下，使用 { } 括起来的代码被称为代码块 。
+
+<br>
+
+静态代码块：
+
+- 格式：static{}
+- 特点：需要通过static关键字修饰，随着类的加载而加载，并且自动触发、只执行一次
+- 使用场景：在类加载的时候做一些静态数据初始化的操作，以便后续使用。
+
+
+
+构造代码块（了解，用的少）
+
+- 格式：{}
+- 特点：每次创建对象，调用构造器执行时，都会执行该代码块中的代码，并且在构造器执行前执行
+- 使用场景：初始化实例资源。
+
+
+
+
+
+##### 静态代码块的应用案例
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413124244859.png)
 
 
 
@@ -677,10 +881,148 @@ Map结合Lambda遍历的API
 
 
 
+**如果要在启动系统时对数据进行初始化。建议使用静态代码块完成数据的初始化操作，代码优雅。**
+
+
+
+#### static应用知识：单例设计模式
+
+开发中经常遇到一些问题，一个问题通常有n种解法的，但其中肯定有一种解法是最优的，这个最优的解法被人总结出来了，称之为设计
+
+模式。
+
+设计模式有20多种，对应20多种软件开发中会遇到的问题，学设计模式主要是学2点：
+
+- 第一：这种模式用来解决什么问题。
+
+- 第二：遇到这种问题了，该模式是怎么写的，他是如何解决这个问题的。
+
+<br>
+
+所谓单例模式：
+
+- 可以保证系统中，应用该模式的这个类永远只有一个实例，即一个类永远只能创建一个对象。
+- 例如任务管理器对象我们只需要一个就可以解决问题了，这样可以节省内存空间。
+
+
+
+##### 单例实现之饿汉单例设计模式
+
+在用类获取对象的时候，对象已经提前为你创建好了。
+
+- 定义一个类，把构造器私有。
+- 定义一个静态变量存储一个对象。
+
+```java
+/** a、定义一个单例类 */
+public class SingleInstance {
+  /** c.定义一个静态变量存储一个对象即可 :属于类，与类一起加载一次 */
+  public static SingleInstance instance = new SingleInstance ();
+  
+  /** b.单例必须私有构造器*/
+  private SingleInstance (){
+    System.out.println("创建了一个对象");
+  }
+}
+
+```
+
+
+
+##### 单例实现之懒汉单例设计模式
+
+在真正需要该对象的时候，才去创建一个对象(延迟加载对象)。
+
+- 定义一个类，把构造器私有。
+- 定义一个静态变量存储一个对象。
+- 提供一个返回单例对象的方法。
+
+
+
+```java
+/** 定义一个单例类 */
+class SingleInstance{
+  /** 定义一个静态变量存储一个对象即可 :属于类，与类一起加载一次 */
+  public static SingleInstance instance ; // null
+  /** 单例必须私有构造器*/
+  private SingleInstance(){
+    
+  }
+  /** 必须提供一个方法返回一个单例对象  */
+  public static SingleInstance getInstance(){
+    ...
+    return ...;
+  }
+}
+
+```
 
 
 
 
+
+#### 面向对象三大特征之二：继承
+
+##### 概述与好处
+
+Java中提供一个关键字extends，用这个关键字，我们可以让一个类和另一个类建立起父子关系。
+
+```java
+// Student称为子类（派生类），People称为父类(基类 或超类)。
+public class Student extends People {}
+
+```
+
+
+
+当子类继承父类后，就可以直接使用父类公共的属性和方法了。因此，用好这个技术可以很好的我们**提高代码的复用性。**
+
+Java中子类更强大。
+
+
+
+##### 继承的特点
+
+子类可以继承父类的属性和行为，但是子类不能继承父类的构造器。
+
+Java是单继承模式：一个类只能继承一个直接父类。Java不支持多继承、但是支持多层继承。
+
+Java中所有的类都是Object类的子类。
+
+
+
+##### 继承后：成员变量、成员方法的访问特点
+
+就近原则，子类有找子类、子类没有找父类、父类没有就报错！
+
+如果子父类中，出现了重名的成员，会优先使用子类的，此时如果一定要在子类中使用父类的怎么办？
+
+```java
+格式：super.父类成员变量/父类成员方法
+```
+
+
+
+
+
+##### 继承后：子类构造器的特点
+
+子类中所有的构造器默认都会先访问父类中无参的构造器，再执行自己。
+
+```bash
+# 为什么？
+子类在初始化的时候，有可能会使用到父类中的数据，如果父类没有完成初始化，子类将无法使用父类的数据。
+子类初始化之前，一定要调用父类构造器先完成父类数据空间的初始化。
+# 怎么调用父类构造器的？
+子类构造器的第一行语句默认都是：super()，不写也存在。
+
+```
+
+
+
+
+
+### 九、接口与抽象类
 
 
 

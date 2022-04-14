@@ -30,8 +30,44 @@
     </select>
 
     <!--List<User> getAllUser();-->
-    <select id="getAllUser" resultType="User">
+    <select id="getAllUser" resultType="com.atguigu.mybatis.pojo.User">
         select * from t_user
     </select>
+
+    <select id="getLikeUser" resultType="com.atguigu.mybatis.pojo.User">
+        <!--  方式1：使用${...}  可能会有sql注入的问题-->
+        <!-- select * from t_user where username like '%${username}';-->
+
+        <!-- 方式2：       -->
+        <!--select * from t_user-->
+        <!--<where>-->
+        <!--    <if test="username">-->
+        <!--        and t_user.username like "%"#{username}-->
+        <!--    </if>-->
+        <!--</where>-->
+
+        <!-- 方式3：使用concat()函数连接参数-->
+        select * from t_user where username like CONCAT("%", #{username}, "%")
+
+    </select>
+
+
+
+    <resultMap id="orderMap" type="com.lak.domain.Order">
+        <id column="oid" property="id"></id>
+        <result column="ordertime" property="ordertime"></result>
+        <result column="total" property="total"></result>
+        <association property="user" javaType="com.lak.domain.User">
+            <id column="uid" property="id"></id>
+            <result column="username" property="username"></result>
+            <result column="password" property="password"></result>
+        </association>
+    </resultMap>
+
+    <select id="findAllOrder" resultMap="orderMap">
+    select *, o.id oid from orders o,user u where
+        u.id=o.uid
+    </select>
+
 
 </mapper>

@@ -22,6 +22,54 @@
 
 
 
+## 面试
+
+
+
+
+
+
+
+模糊查询
+
+```xml
+    <select id="getLikeUser" resultType="com.atguigu.mybatis.pojo.User">
+        <!--  方式1：使用${...}  可能会有sql注入的问题-->
+        select * from t_user where username like '%${username}';
+        <!-- 方式2：       -->
+        select * from t_user
+        <where>
+            <if test="username">
+                and t_user.username like "%"#{username}
+            </if>
+        </where>
+      
+      	<!-- 方式3：使用concat()函数连接参数-->
+				select * from t_user where username like CONCAT("%", #{username}, "%")
+
+    </select>
+```
+
+
+
+什么时候用${ }取值？（常见的使用${}的情况）
+
+1.当sql中**表名**是从参数中取的情况
+
+2.**order by排序语句中**，因为order by 后边必须跟**字段名**，这个字段名不能带引号，如果带引号会被识别会字符串，而不是字段。
+
+<br>
+
+**总结一下，就是当我们需要拼接的变量上不能带单引号时，就必须使用${}。其他情况都尽量使用#{}的方式，因为${}会有sql注入的问题。**
+
+
+
+
+
+
+
+
+
 
 
 <hr>

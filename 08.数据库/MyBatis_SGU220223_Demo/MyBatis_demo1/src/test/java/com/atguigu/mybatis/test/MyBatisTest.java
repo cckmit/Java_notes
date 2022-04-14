@@ -25,6 +25,10 @@ public class MyBatisTest {
      */
 
 
+    /**
+     * 插入数据
+     * @throws IOException
+     */
     @Test
     public void testMyBatis() throws IOException {
         //加载核心配置文件
@@ -35,6 +39,7 @@ public class MyBatisTest {
         SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
         //获取SqlSession
         SqlSession sqlSession = sqlSessionFactory.openSession(true);
+
         //获取mapper接口对象
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         //测试功能
@@ -44,6 +49,10 @@ public class MyBatisTest {
         System.out.println("result:"+result);
     }
 
+    /**
+     * 改、删、根据id查、查所有
+     * @throws IOException
+     */
     @Test
     public void testCRUD() throws IOException {
         InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
@@ -56,6 +65,18 @@ public class MyBatisTest {
         System.out.println(user);*/
         List<User> list = mapper.getAllUser();
         list.forEach(user -> System.out.println(user));
-}
+    }
+
+
+    @Test
+    public void testLike() throws IOException {
+
+        InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
+        SqlSession sqlSession = sqlSessionFactory.openSession(true);
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        List<User> likeUser = mapper.getLikeUser("admin");
+        likeUser.forEach(user -> System.out.println(user));
+    }
 
 }
