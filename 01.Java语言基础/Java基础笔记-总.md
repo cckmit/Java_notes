@@ -64,7 +64,7 @@ public class MyArrayList<T> {  }
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411194649340.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411194649340.png?w=600)
 
 
 
