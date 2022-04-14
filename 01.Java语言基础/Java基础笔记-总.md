@@ -230,7 +230,7 @@ Lock → 同步代码块（已经进入了方法体，分配了相应资源） �
 
 ### 三、多线程
 
-#### 概述
+#### 1 概述
 
 线程(thread)是一个程序内部的一条执行路径。
 
@@ -250,7 +250,7 @@ Lock → 同步代码块（已经进入了方法体，分配了相应资源） �
 
 
 
-#### 多线程的创建
+#### 2 多线程的创建
 
 ##### 方式一：继承Thread类
 
@@ -477,7 +477,7 @@ class MyCallable implements Callable<String>{
 
 
 
-#### 常用API
+#### 3 常用API
 
 Thread常用方法：获取线程名称getName()、设置名称setName()、获取当前线程对象currentThread()。至于Thread类提供的诸如：yield、join、interrupt、不推荐的方法 stop 、守护线程、线程优先级等线程的控制方法，在开发中很少使用，这些方法会在高级篇以及后续需要用到的时候再为大家讲解。
 
@@ -621,11 +621,110 @@ stream把list转map
 
 
 
-### 六、Set系列集合、Map集合体系
+### 六、Collection接口系列集合、Map接口系列集合
 
-
+#### 1 Collection接口方法
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411224715970.png)
+
+
+
+Collection 接口是 List、Set 和 Queue 接口的父接口，该接口里定义的方法既可用于操作 Set 集合，也可用于操作 List 和 Queue 集合。
+
+
+
+| 方法                                                         | 说明                 |                                            |
+| ------------------------------------------------------------ | -------------------- | ------------------------------------------ |
+| add(Object obj)、addAll(Collection coll)                     | 添加                 |                                            |
+| int size()                                                   | 获取有效元素的个数   |                                            |
+| void clear()                                                 | 清空集合             |                                            |
+| boolean isEmpty()                                            | 是否是空集合         |                                            |
+| boolean contains(Object obj)、boolean containsAll(Collection c) | 是否包含某个元素     | 通过元素的equals方法来判断是否是同一个对象 |
+| boolean remove(Object obj)                                   | 删除                 |                                            |
+| boolean retainAll(Collection c)                              | 取两个集合的交集     |                                            |
+| boolean equals(Object obj)                                   | 集合是否相等         |                                            |
+| Object[] toArray()                                           | 转成对象数组         |                                            |
+| hashCode()                                                   | 获取集合对象的哈希值 |                                            |
+| iterator()                                                   | 遍历                 | 返回迭代器对象，用于集合遍历               |
+
+
+
+#### 2 Iterator迭代器接口
+
+Iterator对象称为迭代器(设计模式的一种)，主要用于遍历 Collection 集合中的元素。
+
+Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()方法，那么所有实现了Collection接口的集合类都有一个iterator()方法，用以返回一个实现了Iterator接口的对象。 
+
+**Iterator 仅用于遍历集合**，Iterator 本身并不提供承装对象的能力。如果需要创建Iterator 对象，则必须有一个被迭代的集合。
+
+**集合对象每次调用iterator()方法都得到一个全新的迭代器对象**，默认游标都在集合的第一个元素之前。
+
+
+
+
+
+#### 3 List接口
+
+##### 概述
+
+鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组
+
+List集合类中**元素有序、且可重复**，集合中的每个元素都有其对应的顺序索引。
+
+List容器中的元素都对应一个整数型的序号记载其在容器中的位置，可以根据序号存取容器中的元素。
+
+JDK API中List接口的实现类常用的有：ArrayList、LinkedList和Vector。
+
+<br>
+
+
+
+
+
+ List除了从Collection集合继承的方法外，List 集合里添加了一些根据索引来操作集合元素的方法。
+
+##### List实现类之一：ArrayList
+
+ArrayList 是 List 接口的典型实现类、主要实现类
+
+本质上，ArrayList是对象引用的一个”变长”数组
+
+ArrayList的JDK1.8之前与之后的实现区别？
+
+- JDK1.7：ArrayList像饿汉式，直接创建一个初始容量为10的数组
+- JDK1.8：ArrayList像懒汉式，一开始创建一个长度为 0 的数组，当添加第一个元素时再创建一个始容量为 10 的数组
+
+
+
+Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，也不是Vector 实例。 Arrays.asList(…) 返回值是一个固定长度的 List 集合
+
+
+
+##### List实现类之二：LinkedList
+
+对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高
+
+**双向链表**，内部没有声明数组，而是定义了 Node 类型的first和last，用于记录首末元素。同时，定义内部类Node，作为LinkedList中保存数据的基本结构。Node除了保存数据，还定义了两个变量：
+
+- prev变量记录前一个元素的位置
+
+- next变量记录下一个元素的位置
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png)
+
+
+
+##### List 实现类之三：Vector
+
+
+
+
+
+
+
+<br>
 
 
 
@@ -713,7 +812,7 @@ java.utils.Collections:是集合工具类
 
 
 
-#### Map集合体系
+#### Map接口系列集合
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411225519826.png)
 
@@ -1030,9 +1129,134 @@ Java中所有的类都是Object类的子类。
 
 
 
+### 十、异常类
+
+#### 1 异常概述与异常体系结构（Throwable）
+
+Java程序在执行过程中所发生的异常事件可分为两类：
+
+- **Error**：Java虚拟机无法解决的严重问题。如：JVM系统内部错误、资源耗尽等严重情况。比如：StackOverflowError和OOM。一般不编写针对性的代码进行处理。
+
+- **Exception**: 其它因编程错误或偶然的外在因素导致的一般性问题，可以使用针对性的代码进行处理。
+
+<br>
+
+运行时异常
+
+- 是指编译器不要求强制处置的异常。一般是指编程时的逻辑错误，是程序员应该积极避免其出现的异常。
+
+- **java.lang.RuntimeException**类及它的子类都是运行时异常。
+
+- 对于这类异常，可以不作处理，因为这类异常很普遍，若全处理可能会对程序的可读性和运行效率产生影响。
 
 
 
+编译时异常
+
+- 是指编译器要求必须处置的异常。即程序在运行时由于外界因素造成的一般性异常。编译器要求Java程序必须捕获或声明所有编译时异常。
+
+- 对于这类异常，如果程序不处理，可能会带来意想不到的结果。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414205421838.png)
+
+
+
+#### 2 常见异常
+
+-  java.lang.RuntimeException
+  - ClassCastException
+  - ArrayIndexOutOfBoundsException
+  - NullPointerException
+  - ArithmeticException
+  - NumberFormatException
+  - InputMismatchException
+
+-  java.io.IOExeption
+  - FileNotFoundException
+  - EOFException
+  - java.lang.ClassN
+
+
+
+- java.lang.ClassNotFoundException
+- java.lang.InterruptedException 
+- java.io.FileNotFoundException
+- java.sql.SQLException
+
+
+
+#### 3 异常处理机制一：try-catch-finally
+
+Java异常处理机制：Java采用的异常处理机制，是将异常处理的程序代码集中在一起，与正常的程序代码分开，使得程序简洁、优雅，并易于维护。
+
+- 如果一个方法内抛出异常，该异常对象会被抛给调用者方法中处理。如果异常没有在调用者方法中处理，它继续被抛给这个调用方法的上层方法。这个过程将一直继续下去，直到异常被处理。这一过程称为捕获(catch)异常。
+
+- 如果一个异常回到main()方法，并且main()也不处理，则程序运行终止。 
+
+- 程序员通常只能处理Exception，而对Error无能为力。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414211030908.png)
+
+
+
+
+
+
+
+#### 4 异常处理机制二：throws声明抛出异常
+
+
+
+如果一个方法(中的语句执行时)可能生成某种异常，但是并不能确定如何处理这种异常，则此方法应**显示地**声明抛出异常，表明该方法将不对这些异常进行处理，而由该方法的**调用者**负责处理。 
+
+在方法声明中用throws语句可以声明抛出异常的列表，throws后面的异常类型可以是方法中产生的异常类型，也可以是它的父类。
+
+
+
+重写方法不能抛出比被重写方法范围更大的异常类型。在多态的情况下， 对methodA()方法的调用-异常的捕获按父类声明的异常处理。
+
+
+
+#### 5 手动抛出异常
+
+
+
+首先要生成异常类对象，然后通过throw语句实现抛出操作(提交给Java运行环境)。
+
+```java
+IOException e = new IOException();
+throw e;
+```
+
+
+
+
+
+可以抛出的异常必须是Throwable或其子类的实例。下面的语句在编译时将会产生语法错误：
+
+```java
+throw new String("want to throw");
+```
+
+
+
+
+
+#### 6 用户自定义异常
+
+一般地，用户自定义异常类都是**RuntimeException**的子类。
+
+自定义异常类通常需要编写几个**重载的构造器**。 
+
+自定义异常需要提供**serialVersionUID**
+
+自定义的异常通过**throw抛出**。
+
+自定义异常最重要的是异常类的名字，当异常出现时，可以根据名字判断异常类型。
 
 
 
