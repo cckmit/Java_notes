@@ -483,7 +483,9 @@ Thread常用方法：获取线程名称getName()、设置名称setName()、获�
 
 
 
+<br>
 
+<hr>
 
 ### 四、常用类
 
@@ -653,6 +655,8 @@ false
 > Double、Float的valueOf方法的实现是类似的。
 
 
+
+<br>
 
 3. 谈谈 Integer i = new Integer(xxx) 和 Integer i =xxx; 这两种方式的区别。
 
