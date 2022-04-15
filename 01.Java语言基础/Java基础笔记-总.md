@@ -542,7 +542,7 @@ int n = i;   //拆箱
 
 ##### （2）装箱和拆箱是如何实现的？
 
-以Interger类为例，在装箱的时候自动调用的是Integer的**valueOf(int)**方法。而在拆箱的时候自动调用的是Integer的 **intValue()** 方法。
+以Interger类为例，在装箱的时候自动调用的是Integer的 **valueOf(int)** 方法。而在拆箱的时候自动调用的是Integer的 **intValue()** 方法。
 
 ##### （3）面试中相关的问题
 
