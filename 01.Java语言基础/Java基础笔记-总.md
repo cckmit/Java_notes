@@ -487,6 +487,193 @@ Thread常用方法：获取线程名称getName()、设置名称setName()、获�
 
 ### 四、常用类
 
+
+
+#### 0 自动装箱和拆箱
+
+装箱：自动将基本类型⽤它们对应的引⽤类型包装起来；
+
+拆箱：自动将包装类型转换为基本数据类型；
+
+[参考](https://www.cnblogs.com/dolphin0520/p/3780005.html)
+
+
+
+<hr>
+
+深入剖析Java中的装箱和拆箱
+
+##### 什么是装箱？什么是拆箱？
+
+Java为每种基本数据类型都提供了对应的包装器类型，在Java SE  5之前，如果要生成一个数值为10的Integer对象，必须这样进行：
+
+```java
+	Integer i = new Integer(10);
+```
+
+而在从Java SE5开始就提供了自动装箱的特性，如果要生成一个数值为10的Integer对象，只需要这样就可以了：
+
+```java
+Integer i = 10;
+```
+
+这个过程中会自动根据数值创建对应的 Integer对象，这就是装箱。
+
+那什么是拆箱呢？顾名思义，跟装箱对应，就是自动将包装器类型转换为基本数据类型：
+
+```java
+Integer i = 10;  //装箱
+int n = i;   //拆箱
+```
+
+<br>
+
+| int（4字节）    | Integer   |
+| --------------- | --------- |
+| byte（1字节）   | Byte      |
+| short（2字节）  | Short     |
+| long（8字节）   | Long      |
+| float（4字节）  | Float     |
+| double（8字节） | Double    |
+| char（2字节）   | Character |
+| boolean（未定） | Boolean   |
+
+
+
+##### 装箱和拆箱是如何实现的？
+
+以Interger类为例，在装箱的时候自动调用的是Integer的**valueOf(int)**方法。而在拆箱的时候自动调用的是Integer的 **intValue()** 方法。
+
+##### 面试中相关的问题
+
+虽然大多数人对装箱和拆箱的概念都清楚，但是在面试和笔试中遇到了与装箱和拆箱的问题却不一定会答得上来。（切身体会）下面列举一些常见的与装箱/拆箱有关的面试题。
+
+1. 下面这段代码的输出结果是什么？
+
+```java
+public class Main {
+    public static void main(String[] args) {
+         
+        Integer i1 = 100;
+        Integer i2 = 100;
+        Integer i3 = 200;
+        Integer i4 = 200;
+         
+        System.out.println(i1==i2);
+        System.out.println(i3==i4);
+    }
+}
+```
+
+也许有些朋友会说都会输出false，或者也有朋友会说都会输出true。但是事实上输出结果是：
+
+```bash
+true
+false
+```
+
+为什么会出现这样的结果？输出结果表明i1和i2指向的是同一个对象，而i3和i4指向的是不同的对象。此时只需一看源码便知究竟，下面这段代码是 Integer 的 valueOf() 方法的具体实现：
+
+```java
+public static Integer valueOf(int i) {
+  if(i >= -128 && i <= IntegerCache.high)
+    return IntegerCache.cache[i + 128];
+  else
+    return new Integer(i);
+}
+```
+
+而其中IntegerCache类的实现为：
+
+```java
+private static class IntegerCache {
+  static final int high;
+  static final Integer cache[];
+
+  static {
+    final int low = -128;
+
+    // high value may be configured by property
+    int h = 127;
+    if (integerCacheHighPropValue != null) {
+      // Use Long.decode here to avoid invoking methods that
+      // require Integer's autoboxing cache to be initialized
+      int i = Long.decode(integerCacheHighPropValue).intValue();
+      i = Math.max(i, 127);
+      // Maximum array size is Integer.MAX_VALUE
+      h = Math.min(i, Integer.MAX_VALUE - -low);
+    }
+    high = h;
+
+    cache = new Integer[(high - low) + 1];
+    int j = low;
+    for(int k = 0; k < cache.length; k++)
+      cache[k] = new Integer(j++);
+  }
+
+  private IntegerCache() {}
+  
+}
+```
+
+从这2段代码可以看出，在通过valueOf方法创建Integer对象的时候，如果数值在 [-128,127] 之间，便返回指向IntegerCache.cache中已经存在的对象的引用；否则创建一个新的Integer对象。
+
+上面的代码中i1和i2的数值为100，因此会直接从cache中取已经存在的对象，所以i1和i2指向的是同一个对象，而i3和i4则是分别指向不同的对象。
+
+2. 下面这段代码的输出结果是什么？
+
+```java
+public class Main {
+    public static void main(String[] args) {
+         
+        Double i1 = 100.0;
+        Double i2 = 100.0;
+        Double i3 = 200.0;
+        Double i4 = 200.0;
+         
+        System.out.println(i1==i2);
+        System.out.println(i3==i4);
+    }
+}
+```
+
+也许有的朋友会认为跟上面一道题目的输出结果相同，但是事实上却不是。实际输出结果为：
+
+```bash
+false
+false
+```
+
+至于具体为什么，读者可以去查看Double类的valueOf的实现。
+
+在这里只解释一下为什么Double类的valueOf方法会采用与Integer类的valueOf方法不同的实现。很简单：**在某个范围内的整型数值的个数是有限的，而浮点数却不是。**
+
+> 注意，Integer、Short、Byte、Character、Long这几个类的valueOf方法的实现是类似的。
+>
+> Double、Float的valueOf方法的实现是类似的。
+
+
+
+3. 谈谈 Integer i = new Integer(xxx) 和 Integer i =xxx; 这两种方式的区别。
+
+当然，这个题目属于比较宽泛类型的。但是要点一定要答上，我总结一下主要有以下这两点区别：
+
+1）第一种方式不会触发自动装箱的过程；而第二种方式会触发；
+
+2）在执行效率和资源占用上的区别。第二种方式的执行效率和资源占用在一般性情况下要优于第一种情况（注意这并不是绝对的）。
+
+
+
+
+
+
+
+
+
+<hr>
+
+
+
 #### 1 字符串相关的类
 
 ##### 1 String

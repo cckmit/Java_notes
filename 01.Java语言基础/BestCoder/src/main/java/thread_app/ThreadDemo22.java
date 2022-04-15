@@ -7,6 +7,8 @@ package thread_app;
  */
 public class ThreadDemo22 {
     public static void main(String[] args) {
+        // Integer num = 10;
+        // int a = num.intValue();
 
         // 实现Runnable接口(匿名内部类形式)
         Runnable target = new Runnable(){
