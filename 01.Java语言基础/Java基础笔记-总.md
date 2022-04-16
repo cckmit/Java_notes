@@ -688,7 +688,7 @@ String是一个final类，代表不可变的字符序列。
 
 字符串是常量，用双引号引起来表示。它们的值在创建之后不能更改。
 
- String对象的字符内容是存储在一个**字符数组value[]**中的。
+ String对象的字符内容是存储在一个 字符数组 **value[]** 中的。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220412105855093.png)
 
@@ -800,7 +800,7 @@ StringBuilder(JDK 5.0)：可变字符序列、效率高、线程不安全
 
 
 
-
+<hr>
 
 ### 五、Java8 新特性
 
@@ -836,7 +836,7 @@ Lambda 表达式：在Java 8 语言中引入的一种新的语法元素和操作
 
 右侧：指定了 **Lambda 体**，是抽象方法的实现逻辑，也即Lambda 表达式要执行的功能。
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416114704716.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416114704716.png?w=600)
 
 
 
@@ -865,6 +865,8 @@ Lambda 表达式：在Java 8 语言中引入的一种新的语法元素和操作
 stream把list转map
 
 
+
+<hr>
 
 ### 六、Collection接口系列集合、Map接口系列集合
 
