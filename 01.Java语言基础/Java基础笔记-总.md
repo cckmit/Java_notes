@@ -836,7 +836,7 @@ Lambda 表达式：在Java 8 语言中引入的一种新的语法元素和操作
 
 右侧：指定了 **Lambda 体**，是抽象方法的实现逻辑，也即Lambda 表达式要执行的功能。
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416114704716.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416114704716.png?w=550)
 
 
 
