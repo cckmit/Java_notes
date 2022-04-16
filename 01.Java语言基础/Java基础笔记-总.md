@@ -1049,7 +1049,7 @@ HashSet 集合判断两个元素相等的标准：两个对象通过 hashCode() 
 
 #### 5 map接口
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411225519826.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411225519826.png?w=600)
 
 
 
