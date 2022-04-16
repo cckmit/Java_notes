@@ -804,6 +804,60 @@ StringBuilder(JDK 5.0)：可变字符序列、效率高、线程不安全
 
 ### 五、Java8 新特性
 
+Java 8 是oracle公司于2014年3月发布，可以看成是自Java 5 以来最具革命性的版本。Java 8为Java语言、编译器、类库、开发工具与JVM带来了大量新特性。
+
+
+
+
+
+
+
+#### 1 Lambda表达式
+
+##### 为什么
+
+Lambda 是一个**匿名函数**，我们可以把 Lambda 表达式理解为是**一段可以传递的代码**（将代码像数据一样进行传递）。
+
+使用它可以写出更简洁、更灵活的代码。作为一种更紧凑的代码风格，使Java的语言表达能力得到了提升。
+
+
+
+
+
+##### 举例
+
+
+
+##### 语法
+
+Lambda 表达式：在Java 8 语言中引入的一种新的语法元素和操作符。这个操作符为 “->” ， 该操作符被称为 **Lambda 操作符**或箭头操作符。它将 Lambda 分为两个部分：
+
+左侧：指定了 Lambda 表达式需要的**参数列表**
+
+右侧：指定了 **Lambda 体**，是抽象方法的实现逻辑，也即Lambda 表达式要执行的功能。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416114704716.png)
+
+
+
+
+
+
+
+#### 2 函数式(Functional)接口
+
+
+
+#### 3 方法引用与构造器引用
+
+
+
+#### 4 强大的Stream API
+
+
+
+#### 5 Optional类
+
 
 
 
@@ -856,7 +910,7 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 <hr>
 
-#### 3 List接口
+#### 3 （一）List接口
 
 ##### 概述
 
@@ -876,7 +930,9 @@ JDK API中List接口的实现类常用的有：ArrayList、LinkedList和Vector�
 
  List除了从Collection集合继承的方法外，List 集合里添加了一些根据索引来操作集合元素的方法。
 
-##### List实现类之一：ArrayList
+<hr>
+
+##### List实现类之一：ArrayList（数组）
 
 ArrayList 是 List 接口的典型实现类、主要实现类
 
@@ -893,7 +949,7 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 
-##### List实现类之二：LinkedList
+##### List实现类之二：LinkedList（双向链表）（插入和删除）
 
 对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高
 
@@ -911,29 +967,31 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 ##### List 实现类之三：Vector
 
-
-
-
+Vector 是一个古老的集合，JDK1.0就有了。大多数操作与ArrayList相同，区别之处在于Vector是线程安全的。
 
 
 
 <br>
 
+##### 面试题
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220415224438975.png)
 
 
-<hr>
+
+#### 4 （二）set接口
+
+Set接口是Collection的子接口，set接口没有提供额外的方法
 
 
 
 **Set系列集合特点**
 
 - 无序：存取顺序不一致
-- 不重复：可以去除重复
+- 不重复：可以去除重复（不允许包含相同的元素，根据 equals() 方法判断两个对象是否相同）
 - 无索引：没有带索引的方法，所以不能使用普通for循环遍历，也不能通过索引来获取元素。
 
 <br>
-
-
 
 **Set集合实现类特点**
 
@@ -946,6 +1004,237 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 Set集合的功能上基本上与Collection的API一致。
 
 
+
+<hr>
+
+##### Set实现类之一：HashSet
+
+HashSet 是 Set 接口的典型实现，大多数时候使用 Set 集合时都使用这个实现类。
+
+HashSet 按 **Hash 算法**来存储集合中的元素，因此具有很好的存取、查找、删除性能。 
+
+<br>
+
+具有的特点：
+
+- 不能保证元素的排列顺序
+
+- HashSet 不是线程安全的
+
+- 集合元素可以是 null
+
+
+
+HashSet 集合判断两个元素相等的标准：两个对象通过 hashCode() 方法比较相等，并且两个对象的 equals() 方法返回值也相等。
+
+对于存放在Set容器中的对象，对应的类一定要重写equals()和hashCode(Object obj)方法，以实现对象相等规则。即：“相等的对象必须具有相等的散列码”。
+
+
+
+
+
+
+
+
+
+##### Set实现类之二：LinkedHashSet
+
+·
+
+
+
+<hr>
+
+#### 5 map接口
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411225519826.png)
+
+
+
+##### 概述
+
+
+
+Map与Collection并列存在。用于保存具有**映射关系**的数据: key-value
+
+Map 中的 key 和 value 都可以是任何引用类型的数据
+
+Map 中的 key 用Set来存放，**不允许重复**，即同一个 Map 对象所对应的类，须重写hashCode()和equals()方法
+
+常用String类作为Map的“键”
+
+key 和 value 之间存在单向一对一关系，即通过指定的 key 总能找到唯一的、确定的 value
+
+ Map接口的常用实现类：HashMap、TreeMap、LinkedHashMap和Properties。其中，HashMap是 Map 接口使用频率最高的实现类
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416100809318.png)
+
+
+
+常用方法
+
+| 方法                                | 说明                                       |      |
+| ----------------------------------- | ------------------------------------------ | ---- |
+| Object put(Object key,Object value) | 将指定key-value添加到(或修改)当前map对象中 |      |
+| void putAll(Map m)                  | 将m中的所有key-value对存放到当前map中      |      |
+| Object remove(Object key)           | 移除指定key的key-value对，并返回value      |      |
+| void clear()                        | 清空当前map中的所有数据                    |      |
+| Object get(Object key)              | 获取指定key对应的value                     |      |
+| boolean containsKey(Object key)     | 是否包含指定的key                          |      |
+| boolean containsValue(Object value) | 是否包含指定的value                        |      |
+| int size()                          | 返回map中key-value对的个数                 |      |
+| boolean isEmpty()                   | 判断当前map是否为空                        |      |
+| boolean equals(Object obj)          | 判断当前map和参数对象obj是否相等           |      |
+| Set keySet()                        | 返回所有key构成的Set集合                   |      |
+| Collection values()                 | 返回所有value构成的Collection集合          |      |
+| Set entrySet()                      | 返回所有key-value对构成的Set集合           |      |
+
+
+
+##### Map实现类之一：HashMap
+
+HashMap是 Map 接口**使用频率最高**的实现类。
+
+允许使用null键和null值，与HashSet一样，不保证映射的顺序。
+
+所有的key构成的集合是Set:无序的、不可重复的。所以，key所在的类要重写：equals()和hashCode()
+
+所有的value构成的集合是Collection:无序的、可以重复的。所以，value所在的类要重写：equals()
+
+一个key-value构成一个entry
+
+所有的entry构成的集合是Set:无序的、不可重复的
+
+HashMap **判断两个** **key** **相等的标准**是：两个 key 通过 equals() 方法返回 true，hashCode 值也相等。
+
+HashMap **判断两个** **value相等的标准**是：两个 value 通过 equals() 方法返回 true。
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416101639515.png)
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416101712791.png)
+
+
+
+
+
+HashMap源码中的重要常量
+
+- DEFAULT_INITIAL_CAPACITY : HashMap的默认容量，16
+- MAXIMUM_CAPACITY ： HashMap的最大支持容量，2^30
+- DEFAULT_LOAD_FACTOR：HashMap的默认加载因子
+- TREEIFY_THRESHOLD：Bucket中链表长度大于该默认值，转化为红黑树
+- UNTREEIFY_THRESHOLD：Bucket中红黑树存储的Node小于该默认值，转化为链表
+- MIN_TREEIFY_CAPACITY：桶中的Node被树化时最小的hash表容量。（当桶中Node的数量大到需要变红黑树时，若hash表容量小于MIN_TREEIFY_CAPACITY时，此时应执行resize扩容操作这个MIN_TREEIFY_CAPACITY的值至少是TREEIFY_THRESHOLD的4倍。）
+- table：存储元素的数组，总是2的n次幂
+- entrySet：存储具体元素的集
+- size：HashMap中存储的键值对的数量
+- modCount：HashMap扩容和结构改变的次数。
+- threshold：扩容的临界值，=容量*填充因子
+- loadFactor：填充因子
+
+
+
+
+
+##### Map实现类之二：LinkedHashMap
+
+LinkedHashMap 是 HashMap 的子类
+
+在HashMap存储结构的基础上，使用了**一对双向链表**来**记录添加元素的顺序**
+
+与LinkedHashSet类似，LinkedHashMap 可以维护 Map 的迭代顺序：迭代顺序与 Key-Value 对的插入顺序一致
+
+
+
+
+
+##### Map实现类之三：TreeMap
+
+TreeMap存储 Key-Value 对时，需要根据 key-value 对进行排序。TreeMap 可以保证所有的 Key-Value 对处于**有序**状态。
+
+TreeSet底层使用**红黑树**结构存储数据
+
+TreeMap判断**两个key相等的标准**：两个key通过compareTo()方法或者compare()方法返回0。
+
+
+
+
+
+
+
+##### Map实现类之四：Hashtable
+
+ Hashtable是个古老的 Map 实现类，JDK1.0就提供了。不同于HashMap，Hashtable是线程安全的。
+
+
+
+##### Map实现类之五：Properties
+
+Properties 类是 Hashtable 的子类，该对象用于处理属性文件
+
+由于属性文件里的 key、value 都是字符串类型，所以 Properties 里的 key 和 value 都是字符串类型
+
+存取数据时，建议使用 setProperty(String key,String value) 方法和 getProperty(String key) 方法
+
+
+
+
+
+#### 6 Collections工具类
+
+Collections 是一个操作 Set、List 和 Map 等集合的工具类
+
+Collections 中提供了一系列静态的方法对集合元素进行排序、查询和修改等操作，还提供了对集合对象设置不可变、对集合对象实现同步控制等方法
+
+##### 排序（均为static方法）
+
+| 方法                   | 说明                                                     |
+| ---------------------- | -------------------------------------------------------- |
+| reverse(List)          | 反转 List 中元素的顺序                                   |
+| shuffle(List)          | 对 List 集合元素进行随机排序                             |
+| sort(List)             | 根据元素的自然顺序对指定 List 集合元素按升序排序         |
+| sort(List，Comparator) | 根据指定的 Comparator 产生的顺序对 List 集合元素进行排序 |
+| swap(List，int， int)  | 将指定 list 集合中的 i 处元素和 j 处元素进行交换         |
+
+
+
+
+
+##### 查找、替换
+
+| 方法                               | 说明                                                 |
+| ---------------------------------- | ---------------------------------------------------- |
+| Object max(Collection)             | 根据元素的自然顺序，返回给定集合中的最大元素         |
+| Object max(Collection，Comparator) | 根据 Comparator 指定的顺序，返回给定集合中的最大元素 |
+|                                    |                                                      |
+|                                    |                                                      |
+|                                    |                                                      |
+|                                    |                                                      |
+|                                    |                                                      |
+
+
+
+##### 同步控制
+
+Collections 类中提供了多个 synchronizedXxx() 方法，该方法可使将指定集合包装成线程同步的集合，从而可以解决多线程并发访问集合时的线程安全问题
+
+
+
+
+
+
+
+
+
+
+
+<hr>
 
 #### Set系列集合
 
@@ -1457,7 +1746,188 @@ throw new String("want to throw");
 
 
 
+### 十一、IO流
 
+
+
+Java程序中，对于数据的输入/输出操作以“流(stream)” 的方式进行。
+
+java.io包下提供了各种“流”类和接口，用以获取不同种类的数据，并通过标准的方法输入或输出数据。
+
+<br>
+
+分类：
+
+按操作数据单位不同分为：字节流(8 bit)，字符流(16 bit)
+
+按数据流的流向不同分为：输入流，输出流
+
+按流的角色的不同分为：节点流，处理流
+
+| 抽象基类 | 字节流       | 字符流 |
+| -------- | ------------ | ------ |
+| 输入流   | InputStream  | Reader |
+| 输出流   | OutputStream | Writer |
+
+
+
+Java的IO流共涉及 40 多个类，实际上非常规则，都是从如下4个抽象基类派生的。
+
+由这四个类派生出来的子类名称都是以其父类名作为子类名后缀。
+
+<br>
+
+
+
+| 方法                                   | 说明                                                         |
+| -------------------------------------- | ------------------------------------------------------------ |
+| int read()                             | 从输入流中读取数据的下一个字节。返回 0 到 255 范围内的 int 字节值。如果因为已经到达流末尾而没有可用的字节，则返回值 -1。 |
+| int read(byte[] b)                     | 从此输入流中将最多 b.length 个字节的数据读入一个 byte 数组中。 |
+| int read(byte[] b, int off,int len)    | 将输入流中最多 len 个数据字节读入 byte 数组。                |
+| public void close() throws IOException | 关闭此输入流并释放与该流关联的所有系统资源。                 |
+
+
+
+#### 1 节点流（文件流）
+
+读取文件
+
+```bash
+# 1.建立一个流对象，将已存在的一个文件加载进流。
+FileReader fr = new FileReader(new File(“Test.txt”));
+# 2.创建一个临时存放数据的数组。
+char[] ch = new char[1024];
+# 3.调用流对象的读取方法将流中的数据读入到数组中。
+fr.read(ch);
+# 4. 关闭资源。
+fr.close();
+```
+
+<br>
+
+```java
+FileReader fr = null;
+try {
+    fr = new FileReader(new File("c:\\test.txt"));
+    char[] buf = new char[1024];
+    int len;
+    while ((len = fr.read(buf)) != -1) {
+    		System.out.print(new String(buf, 0, len));
+    }
+} catch (IOException e) {
+		System.out.println("read-Exception :" + e.getMessage());
+} finally {
+    if (fr != null) {
+        try {
+        		fr.close();
+        } catch (IOException e) {
+        		System.out.println("close-Exception :" + e.getMessage());
+        } 
+    } 
+}
+```
+
+
+
+写入文件
+
+```bash
+# 1.创建流对象，建立数据存放文件
+FileWriter fw = new FileWriter(new File(“Test.txt”));
+# 2.调用流对象的写入方法，将数据写入流
+fw.write(“atguigu-songhongkang”);
+# 3.关闭流资源，并将流中的数据清空到文件中。
+fw.close();
+```
+
+<br>
+
+```java
+FileWriter fw = null;
+try {
+    fw = new FileWriter(new File("Test.txt"));
+    fw.write("atguigu-songhongkang");
+} catch (IOException e) {
+    e.printStackTrace();
+} finally {
+    if (fw != null){
+    		try {
+    				fw.close();
+    		} catch (IOException e) {
+    				e.printStackTrace();
+    		} 
+    }
+}
+```
+
+
+
+
+
+定义文件路径时，可以用“/”或者“\\”。 
+
+在写入一个文件时，如果使用构造器FileOutputStream(file)，则**目录下有同名文件将被覆盖。**如果使用构造器FileOutputStream(file,true)，则目录下的同名文件不会被覆盖，**在文件内容末尾追加内容。**
+
+字节流操作字节，比如：.mp3，.avi，.rmvb，mp4，.jpg，.doc，.ppt
+
+
+
+#### 2 处理流之一：缓冲流
+
+为了提高数据读写的速度，Java API提供了带缓冲功能的流类，在使用这些流类时，会创建一个内部缓冲区数组，缺省使用8192个字节(8Kb)的缓冲区。
+
+缓冲流要“套接”在相应的节点流之上，根据数据操作单位可以把缓冲流分为：
+
+
+
+- BufferedInputStream 和 BufferedOutputStream
+- BufferedReader 和 BufferedWriter
+
+
+
+
+
+#### 3 处理流之二：转换流
+
+
+
+#### 4 处理流之三：标准输入、输出流
+
+
+
+#### 5 处理流之四：打印流
+
+
+
+
+
+
+
+
+
+
+
+#### 6 处理流之五：数据流
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### 7 处理流之六：对象流
+
+
+
+
+
+#### NIO
 
 
 
