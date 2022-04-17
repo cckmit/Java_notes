@@ -2,21 +2,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### 一、泛型
+# 一、泛型
 
 #### 概述
 
@@ -204,7 +190,7 @@ class Car{
 
 
 
-### 二、锁
+# 二、锁
 
 
 
@@ -228,9 +214,9 @@ Lock → 同步代码块（已经进入了方法体，分配了相应资源） �
 
 
 
-### 三、多线程
+# 三、多线程
 
-#### 1 概述
+## 1 概述
 
 线程(thread)是一个程序内部的一条执行路径。
 
@@ -250,9 +236,9 @@ Lock → 同步代码块（已经进入了方法体，分配了相应资源） �
 
 
 
-#### 2 多线程的创建
+## 2 多线程的创建
 
-##### 方式一：继承Thread类
+### 方式一：继承Thread类
 
 Java是通过java.lang.Thread 类来代表线程的。 
 
@@ -280,7 +266,7 @@ Java是通过java.lang.Thread 类来代表线程的。
 
 
 
-##### 方式二：实现Runnable接口
+### 方式二：实现Runnable接口
 
 - 定义一个线程任务类MyRunnable**实现**`Runnable` 接口，重写run()方法
 
@@ -355,7 +341,7 @@ public class ThreadDemo22 {
 
 
 
-##### 方式三：JDK 5.0新增：实现Callable接口（Callable——FutureTask——Thread）
+### 方式三：JDK 5.0新增：实现Callable接口（Callable——FutureTask——Thread）
 
 前2种线程创建方式都存在一个问题：
 
@@ -477,7 +463,7 @@ class MyCallable implements Callable<String>{
 
 
 
-#### 3 常用API
+## 3 常用API
 
 Thread常用方法：获取线程名称getName()、设置名称setName()、获取当前线程对象currentThread()。至于Thread类提供的诸如：yield、join、interrupt、不推荐的方法 stop 、守护线程、线程优先级等线程的控制方法，在开发中很少使用，这些方法会在高级篇以及后续需要用到的时候再为大家讲解。
 
@@ -487,11 +473,11 @@ Thread常用方法：获取线程名称getName()、设置名称setName()、获�
 
 <hr>
 
-### 四、常用类
+# 四、常用类
 
 
 
-#### 0 自动装箱和拆箱
+## 0 自动装箱和拆箱
 
 装箱：自动将基本类型⽤它们对应的引⽤类型包装起来；
 
@@ -678,9 +664,9 @@ false
 
 
 
-#### 1 字符串相关的类
+## 1 字符串相关的类
 
-##### 1 String
+### 1 String
 
 **String类**：代表字符串。Java 程序中的所有字符串字面值（如 "abc" ）都作为此类的实例实现。
 
@@ -707,7 +693,7 @@ String是一个final类，代表不可变的字符序列。
 
 
 
-##### 2 String与基本数据类型、字符数组、字节数组的转换
+### 2 String与基本数据类型、字符数组、字节数组的转换
 
 ```bash
 # 字符串——>基本数据类型、包装类
@@ -733,7 +719,7 @@ public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)：提�
 
 
 
-##### 3 StringBuffer
+### 3 StringBuffer
 
 java.lang.StringBuffer代表**可变的字符序列**，JDK1.0中声明，可以对字符串内容进行增删，此时不会产生新的对象。
 
@@ -768,7 +754,7 @@ StringBuffer类不同于String，其对象必须使用构造器生成。有三�
 
 
 
-##### 4 StringBuilder
+### 4 StringBuilder
 
 StringBuilder 和 StringBuffer 非常类似，均代表可变的字符序列，而且提供相关功能的方法也一样
 
@@ -778,7 +764,7 @@ StringBuilder 和 StringBuffer 非常类似，均代表可变的字符序列，�
 
 
 
-##### 5 面试题：对比String、StringBuffer、StringBuilder
+### 5 面试题：对比String、StringBuffer、StringBuilder
 
 String(JDK1.0)：**不可变字符序列**
 
@@ -802,7 +788,7 @@ StringBuilder(JDK 5.0)：可变字符序列、效率高、线程不安全
 
 <hr>
 
-### 五、Java8 新特性
+# 五、Java8 新特性
 
 Java 8 是oracle公司于2014年3月发布，可以看成是自Java 5 以来最具革命性的版本。Java 8为Java语言、编译器、类库、开发工具与JVM带来了大量新特性。
 
@@ -812,7 +798,7 @@ Java 8 是oracle公司于2014年3月发布，可以看成是自Java 5 以来最�
 
 
 
-#### 1 Lambda表达式（核心1）
+## 1 Lambda表达式（核心1）
 
 ##### 为什么
 
@@ -850,7 +836,7 @@ Lambda 表达式：在Java 8 语言中引入的一种新的语法元素和操作
 
 
 
-#### 2 函数式(Functional)接口
+## 2 函数式(Functional)接口
 
 只包含一个抽象方法的接口，称为函数式接口。
 
@@ -866,7 +852,7 @@ Java 内置四大核心函数式接口
 
 
 
-#### 3 方法引用与构造器引用
+## 3 方法引用与构造器引用
 
 
 
@@ -886,7 +872,7 @@ Java 内置四大核心函数式接口
 
 
 
-#### 4 强大的Stream API（核心2）
+## 4 强大的Stream API（核心2）
 
 Java8中有两大最为重要的改变。第一个是 Lambda 表达式；另外一个则是 Stream API。
 
@@ -927,7 +913,7 @@ stream把list转map
 
 
 
-#### 5 Optional类
+## 5 Optional类
 
 到目前为止，臭名昭著的空指针异常是导致Java应用程序失败的最常见原因。
 
@@ -1001,9 +987,9 @@ public void test2() {
 
 <hr>
 
-### 六、Collection接口系列集合、Map接口系列集合
+# 六、Collection接口系列集合、Map接口系列集合
 
-#### 1 Collection接口方法
+## 1 Collection接口方法
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411224715970.png)
 
@@ -1029,7 +1015,7 @@ Collection 接口是 List、Set 和 Queue 接口的父接口，该接口里定�
 
 
 
-#### 2 Iterator迭代器接口
+## 2 Iterator迭代器接口
 
 Iterator对象称为迭代器(设计模式的一种)，主要用于遍历 Collection 集合中的元素。
 
@@ -1045,7 +1031,7 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 <hr>
 
-#### 3 （一）List接口
+## 3 （一）List接口
 
 ##### 概述
 
@@ -1114,7 +1100,7 @@ Vector 是一个古老的集合，JDK1.0就有了。大多数操作与ArrayList�
 
 
 
-#### 4 （二）set接口
+## 4 （二）set接口
 
 Set接口是Collection的子接口，set接口没有提供额外的方法
 
@@ -1180,13 +1166,13 @@ HashSet 集合判断两个元素相等的标准：两个对象通过 hashCode() 
 
 <hr>
 
-#### 5 map接口
+## 5 map接口
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411225519826.png?w=600)
 
 
 
-##### 概述
+### 概述
 
 
 
@@ -1230,7 +1216,7 @@ key 和 value 之间存在单向一对一关系，即通过指定的 key 总能�
 
 <hr>
 
-##### Map实现类之一：HashMap
+### Map实现类之一：HashMap
 
 HashMap是 Map 接口**使用频率最高**的实现类。
 
@@ -1279,7 +1265,7 @@ HashMap源码中的重要常量
 
 
 
-##### Map实现类之二：LinkedHashMap
+### Map实现类之二：LinkedHashMap
 
 LinkedHashMap 是 HashMap 的子类
 
@@ -1291,7 +1277,7 @@ LinkedHashMap 是 HashMap 的子类
 
 
 
-##### Map实现类之三：TreeMap
+### Map实现类之三：TreeMap
 
 TreeMap存储 Key-Value 对时，需要根据 key-value 对进行排序。TreeMap 可以保证所有的 Key-Value 对处于**有序**状态。
 
@@ -1305,13 +1291,13 @@ TreeMap判断**两个key相等的标准**：两个key通过compareTo()方法或�
 
 
 
-##### Map实现类之四：Hashtable
+### Map实现类之四：Hashtable
 
  Hashtable是个古老的 Map 实现类，JDK1.0就提供了。不同于HashMap，Hashtable是线程安全的。
 
 
 
-##### Map实现类之五：Properties
+### Map实现类之五：Properties
 
 Properties 类是 Hashtable 的子类，该对象用于处理属性文件
 
@@ -1323,7 +1309,7 @@ Properties 类是 Hashtable 的子类，该对象用于处理属性文件
 
 <br>
 
-#### 6 Collections工具类
+## 6 Collections工具类
 
 Collections 是一个操作 Set、List 和 Map 等集合的工具类
 
@@ -1469,7 +1455,7 @@ Map结合Lambda遍历的API
 
 
 
-### 七、final
+# 七、final
 
 final 关键字是最终的意思，可以修饰（方法，变量，类）
 
@@ -1489,7 +1475,7 @@ final修饰变量的注意
 
 
 
-### 八、static
+# 八、static
 
 
 
@@ -1497,7 +1483,7 @@ final修饰变量的注意
 
 
 
-#### 静态关键字static
+## 静态关键字static
 
 static是静态的意思，可以修饰**成员变量**和**成员方法**。
 
@@ -1563,7 +1549,7 @@ static修饰成员变量表示该成员变量只在内存中**只存储一份**�
 
 
 
-#### static应用知识：代码块
+## static应用知识：代码块
 
 ##### 代码块的分类、作用
 
@@ -1605,7 +1591,7 @@ static修饰成员变量表示该成员变量只在内存中**只存储一份**�
 
 
 
-#### static应用知识：单例设计模式
+## static应用知识：单例设计模式
 
 开发中经常遇到一些问题，一个问题通常有n种解法的，但其中肯定有一种解法是最优的，这个最优的解法被人总结出来了，称之为设计
 
@@ -1681,7 +1667,7 @@ class SingleInstance{
 
 
 
-#### 面向对象三大特征之二：继承
+## 面向对象三大特征之二：继承
 
 ##### 概述与好处
 
@@ -1742,7 +1728,7 @@ Java中所有的类都是Object类的子类。
 
 
 
-### 九、接口与抽象类
+# 九、接口与抽象类
 
 
 
@@ -1750,9 +1736,9 @@ Java中所有的类都是Object类的子类。
 
 
 
-### 十、异常类
+# 十、异常类
 
-#### 1 异常概述与异常体系结构（Throwable）
+## 1 异常概述与异常体系结构（Throwable）
 
 Java程序在执行过程中所发生的异常事件可分为两类：
 
@@ -1784,7 +1770,7 @@ Java程序在执行过程中所发生的异常事件可分为两类：
 
 
 
-#### 2 常见异常
+## 2 常见异常
 
 -  java.lang.RuntimeException
   - ClassCastException
@@ -1808,7 +1794,7 @@ Java程序在执行过程中所发生的异常事件可分为两类：
 
 
 
-#### 3 异常处理机制一：try-catch-finally
+## 3 异常处理机制一：try-catch-finally
 
 Java异常处理机制：Java采用的异常处理机制，是将异常处理的程序代码集中在一起，与正常的程序代码分开，使得程序简洁、优雅，并易于维护。
 
@@ -1828,7 +1814,7 @@ Java异常处理机制：Java采用的异常处理机制，是将异常处理的
 
 
 
-#### 4 异常处理机制二：throws声明抛出异常
+## 4 异常处理机制二：throws声明抛出异常
 
 
 
@@ -1842,7 +1828,7 @@ Java异常处理机制：Java采用的异常处理机制，是将异常处理的
 
 
 
-#### 5 手动抛出异常
+## 5 手动抛出异常
 
 
 
@@ -1867,7 +1853,7 @@ throw new String("want to throw");
 
 
 
-#### 6 用户自定义异常
+## 6 用户自定义异常
 
 一般地，用户自定义异常类都是**RuntimeException**的子类。
 
@@ -1881,7 +1867,7 @@ throw new String("want to throw");
 
 
 
-### 十一、IO流
+# 十一、IO流
 
 
 
@@ -1923,7 +1909,7 @@ Java的IO流共涉及 40 多个类，实际上非常规则，都是从如下4个
 
 
 
-#### 1 节点流（文件流）
+## 1 节点流（文件流）
 
 读取文件
 
@@ -2007,7 +1993,7 @@ try {
 
 
 
-#### 2 处理流之一：缓冲流
+## 2 处理流之一：缓冲流
 
 为了提高数据读写的速度，Java API提供了带缓冲功能的流类，在使用这些流类时，会创建一个内部缓冲区数组，缺省使用8192个字节(8Kb)的缓冲区。
 
@@ -2022,15 +2008,15 @@ try {
 
 
 
-#### 3 处理流之二：转换流
+## 3 处理流之二：转换流
 
 
 
-#### 4 处理流之三：标准输入、输出流
+## 4 处理流之三：标准输入、输出流
 
 
 
-#### 5 处理流之四：打印流
+## 5 处理流之四：打印流
 
 
 
@@ -2068,7 +2054,7 @@ try {
 
 
 
-### 十二、枚举类与注解
+# 十二、枚举类与注解
 
 
 
@@ -2149,7 +2135,7 @@ class Season{
 
 
 
-### 十三、Java9&Java10&Java11新特性
+# 十三、Java9&Java10&Java11新特性
 
 
 
