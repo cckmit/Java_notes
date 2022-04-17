@@ -1,8 +1,8 @@
 
 
-## 写在前面
+# 0 写在前面
 
-### 认知
+## 0.1 认知
 
 - 整个Java体系最核心的框架，没有之一	
 
@@ -20,31 +20,17 @@
 
 
 
-### 总结
+## 0.2 总结
 
 
 
-#### 容器与bean（01-08）
-
-
-
-
-
-#### AOP（09-19）
+### 容器与bean（01-08）
 
 
 
 
 
-
-
-
-
-#### Web MVC（20-36）
-
-
-
-#### Spring Boot（37-42）
+### AOP（09-19）
 
 
 
@@ -52,7 +38,13 @@
 
 
 
-#### 其它（43-49）
+
+
+### Web MVC（20-36）
+
+
+
+### Spring Boot（37-42）
 
 
 
@@ -60,15 +52,21 @@
 
 
 
-### 参考与推荐如下资料
+### 其它（43-49）
 
 
 
 
 
-<br>
 
 
+## 0.3 参考与推荐如下资料
+
+### 推荐1：黑马最新课程
+
+[黑马220323 Spring高级课程](https://www.bilibili.com/video/BV1P44y1N7QG?spm_id_from=333.999.0.0)
+
+### 推荐2：官方文档
 
 `spring4`官方文档
 
@@ -80,7 +78,335 @@ https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-ref
 
 <br>
 
-[黑马220323 Spring高级课程](https://www.bilibili.com/video/BV1P44y1N7QG?spm_id_from=333.999.0.0)
+### 推荐3：极客时间丁雪丰
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416172241777.png)
+
+
+
+
+
+<hr>
+# 一. 初识Spring（简介）（这块内容来自官网）
+
+
+
+## 一起认识Spring家族的主要成员
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173330880.png)
+
+Spring，始于框架，但不限于框架
+
+（1）Spring Framework 
+
+（2）Spring相关项⽬
+
+（3）整个Spring家族 https://spring.io/projects
+
+
+
+### Spring Framework
+
+The Spring Framework consists of features organized into about 20 modules. These modules are grouped into `Core Container`, `Data Access/Integration`, `Web`, `AOP (Aspect Oriented Programming)`, `Instrumentation`, `Messaging`, and `Test`, as shown in the following diagram.
+
+
+
+注：这个图来源于`Spring4`的`Doc`，我在`Spring5`以后的官方Doc中没有找到这个图，而且Spring5的文档的排版跟Spring4的排版有很大的区别。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517.png)
+
+
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110566537-f5ec2849-b148-4c00-8d64-bf54697cc0dd.png)
+
+
+
+<br>
+
+使用场景
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110013126-e5faaf5c-6f36-4029-a29e-40d590219f54.png)
+
+
+
+### Spring Boot
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173750815.png)
+
+
+
+
+
+### Spring Cloud
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173709755.png)
+
+
+
+
+
+## 跟着Spring了解技术趋势
+
+### 看看 Spring 5.x 的改变暗示了什么
+
+| 改动点          | 改变的意义                                               | 一些思考                       |
+| --------------- | -------------------------------------------------------- | ------------------------------ |
+| Java 8+、Kotlin | 语⾔⻋轮滚滚向前                                         | 还在⽤低版本的 Java 我该怎么办 |
+| WebFlux         | 异步编程模式的崛起                                       | 全⾯落地尚需时⽇               |
+| 去掉了很多⽀持  | Portlet 过时了、Velocity 不维护了、JasperReport 不流⾏了 | 库有千千万，我该怎么选？       |
+
+
+
+### Spring Boot 和 Spring Cloud 的出现是必然的
+
+• 开箱即⽤
+
+• 与⽣态圈的深度整合
+
+• 注重运维
+
+• Cloud Native的⼤⽅向
+
+• 最佳实践不嫌多，固化到系统实现中才是王道
+
+
+
+## 编写你的第一个Spring程序
+
+原始的包3.1k
+
+实际使用的包17M（打包时把所有的依赖都放在了jar包里面，可执行的jar包）
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416183502426.png)
+
+
+
+# 二、JDBC必知必会
+
+
+
+## 配置单数据源
+
+
+
+
+
+
+
+
+
+
+
+## 配置多数据源
+
+
+
+## 那些好⽤的连接池 HikariCP
+
+为什么快
+
+- 字节码级别优化（很多⽅法通过 **JavaAssist** ⽣成）
+
+- ⼤量⼩改进
+
+  - ⽤ FastStatementList 代替 ArrayList
+
+  - ⽆锁集合 ConcurrentBag
+
+  - 代理类的优化（⽐如，⽤ invokestatic 代替了 invokevirtual）
+
+
+
+
+
+常用配置
+
+- spring.datasource.hikari.maximumPoolSize=10
+- spring.datasource.hikari.minimumIdle=10
+- spring.datasource.hikari.idleTimeout=600000
+- spring.datasource.hikari.connectionTimeout=30000
+- spring.datasource.hikari.maxLifetime=1800000
+
+
+
+其他配置详⻅ **HikariCP** 官⽹：https://github.com/brettwooldridge/HikariCP
+
+
+
+
+
+
+
+## 那些好⽤的连接池 Alibaba Druid
+
+“Druid连接池是阿⾥巴巴开源的数据库连接池项⽬。Druid连接池为监控⽽⽣，内置强⼤的监控功能，监控特性不影响性能。功能强⼤，能防SQL注⼊，内置Logging能诊断Hack应⽤⾏为。”
+
+–Alibaba Druid 官⽅介绍
+
+
+
+经过阿⾥巴巴各⼤系统的考验，值得信赖
+
+实⽤的功能
+
+- 详细的监控（真的是全⾯）
+- ExceptionSorter，针对主流数据库的返回码都有⽀持
+- SQL 防注⼊
+- 内置加密配置
+- 众多扩展点，⽅便进⾏定制
+
+
+
+### 配置方式
+
+直接配置 **DruidDataSource** 
+
+通过 **druid-spring-boot-starter**
+
+- spring.datasource.druid.*
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416192920763.png)
+
+
+
+
+
+### Druid Filter
+
+⽤于定制连接池操作的各种环节
+
+可以继承 FilterEventAdapter 以便⽅便地实现 Filter
+
+修改 META-INF/druid-fifilter.properties 增加 Filter 配置
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416193259873.png)
+
+
+
+## 通过 Spring JDBC 访问数据库
+
+### Spring 的 JDBC 操作类
+
+spring-jdbc
+
+- core，JdbcTemplate 等相关核⼼接⼝和类
+- datasource，数据源相关的辅助类
+- object，将基本的 JDBC 操作封装成对象
+- support，错误码等其他辅助⼯具
+
+
+
+### 常⽤的 Bean 注解
+
+通过注解定义 Bean 
+
+- @Component
+- @Repository
+- @Service
+- @Controller
+  - @RestController
+
+
+
+### 简单的 JDBC 操作
+
+JdbcTemplate 
+
+- query
+- queryForObject
+- queryForList
+- update
+- execute
+
+
+
+### SQL 批处理
+
+
+
+JdbcTemplate 
+
+- batchUpdate
+  - BatchPreparedStatementSetter
+
+NamedParameterJdbcTemplate 
+
+- batchUpdate
+  - SqlParameterSourceUtils.createBatch
+
+
+
+
+
+## Spring的事务抽象
+
+⼀致的事务模型
+
+- JDBC/Hibernate/myBatis
+- DataSource/JTA
+
+
+
+### 事务抽象的核⼼接⼝
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416200545077.png)
+
+
+
+### 事务传播特性
+
+| 传播性                    | 值   | 描述                                 |
+| ------------------------- | ---- | ------------------------------------ |
+| PROPAGATION_REQUIRED      | 0    | 当前有事务就⽤当前的，没有就⽤新的   |
+| PROPAGATION_SUPPORTS      | 1    | 事务可有可⽆，不是必须的             |
+| PROPAGATION_MANDATORY     | 2    | 当前⼀定要有事务，不然就抛异常       |
+| PROPAGATION_REQUIRES_NEW  | 3    | ⽆论是否有事务，都起个新的事务       |
+| PROPAGATION_NOT_SUPPORTED | 4    | 不⽀持事务，按⾮事务⽅式运⾏         |
+| PROPAGATION_NEVER         | 5    | 不⽀持事务，如果有事务则抛异常       |
+| PROPAGATION_NESTED        | 6    | 当前有事务就在当前事务⾥再起⼀个事务 |
+
+
+
+
+
+
+
+### 事务隔离特性
+
+| 隔离性                     | 值   | 脏读 | 不可重复读 | 幻读 |
+| -------------------------- | ---- | ---- | ---------- | ---- |
+| ISOLATION_READ_UNCOMMITTED | 1    | ✅    | ✅          | ✅    |
+| ISOLATION_READ_COMMITTED   | 2    | ❎    | ✅          | ✅    |
+| ISOLATION_REPEATABLE_READ  | 3    | ❎    | ❎          | ✅    |
+| ISOLATION_SERIALIZABLE     | 4    | ❎    | ❎          | ❎    |
+
+
+
+### 编程式事务
+
+
+
+
+
+
+
+
+
+### 声明式事务
+
+
+
+
+
+### 基于注解的配置⽅式
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416201112453.png)
+
+
+
+
 
 
 
@@ -90,51 +416,13 @@ https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-ref
 
 <hr>
 
-## 1. 简介（这块内容来自官网）
 
 
+## 分割
 
+## 分割
 
-
-### 1.1 Framework Modules框架模块
-
-The Spring Framework consists of features organized into about 20 modules. These modules are grouped into `Core Container`, `Data Access/Integration`, `Web`, `AOP (Aspect Oriented Programming)`, `Instrumentation`, `Messaging`, and `Test`, as shown in the following diagram.
-
-
-
-​	
-
-**spring4**
-
-> 注：这个图来源于`Spring4`的`Doc`，我在`Spring5`以后的官方Doc中没有找到这个图，而且Spring5的文档的排版跟Spring4的排版有很大的区别。
-
-
-
-> 
->
-> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648109242400-5b6481d2-d6fc-45ec-9840-c8b33f3a0491.png?w=600)
-
-**spring5**
-
-> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110566537-f5ec2849-b148-4c00-8d64-bf54697cc0dd.png?w=600)
-
-
-
-### 1.2 使用场景
-
-
-
-**Table 2.1. Spring Framework Artifacts**
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1648110013126-e5faaf5c-6f36-4029-a29e-40d590219f54.png?w=900)
-
-
-
-
-
-
-
-
+## 分割
 
 
 

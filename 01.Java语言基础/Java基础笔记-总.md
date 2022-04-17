@@ -812,7 +812,7 @@ Java 8 是oracle公司于2014年3月发布，可以看成是自Java 5 以来最�
 
 
 
-#### 1 Lambda表达式
+#### 1 Lambda表达式（核心1）
 
 ##### 为什么
 
@@ -838,7 +838,13 @@ Lambda 表达式：在Java 8 语言中引入的一种新的语法元素和操作
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416114704716.png?w=550)
 
+<br>
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416132616512.png)
+
+
+
+上述 Lambda 表达式中的参数类型都是由编译器推断得出的。Lambda 表达式中无需指定类型，程序依然可以编译，这是因为 javac 根据程序的上下文，在后台推断出了参数的类型。Lambda 表达式的类型依赖于上下文环境，是由编译器推断出来的。这就是所谓的“类型推断”。
 
 
 
@@ -846,23 +852,150 @@ Lambda 表达式：在Java 8 语言中引入的一种新的语法元素和操作
 
 #### 2 函数式(Functional)接口
 
+只包含一个抽象方法的接口，称为函数式接口。
+
+在java.util.function包下定义了Java 8 的丰富的函数式接口
+
+
+
+Java 内置四大核心函数式接口
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416132906954.png)
+
+
+
 
 
 #### 3 方法引用与构造器引用
 
 
 
-#### 4 强大的Stream API
+方法引用可以看做是Lambda表达式深层次的表达。换句话说，方法引用就是Lambda表达式，也就是函数式接口的一个实例，通过方法的名字来指向一个方法，可以认为是 Lambda表达式的一个语法糖。
 
 
 
-#### 5 Optional类
+格式：使用操作符 `::` 将类(或对象) 与 方法名分隔开来。以下三种主要使用情况：
+
+- 对象::实例方法名
+- 类::静态方法名
+- 类::实例方法名
+
+
+
+
+
+
+
+#### 4 强大的Stream API（核心2）
+
+Java8中有两大最为重要的改变。第一个是 Lambda 表达式；另外一个则是 Stream API。
+
+Stream API ( java.util.stream) 把真正的函数式编程风格引入到Java中。这是目前为止对Java类库最好的补充，因为Stream API可以极大提供Java程序员的生产力，让程序员写出高效率、干净、简洁的代码。
+
+
+
+
+
+##### Stream 的操作三个步骤
+
+```bash
+# 1- 创建 Stream
+一个数据源（如：集合、数组），获取一个流
+# 2- 中间操作
+一个中间操作链，对数据源的数据进行处理
+# 3- 终止操作(终端操作) 
+一旦执行终止操作，就执行中间操作链，并产生结果。之后，不会再被使用
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416133720717.png)
+
+
+
+
 
 
 
 
 
 stream把list转map
+
+
+
+
+
+
+
+#### 5 Optional类
+
+到目前为止，臭名昭著的空指针异常是导致Java应用程序失败的最常见原因。
+
+以前，为了解决空指针异常，Google公司著名的Guava项目引入了Optional类，Guava通过使用检查空值的方式来防止代码污染，它鼓励程序员写更干净的代码。受到Google Guava的启发，Optional类已经成为Java 8类库的一部分。
+
+
+
+Optional<T> 类(java.util.Optional) 是一个容器类，它可以保存类型T的值，代表这个值存在。或者仅仅保存null，表示这个值不存在。原来用 null 表示一个值不存在，现在 Optional 可以更好的表达这个概念。并且可以避免空指针异常。
+
+
+
+Optional提供很多有用的方法，这样我们就不用显式进行空值检测。
+
+##### 创建Optional类对象的方法
+
+| 方法                     | 说明                                |
+| ------------------------ | ----------------------------------- |
+| Optional.of(T t)         | 创建一个 Optional 实例，t必须非空； |
+| Optional.empty()         | 创建一个空的 Optional 实例          |
+| Optional.ofNullable(T t) | t可以为null                         |
+
+##### 判断Optional容器中是否包含对象
+
+| 方法                                         | 说明                                                         |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| boolean isPresent()                          | 判断是否包含对象                                             |
+| void ifPresent(Consumer<? super T> consumer) | 如果有值，就执行Consumer接口的实现代码，并且该值会作为参数传给它。 |
+
+##### 获取Optional容器的对象
+
+| 方法                                                   | 说明                                                       |
+| ------------------------------------------------------ | ---------------------------------------------------------- |
+| T get()                                                | 如果调用对象包含值，返回该值，否则抛异常                   |
+| T orElse(T other)                                      | 如果有值则将其返回，否则返回指定的other对象。              |
+| T orElseGet(Supplier<? extends T> other)               | 如果有值则将其返回，否则返回由Supplier接口实现提供的对象。 |
+| T orElseThrow(Supplier<? extends X> exceptionSupplier) | 如果有值则将其返回，否则抛出由Supplier接口实现提供的异常。 |
+
+
+
+
+
+
+
+```java
+@Test
+public void test1() {
+    Boy b = new Boy("张三");
+    Optional<Girl> opt = Optional.ofNullable(b.getGrilFriend());
+    // 如果女朋友存在就打印女朋友的信息
+    opt.ifPresent(System.out::println);
+}
+@Test
+public void test2() {
+    Boy b = new Boy("张三");
+    Optional<Girl> opt = Optional.ofNullable(b.getGrilFriend());
+    // 如果有女朋友就返回他的女朋友，否则只能欣赏“嫦娥”了
+    Girl girl = opt.orElse(new Girl("嫦娥"));
+    System.out.println("他的女朋友是：" + girl.getName());
+}
+```
+
+
+
+
+
+
+
+
 
 
 
@@ -1212,15 +1345,13 @@ Collections 中提供了一系列静态的方法对集合元素进行排序、�
 
 ##### 查找、替换
 
-| 方法                               | 说明                                                 |
-| ---------------------------------- | ---------------------------------------------------- |
-| Object max(Collection)             | 根据元素的自然顺序，返回给定集合中的最大元素         |
-| Object max(Collection，Comparator) | 根据 Comparator 指定的顺序，返回给定集合中的最大元素 |
-|                                    |                                                      |
-|                                    |                                                      |
-|                                    |                                                      |
-|                                    |                                                      |
-|                                    |                                                      |
+| 方法                                                        | 说明                                                    |
+| ----------------------------------------------------------- | ------------------------------------------------------- |
+| Object max/min(Collection)                                  | 根据元素的自然顺序，返回给定集合中的最大/小元素         |
+| Object max/min(Collection，Comparator)                      | 根据 Comparator 指定的顺序，返回给定集合中的最大/小元素 |
+| int frequency(Collection，Object)                           | 返回指定集合中指定元素的出现次数                        |
+| void copy(List dest,List src)                               | 将src中的内容复制到dest中                               |
+| boolean replaceAll(List list，Object oldVal，Object newVal) | 使用新值替换 List 对象的所有旧值                        |
 
 
 
@@ -1932,6 +2063,135 @@ try {
 
 
 #### NIO
+
+
+
+
+
+### 十二、枚举类与注解
+
+
+
+类的对象只有有限个，确定的。举例如下：
+
+- 星期：Monday(星期一)、......、Sunday(星期天) 
+- 性别：Man(男)、Woman(女) 
+- 季节：Spring(春节)......Winter(冬天) 
+- 支付方式：Cash（现金）、WeChatPay（微信）、Alipay(支付宝)、BankCard(银行卡)、CreditCard(信用卡) 
+- 就职状态：Busy、Free、Vocation、Dimission
+- 订单状态：Nonpayment（未付款）、Paid（已付款）、Delivered（已发货）、Return（退货）、Checked（已确认）Fulfilled（已配货）
+- 线程状态：创建、就绪、运行、阻塞、死亡
+
+<br>
+
+当需要定义一组常量时，强烈建议使用枚举类！
+
+<br>
+
+JDK1.5之前需要自定义枚举类
+
+JDK 1.5 新增的 enum 关键字用于定义枚举类
+
+```java
+class Season{
+    private final String SEASONNAME;//季节的名称
+    private final String SEASONDESC;//季节的描述
+    private Season(String seasonName,String seasonDesc){
+    		this.SEASONNAME = seasonName;
+    		this.SEASONDESC = seasonDesc; 
+    }
+    public static final Season SPRING = new Season("春天", "春暖花开");
+    public static final Season SUMMER = new Season("夏天", "夏日炎炎");
+    public static final Season AUTUMN = new Season("秋天", "秋高气爽");
+    public static final Season WINTER = new Season("冬天", "白雪皑皑");
+}
+```
+
+
+
+
+
+
+
+
+
+未来的开发模式都是基于注解的，JPA是基于注解的，Spring2.5以上都是基于注解的，Hibernate3.x以后也是基于注解的，现在的Struts2有一部分也是基于注解的了，注解是一种趋势，一定程度上可以说：**框架 = 注解 + 反射 + 设计模式**。
+
+
+
+
+
+自定义 Annotation
+
+
+
+定义新的 Annotation 类型使用 @interface 关键字
+
+
+
+@Retention: 只能用于修饰一个 Annotation 定义, 用于指定该 Annotation 的生命周期, @Rentention 包含一个 RetentionPolicy 类型的成员变量, 使用@Rentention 时必须为该 value 成员变量指定值:
+
+- RetentionPolicy.SOURCE:在源文件中有效（即源文件保留），编译器直接丢弃这种策略的注释
+- RetentionPolicy.CLASS:在class文件中有效（即class保留） ， 当运行 Java 程序时, JVM 不会保留注解。 这是默认值
+- RetentionPolicy.RUNTIME:在运行时有效（即运行时保留），当运行 Java 程序时, JVM 会保留注释。程序可以通过反射获取该注释。
+
+
+
+@Target: 用于修饰 Annotation 定义, 用于指定被修饰的 Annotation 能用于修饰哪些程序元素。 @Target 也包含一个名为 value 的成员变量。
+
+
+
+
+
+
+
+
+
+
+
+### 十三、Java9&Java10&Java11新特性
+
+
+
+自从 2017 年 9 月 21 日 Java 9 正式发布之时，Oracle 就宣布今后会按照每六个月一次的节奏进行更新，在过去的几个月中，我们见证了其兑现了诺言，但万万没想到，苦了大批迎头而上的开发者们。
+
+
+
+
+
+#### Java9新特性
+
+经过4次跳票，历经曲折的Java 9 终于终于在2017年9月21日发布。 
+
+
+
+
+
+
+
+
+
+#### Java10新特性
+
+需要注意的是 Java 9 和 Java 10 都不是 LTS (Long-Term-Support) 版本。和过去的 Java 大版本升级不同，这两个只有半年左右的开发和维护期。而未来的 **Java 11**，也就是 18.9 LTS，才是 Java 8 之后第一个 LTS 版本。
+
+
+
+
+
+
+
+
+
+#### Java11新特性
+
+北京时间 2018年9 月 26 日，Oracle 官方宣布 Java 11 正式发布。这是 Java 大版本周期变化后的第一个长期支持版本，非常值得关注。
+
+
+
+
+
+
 
 
 
