@@ -797,6 +797,48 @@ class NumMatrix {
 
 你肯定可以写出如下代码：
 
+```java
+List<Integer> res = new LinkedList<>();
+
+// 返回前序遍历结果
+List<Integer> preorder(TreeNode root) {
+		traverse(root);
+		return res;
+}
+
+// ⼆叉树遍历函数
+void traverse(TreeNode root) {
+    if (root == null) {
+    		return;
+    }
+
+    // 前序遍历位置
+    res.addLast(root.val);
+    traverse(root.left);
+    traverse(root.right);
+}
+```
+
+还有别的想法吗？没有了？ 
+
+还可以这样写：
+
+```java
+// 定义：输⼊⼀棵⼆叉树的根节点，返回这棵树的前序遍历结果
+List<Integer> preorder(TreeNode root) {
+ List<Integer> res = new LinkedList<>();
+if (root == null) {
+return res;
+ }
+// 前序遍历的结果，root.val 在第⼀个
+ res.add(root.val);
+// 后⾯接着左⼦树的前序遍历结果
+ res.addAll(preorder(root.left));
+// 最后接着右⼦树的前序遍历结果
+ res.addAll(preorder(root.right));
+}
+```
+
 
 
 
