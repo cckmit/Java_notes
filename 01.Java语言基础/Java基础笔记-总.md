@@ -2145,7 +2145,7 @@ class Season{
 
 
 
-#### Java9新特性
+## Java9新特性
 
 经过4次跳票，历经曲折的Java 9 终于终于在2017年9月21日发布。 
 
@@ -2157,7 +2157,7 @@ class Season{
 
 
 
-#### Java10新特性
+## Java10新特性
 
 需要注意的是 Java 9 和 Java 10 都不是 LTS (Long-Term-Support) 版本。和过去的 Java 大版本升级不同，这两个只有半年左右的开发和维护期。而未来的 **Java 11**，也就是 18.9 LTS，才是 Java 8 之后第一个 LTS 版本。
 
@@ -2169,7 +2169,7 @@ class Season{
 
 
 
-#### Java11新特性
+## Java11新特性
 
 北京时间 2018年9 月 26 日，Oracle 官方宣布 Java 11 正式发布。这是 Java 大版本周期变化后的第一个长期支持版本，非常值得关注。
 
