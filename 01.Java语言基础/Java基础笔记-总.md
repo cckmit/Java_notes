@@ -1688,10 +1688,6 @@ Thread常用方法：获取线程名称getName()、设置名称setName()、获�
 
 
 
-<hr>
-
-
-
 
 ## 1 字符串相关的类
 
@@ -1932,10 +1928,9 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 <hr>
 
-
 ## 3 （一）List接口
 
-##### 概述
+### 概述
 
 鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组
 
@@ -1955,8 +1950,7 @@ JDK API中List接口的实现类常用的有：ArrayList、LinkedList和Vector�
 
 <hr>
 
-
-##### List实现类之一：ArrayList（数组）
+### List实现类之一：ArrayList（数组）
 
 ArrayList 是 List 接口的典型实现类、主要实现类
 
@@ -1973,7 +1967,7 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 
-##### List实现类之二：LinkedList（双向链表）（插入和删除）
+### List实现类之二：LinkedList（双向链表）（插入和删除）
 
 对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高
 
@@ -1989,15 +1983,13 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 
-##### List 实现类之三：Vector
+### List 实现类之三：Vector
 
 Vector 是一个古老的集合，JDK1.0就有了。大多数操作与ArrayList相同，区别之处在于Vector是线程安全的。
 
 
 
-<br>
-
-##### 面试题
+### 面试题
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220415224438975.png)
 
@@ -2009,7 +2001,7 @@ Set接口是Collection的子接口，set接口没有提供额外的方法
 
 
 
-**Set系列集合特点**
+### Set系列集合特点
 
 - 无序：存取顺序不一致
 - 不重复：可以去除重复（不允许包含相同的元素，根据 equals() 方法判断两个对象是否相同）
@@ -2017,7 +2009,7 @@ Set接口是Collection的子接口，set接口没有提供额外的方法
 
 <br>
 
-**Set集合实现类特点**
+### Set集合实现类特点
 
 -  HashSet : 无序、不重复、无索引。
 -  LinkedHashSet：有序、不重复、无索引。
@@ -2031,8 +2023,7 @@ Set集合的功能上基本上与Collection的API一致。
 
 <hr>
 
-
-##### Set实现类之一：HashSet
+### Set实现类之一：HashSet
 
 HashSet 是 Set 接口的典型实现，大多数时候使用 Set 集合时都使用这个实现类。
 
@@ -2062,7 +2053,7 @@ HashSet 集合判断两个元素相等的标准：两个对象通过 hashCode() 
 
 
 
-##### Set实现类之二：LinkedHashSet
+### Set实现类之二：LinkedHashSet
 
 
 
@@ -2224,7 +2215,7 @@ Collections 是一个操作 Set、List 和 Map 等集合的工具类
 
 Collections 中提供了一系列静态的方法对集合元素进行排序、查询和修改等操作，还提供了对集合对象设置不可变、对集合对象实现同步控制等方法
 
-##### 排序（均为static方法）
+### 排序（均为static方法）
 
 | 方法                   | 说明                                                     |
 | ---------------------- | -------------------------------------------------------- |
@@ -2238,7 +2229,7 @@ Collections 中提供了一系列静态的方法对集合元素进行排序、�
 
 
 
-##### 查找、替换
+### 查找、替换
 
 | 方法                                                        | 说明                                                    |
 | ----------------------------------------------------------- | ------------------------------------------------------- |
@@ -2250,7 +2241,7 @@ Collections 中提供了一系列静态的方法对集合元素进行排序、�
 
 
 
-##### 同步控制
+### 同步控制
 
 Collections 类中提供了多个 synchronizedXxx() 方法，该方法可使将指定集合包装成线程同步的集合，从而可以解决多线程并发访问集合时的线程安全问题
 
@@ -2265,7 +2256,6 @@ Collections 类中提供了多个 synchronizedXxx() 方法，该方法可使将�
 
 
 <hr>
-
 
 #### Set系列集合
 
