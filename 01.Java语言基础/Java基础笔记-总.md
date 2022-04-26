@@ -288,6 +288,31 @@ default子句是**可任选的**。同时，位置也是灵活的。当没有匹
 
 
 
+```java
+// CTJ
+
+Session session = getSession();
+//获取角色所属租户ID
+long tenantId;
+switch (roleCate) {
+    case CommonCateEnum.TENANT:
+        tenantId = session.getTenantId();
+        break;
+    case CommonCateEnum.PUBLIC:
+        tenantId = 0L;
+        break;
+    case CommonCateEnum.ADMIN:
+        tenantId = 0L;
+        orgTypeId = "0";
+        break;
+    default:
+        logger.error("getRoleListWithOrgType()-----> 无效的角色分类");
+        throw new InvalidParamException("无效的角色分类");
+}
+```
+
+
+
 
 
 ### 循环
@@ -383,7 +408,38 @@ return：并非专门用于结束循环的，它的功能是结束一个方法�
 
 动态初始化：**数组声明且为数组元素分配空间**与**赋值的操作**分开进行
 
+```java
+int[] arr = new int[3];
+```
+
+
 静态初始化：在定义数组的同时就为数组元素分配空间并赋值。
+
+```java
+int[] arr = new int[]{1,2,3,4,5};
+```
+
+省略格式
+
+```java
+int[] arr = {1,2,3,4,5};
+```
+
+- 数组本身属于引用数据类型，那么一定可以发生引用传递，引用传递的本质是：同一块堆内存空间可以被不同的栈内存所指向。
+
+- 若采用动态初始化开辟空间后，数组里面的每一个元素都是该数组对应数据类型的默认值
+
+- 数组的访问：类似于`C/C++`语言访问形式，数组下标从0开始。超过了数组的索引范围，会产
+
+  生`java.lang.ArrayIndexOutOfBoundsException` 异常信息；
+
+- 数组的数组就是二维数组。
+
+
+
+
+
+
 
 
 
@@ -1183,7 +1239,7 @@ final 关键字是最终的意思，可以修饰（方法，变量，类）
 
 <br>
 
-final修饰变量的注意
+final修饰变量的区别
 
 - final修饰的变量是基本类型：那么**变量存储的数据值**不能发生改变。
 
