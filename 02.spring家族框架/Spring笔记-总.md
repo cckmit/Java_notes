@@ -166,9 +166,44 @@ Spring全家桶中的地位：其它所有的技术都是依赖它执行的，�
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426190817874.png)
 
+Spring Framework的5版本目前没有最新的架构图，而最新的是4版本，所以接下来主要研究的是4的架构图
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517.png)
 
 
 
+```bash
+# Core Container核心层
+核心容器，这个模块是Spring最核心的模块，其他的都需要依赖该模块
+
+# AOP层
+AOP:面向切面编程（设计概念），它依赖核心层容器，目的是在不改变原有代码的前提下对其进行功能增强
+Aspects:AOP是思想,Aspects是对AOP思想的具体实现
+
+Spring：Aspects已经做的非常好了，告诉大家Aspects比我做得好，建议大家使用Aspects。
+所以后面开发的时候，大家发现，除了要导AOP的坐标，还要导Aspects的坐标。
+
+# 数据层
+Data Access:数据访问，Spring全家桶中有对数据访问的具体实现技术
+Data Integration:数据集成，Spring支持整合其他的数据层解决方案，比如Mybatis
+Transactions:事务，Spring中事务管理是Spring AOP的一个具体实现，也是后期学习的重点内容
+
+事务这一块做了非常大的突破，提供了效率非常高的事务控制方案。
+
+# web层
+这一层的内容将在SpringMVC框架具体学习
+
+# test层
+Spring主要整合了Junit来完成单元测试和集成测试
+
+架构图讲究上层依赖下层，如AOP依赖核心容器的执行
+```
+
+
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426192735551.png)
 
 
 
@@ -202,9 +237,9 @@ The Spring Framework consists of features organized into about 20 modules. These
 
 
 
-注：这个图来源于`Spring4`的`Doc`，我在`Spring5`以后的官方Doc中没有找到这个图，而且Spring5的文档的排版跟Spring4的排版有很大的区别。
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517.png)
+
+
 
 
 
