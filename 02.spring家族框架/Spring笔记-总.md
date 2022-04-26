@@ -140,12 +140,13 @@ Spring全家桶中的地位：其它所有的技术都是依赖它执行的，�
 # SpringCloud:这个是用来做分布式之微服务架构的相关开发。
 分布式开发技术
 
-# 还有很多其他的技术，也比较流行，如SpringData,SpringSecurity等，这些都可以被应用在我们的项目中。我们今天所学习的Spring其实指的是Spring Framework。
+# 还有很多其他的技术，也比较流行，如SpringData,SpringSecurity等，这些都可以被应用在我们的项目中。
+# 我们今天所学习的Spring其实指的是Spring Framework。
 ```
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426190240474.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426190240474.png?w=600)
 
 
 
