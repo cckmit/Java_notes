@@ -131,15 +131,41 @@ Spring框架主要的优势是在简化开发和框架整合上
 
 
 
-Spring Framework:Spring框架，是Spring中最早最核心的技术，也是所有其他技术的基础。
+```bash
+# Spring Framework:Spring框架，是Spring中最早最核心的技术，也是所有其他技术的基础。
+Spring最早出现的技术，本笔记的内容。
+Spring全家桶中的地位：其它所有的技术都是依赖它执行的，是一个底层的框架，是一个设计型的框架，具有举足轻重的地位。
+# SpringBoot:Spring是来简化开发，而SpringBoot是来帮助Spring在简化的基础上能更快速进行开发。
+简化开发的基础上加速开发，提高开发速度。
+# SpringCloud:这个是用来做分布式之微服务架构的相关开发。
+分布式开发技术
+
+# 还有很多其他的技术，也比较流行，如SpringData,SpringSecurity等，这些都可以被应用在我们的项目中。我们今天所学习的Spring其实指的是Spring Framework。
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426190240474.png)
 
 
 
 
+
+```bash
+# Spring1.0是[ 纯配置文件] 开发
+# Spring2.0为了简化开发[ 引入了注解开发 ]，此时是配置文件加注解的开发方式
+# Spring3.0已经可以进行[ 纯注解开发 ]，使开发效率大幅提升，我们的课程会以注解开发为主
+# Spring4.0根据JDK的版本升级对个别API进行了调整
+# Spring5.0已经全面支持JDK8，现在Spring最新的是5系列所以建议大家把JDK安装成1.8版
+```
 
 
 
 ## 3 Spring系统架构
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426190817874.png)
+
+
 
 
 
