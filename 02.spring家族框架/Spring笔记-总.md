@@ -216,7 +216,7 @@ Spring主要整合了Junit来完成单元测试和集成测试
 
 针对这个问题，该如何解决呢?
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426193253425.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426193253425.png?w=600)
 
 
 
