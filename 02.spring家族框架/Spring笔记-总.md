@@ -1,8 +1,8 @@
 
 
-# 0 写在前面
+# 零 写在前面
 
-## 0.1 认知
+## 1 认知
 
 - 整个Java体系最核心的框架，没有之一	
 
@@ -20,49 +20,27 @@
 
 
 
-## 0.2 总结
-
-
+## 2 总结
 
 ### 容器与bean（01-08）
 
-
-
-
-
 ### AOP（09-19）
-
-
-
-
-
-
-
-
 
 ### Web MVC（20-36）
 
-
-
 ### Spring Boot（37-42）
-
-
-
-
-
-
 
 ### 其它（43-49）
 
 
 
-
-
-
-
-## 0.3 参考与推荐如下资料
+## 3 参考与推荐如下资料
 
 ### 推荐1：黑马最新课程
+
+[黑马程序员20220420最新SSM框架教程_Spring+SpringMVC+Maven高级+SpringBoot+MyBatisPlus企业实用开发技术](https://www.bilibili.com/video/BV1Fi4y1S7ix?spm_id_from=333.999.0.0)
+
+
 
 [黑马220323 Spring高级课程](https://www.bilibili.com/video/BV1P44y1N7QG?spm_id_from=333.999.0.0)
 
@@ -87,7 +65,93 @@ https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-ref
 
 
 <hr>
-# 一. 初识Spring（简介）（这块内容来自官网）
+
+
+
+
+
+# 一、Spring相关概念
+
+## 1 介绍
+
+### 1.1 为什么学
+
+- Spring技术是JavaEE开发必备技能，企业开发技术选型命中率>90%
+
+- 专业角度
+  - **简化开发**，降低企业级开发的复杂性
+  - **框架整合**，高效整合其它技术，提高企业级应用开发与运行效率
+
+### 1.2 学什么
+
+Spring框架主要的优势是在简化开发和框架整合上
+
+```bash
+# 简化开发
+- IOC
+- AOP
+	- 事务处理（Spring中AOP的具体应用，可以简化项目中的事务管理，也是Spring技术中的一大亮点。事务处理更简单更高效更强大。）
+
+# 框架整合（Spring在框架整合这块已经做到了极致，它可以整合市面上几乎所有主流框架）
+- MyBatis
+- MyBatis-plus
+- Struts
+- Struts2
+- Hibernate
+
+# 综上，主要分为4部分
+(1)IOC
+(2)整合Mybatis(IOC的具体应用)
+(3)AOP
+(4)声明式事务(AOP的具体应用)
+```
+
+### 1.3 怎么学
+
+```bash
+# 学习Spring框架设计思想
+对于Spring来说，它能迅速占领全球市场，不只是说它的某个功能比较强大，更重要是在它的思想上。
+# 学习基础操作，思考操作与思想间的联系
+掌握了Spring的设计思想，然后就需要通过一些基础操作来思考操作与思想之间的关联关系
+# 学习案例，熟练应用操作的同时，体会思想
+会了基础操作后，就需要通过大量案例来熟练掌握框架的具体应用，加深对设计思想的理解。
+```
+
+
+
+## 2 Spring家族和Spring发展史
+
+官网：https://spring.io/
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426185049133.png)
+
+重点关注Spring Framework、SpringBoot和 SpringCloud :
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426185151752.png)
+
+
+
+Spring Framework:Spring框架，是Spring中最早最核心的技术，也是所有其他技术的基础。
+
+
+
+
+
+
+
+## 3 Spring系统架构
+
+
+
+
+
+## 4 Spring核心概念
+
+
+
+
+
+
 
 
 
