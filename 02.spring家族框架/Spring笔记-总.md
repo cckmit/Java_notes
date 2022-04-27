@@ -300,7 +300,7 @@ DI思路分析
 
 
 
-程序代码详见 spring_01_quickstart
+代码详见 spring_01_quickstart
 
 ```java
 // 1.导入spring的坐标spring-context，对应版本是5.2.10.RELEASE
@@ -414,6 +414,15 @@ bean对象只有一个就避免了对象的频繁创建与销毁，达到了bean
 那么单例lbean是怎么造出来的呢？
 
 ### 7.2 bean实例化
+
+```bash
+# 在讲解这三种创建方式之前，我们需要先确认一件事:
+bean本质上就是对象，对象在new的时候会使用构造方法完成，那创建bean也是使用构造方法完成的。
+```
+
+
+
+代码详见 spring_03_bean_instance
 
 #### 7.2.1 方法1：构造方法
 
