@@ -7,4 +7,8 @@ public class UserDaoImpl implements UserDao {
     public void save() {
         System.out.println("user dao save ...");
     }
+
+    public UserDaoImpl() {
+        System.out.println("构造方法.......");
+    }
 }

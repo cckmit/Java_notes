@@ -411,7 +411,7 @@ bean对象只有一个就避免了对象的频繁创建与销毁，达到了bean
 
 
 
-那么单例lbean是怎么造出来的呢？
+那么单例 bean是怎么造出来的呢？
 
 ### 7.2 bean实例化
 
@@ -424,37 +424,287 @@ bean本质上就是对象，对象在new的时候会使用构造方法完成，�
 
 代码详见 spring_03_bean_instance
 
-#### 7.2.1 方法1：构造方法
+#### 7.2.1 方法1：构造方法（常用）
+
+```java
+public class BookDaoImpl implements BookDao {
+		// 类中提供构造函数测试
+    public BookDaoImpl() {
+        System.out.println("book dao constructor is running ....");
+    }
+
+    public void save() {
+        System.out.println("book dao save ...");
+    }
+
+}
+```
+
+Spring底层用的是反射。
+
+Spring底层使用的是类的无参构造方法。
+
+> 因为每一个类默认都会提供一个无参构造函数，所以其实真正在使用这种方式的时候，我们什么也不需要做。这也是我们以后比较常用的一种方式。
+
+分析Spring的错误信息：错误信息从下往上依次查看，因为上面的错误大都是对下面错误的一个包装，最核心错误是在最下面
 
 
 
 
+#### 7.2.2 方法2：静态工厂（了解）
 
-#### 7.2.2 方法2：静态工厂
+```java
+//静态工厂创建对象
+public class OrderDaoFactory {
+    public static OrderDao getOrderDao(){
+        System.out.println("factory setup....");
+        return new OrderDaoImpl();
+    }
+}
+```
+
+在spring的配置文件 applicationContext.xml中
+
+```xml
+<!--方式二：使用静态工厂实例化bean-->
+<bean id="orderDao" class="com.itheima.factory.OrderDaoFactory" factory-method="getOrderDao"/>
+```
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427124231411.png)
+
+这种方式一般是用来兼容早期的一些老系统，所以**了解为主**。
 
 
 
+#### 7.2.3 方法3：使用实例工厂实例化bean（了解）
+
+```java
+//实例工厂创建对象
+public class UserDaoFactory {
+    public UserDao getUserDao(){
+        return new UserDaoImpl();
+    }
+}
+```
+
+配置
+
+```xml
+<!--方式三：使用实例工厂实例化bean-->
+<bean id="userFactory" class="com.itheima.factory.UserDaoFactory"/>
+<bean id="userDao" factory-method="getUserDao" factory-bean="userFactory"/>
+```
+
+实例工厂实例化的方式就已经介绍完了，配置的过程还是比较复杂，所以Spring为了简化这种配置方式就提供了一种叫FactoryBean的方式来简化开发。
+
+#### 7.2.4 方法4：使用FactoryBean实例化bean（务必掌握）
+
+```java
+//FactoryBean创建对象
+public class UserDaoFactoryBean implements FactoryBean<UserDao> {
+    //代替原始实例工厂中创建对象的方法
+    public UserDao getObject() throws Exception {
+        return new UserDaoImpl();
+    }
+		// bean类型
+    public Class<?> getObjectType() {
+        return UserDao.class;
+    }
+
+}
+```
+
+配置
+
+```xml
+<!--方式四：使用FactoryBean实例化bean-->
+<bean id="userDao" class="com.itheima.factory.UserDaoFactoryBean"/>
+```
 
 
-#### 7.2.3 方法3：实例工厂与FactoryBean
+
+这种方式在Spring去整合其他框架的时候会被用到，所以这种方式需要大家理解掌握。
+
+<br>
+
+总结一下：
+
+```bash
+- 构造方法(常用)
+- 静态工厂(了解)
+- 实例工厂(了解)
+	- FactoryBean(实用)
+```
+
+
 
 
 
 ### 7.3 bean的生命周期
 
+对于生命周期，我们主要围绕着bean生命周期控制来讲解。
+
+```bash
+# 生命周期
+从创建到消亡的完整过程
+
+# bean生命周期
+bean对象从创建到销毁的整体过程。
+
+# bean生命周期控制
+在bean创建后到销毁前做一些事情。
+```
+
+添加初始化和销毁方法
+
+```java
+public class BookDaoImpl implements BookDao {
+    public void save() {
+        System.out.println("book dao save ...");
+    }
+    //表示bean初始化后对应的操作
+    public void init(){
+        System.out.println("init...");
+    }
+    //表示bean销毁前对应的操作
+    public void destroy(){
+        System.out.println("destroy...");
+    }
+
+}
+```
+
+配置生命周期
+
+```xml
+<!--init-method：设置bean初始化生命周期回调函数-->
+<!--destroy-method：设置bean销毁生命周期回调函数，仅适用于单例对象-->
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" init-method="init" destroy-method="destroy"/>
+```
+
+
+
+测试
+
+```bash
+# 从结果中可以看出，init方法执行了，但是destroy方法却未执行，这是为什么呢?
+- Spring的IOC容器是运行在JVM中
+- 运行main方法后,JVM启动,Spring加载配置文件生成IOC容器,从容器获取bean对象，然后调方法执行
+- main方法执行完后，JVM退出，这个时候IOC容器中的bean还没有来得及销毁就已经结束了
+- 所以没有调用对应的destroy方法
+
+# 知道了出现问题的原因，具体该如何解决呢?
+- ApplicationContext中没有close方法,需要将ApplicationContext更换成ClassPathXmlApplicationContext,
+调用ctx的close()方法
+- 调用ctx的registerShutdownHook()方法
+在容器未关闭之前，提前设置好回调函数，让JVM在退出之前回调此函数来关闭容器
+```
 
 
 
 
 
+```java
+public class AppForLifeCycle {
+    public static void main( String[] args ) {
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        BookDao bookDao = (BookDao) ctx.getBean("bookDao");
+        bookDao.save();
+        //注册关闭钩子函数，在虚拟机退出之前回调此函数，关闭容器
+        //ctx.registerShutdownHook();
+        //关闭容器
+        ctx.close();
+    }
+}
+```
 
 
+
+```bash
+# 分析上面的实现过程，会发现添加初始化和销毁方法，即需要编码也需要配置，实现起来步骤比较多也比较乱。
+# Spring提供了两个接口来完成生命周期的控制，好处是可以不用再进行配置init-method和 destroy-method
+修改BookServiceImpl类，添加两个接口InitializingBean， DisposableBean
+并实现接口中的两个方法afterPropertiesSet和destroy
+```
+
+实现2个接口
+
+```java
+public class BookServiceImpl implements BookService, InitializingBean, DisposableBean {
+    private BookDao bookDao;
+
+    public void setBookDao(BookDao bookDao) {
+        System.out.println("set .....");
+        this.bookDao = bookDao;
+    }
+
+    public void save() {
+        System.out.println("book service save ...");
+        bookDao.save();
+    }
+
+    public void destroy() throws Exception {
+        System.out.println("service destroy");
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("service init");
+    }
+}
+```
+
+输出
+
+```bash
+init...
+set .....
+service init
+book dao save ...
+service destroy
+destroy...
+```
+
+
+
+总结一下：
+
+```bash
+初始化容器
+1.创建对象(内存分配)
+2.执行构造方法
+3.执行属性注入(set操作)
+4.[ 执行bean初始化方法 ]
+使用bean
+1.执行业务操作
+关闭/销毁容器
+1.[ 执行bean销毁方法 ]
+```
 
 
 
 ## 8 DI相关内容
 
+接下来就进入第二个大的模块DI依赖注入
 
+```bash
+# 思考🤔：向一个类中传递数据的方式有几种?
+- 普通方法(set方法)
+- 构造方法
+
+# 思考🤔：依赖注入描述了在容器中建立bean与bean之间的依赖关系的过程，如果bean运行需要的是数字或字符串呢?
+- 引用类型
+- 简单类型(基本数据类型与String)
+
+# Spring就是基于上面这些知识点，为我们提供了两种注入方式，分别是:
+- setter注入
+	-简单类型
+	-引用类型
+
+- 构造器注入
+	-简单类型
+	-引用类型
+```
 
 
 

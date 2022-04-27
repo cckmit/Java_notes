@@ -11,8 +11,8 @@ public class BookDaoImpl implements BookDao {
         System.out.println("init...");
     }
     //表示bean销毁前对应的操作
-    public void destory(){
-        System.out.println("destory...");
+    public void destroy(){
+        System.out.println("destroy...");
     }
 
 }
