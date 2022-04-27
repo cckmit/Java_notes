@@ -1349,7 +1349,8 @@ username=root666
 ## 10 核心容器
 
 ```bash
-这里所说的核心容器，大家可以把它简单的理解为ApplicationContext，前面虽然已经用到过，但是并没有系统的学习，接下来咱们从以下几个问题入手来学习下容器的相关知识:
+这里所说的核心容器，大家可以把它简单的理解为ApplicationContext，前面虽然已经用到过，但是并没有系统的学习。
+接下来咱们从以下几个问题入手来学习下容器的相关知识:
 - 如何创建容器?
 - 创建好容器后，如何从容器中获取bean对象?
 - 容器类的层次结构是什么?
@@ -1434,7 +1435,7 @@ BookDao bookDao = ctx.getBean(BookDao.class);
 
 # 四、注解开发
 
-## 11 注解开发
+## 11 IOC/DI 注解开发
 
 ```bash
 # 要想真正简化开发，就需要用到Spring的注解开发，Spring对注解支持的版本历程:
@@ -1502,10 +1503,270 @@ public class BookDaoImpl implements BookDao {
 
 
 
+- Java类代替Spring核心配置文件
+
 ```java
+//声明当前类为Spring配置类
+@Configuration
+//设置bean扫描路径，多个路径书写为字符串数组格式
+@ComponentScan({"com.itheima.service","com.itheima.dao"})
+public class SpringConfig {
+}
 ```
 
 
+
+```bash
+@Configuration注解用于设定当前类为配置类
+@ComponentScan注解用于设定扫描路径，此注解只能添加一次，多个数据请用数组格式
+- @ComponentScan({com.itheima.service","com.itheima.dao"})
+```
+
+
+
+- 读取Spring核心配置文件初始化容器对象切换为读取Java配置类初始化容器对象
+
+```java
+//加载配置文件初始化容器 
+ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml"); 
+//加载配置类初始化容器 
+ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+```
+
+
+
+### 11.3 注解开发bean作用范围与生命周期管理
+
+使用注解已经完成了bean的管理，接下来按照前面所学习的内容，将通过配置实现的内容都换成对应的注解实现，包含两部分内容: bean作用范围和bean生命周期。
+
+
+
+<br>
+
+```bash
+# 关于作用范围，要想将BookDaoImpl变成非单例
+只需要在其类上添加@scope注解
+默认值singleton（单例），可选值prototype（非单例）
+
+# 如何对方法进行标识，哪个是初始化方法，哪个是销毁方法?
+只需要在对应的方法上添加@PostConstruct和@PreDestroy注解即可。
+```
+
+
+
+
+
+```java
+// @Scope设置bean的作用范围
+@Scope("singleton")
+public class BookDaoImpl implements BookDao {
+
+    public void save() {
+        System.out.println("book dao save ...");
+    }
+    // @PostConstruct设置bean的初始化方法
+  	// 在构造方法之后执行，替换 init-method
+    @PostConstruct
+    public void init() {
+        System.out.println("init ...");
+    }
+    // @PreDestroy设置bean的销毁方法
+  	// 在销毁方法之前执行,替换 destroy-method
+    @PreDestroy
+    public void destroy() {
+        System.out.println("destroy ...");
+    }
+
+}
+```
+
+
+
+测试
+
+```java
+public class App {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+        BookDao bookDao1 = ctx.getBean(BookDao.class);
+        BookDao bookDao2 = ctx.getBean(BookDao.class);
+        System.out.println(bookDao1);
+        System.out.println(bookDao2);
+        ctx.close();
+    }
+}
+```
+
+
+
+### 11.4 小结
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428001433981.png)
+
+
+
+### 11.5 注解开发依赖注入
+
+Spring为了使用注解简化开发，并没有提供构造函数注入、setter注入对应的注解，只提供了自动装配的注解实现。
+
+#### 按类型注入 @Autowired
+
+```java
+@Service 
+public class BookServiceImpl implements BookService { 
+  	@Autowired 
+  	private BookDao bookDao; 
+  
+  	// public void setBookDao(BookDao bookDao) { 
+  			// this.bookDao = bookDao; 
+  	// } 
+  
+		public void save() { 
+      	System.out.println("book service save ..."); 
+      	bookDao.save(); 
+    } 
+}
+```
+
+
+
+
+
+```bash
+# @Autowired可以写在属性上，也可也写在setter方法上，最简单的处理方式是写在属性上并将 setter方法删除掉
+
+# 为什么setter方法可以删除呢?
+自动装配基于反射设计创建对象并通过暴力反射为私有属性进行设值
+普通反射只能获取public修饰的内容
+暴力反射除了获取public修饰的内容还可以获取private修改的内容
+所以此处无需提供setter方法
+
+# @Autowired是按照类型注入，那么对应BookDao接口如果有多个实现类，比如添加 BookDaoImpl2
+# 此时，按照类型注入就无法区分到底注入哪个对象，
+解决方案：按照名称注入
+# 此时就可以注入成功，但是得思考个问题: 
+# @Autowired是按照类型注入的，给BookDao的两个实现起了名称，它还是有两个bean对象，为什么不报错?
+@Autowired默认按照类型自动装配，如果IOC容器中同类的Bean找到多个，就按照变量名和Bean的名称匹配。
+因为变量名叫bookDao而容器中也有一个booDao，所以可以成功注入。
+```
+
+
+
+
+
+#### 按名称注入 @Autowired + @Qualifier
+
+当根据类型在容器中找到多个bean,注入参数的属性名又和容器中bean的名称不一致，这个时候该如何解决？
+
+就需要使用到@Qualifier来指定注入哪个名称的bean对象。
+
+```java
+@Service
+public class BookServiceImpl implements BookService {
+    //@Autowired：注入引用类型，自动装配模式，默认按类型装配
+    @Autowired
+    //@Qualifier：自动装配bean时按bean名称装配
+    @Qualifier("bookDao")
+    private BookDao bookDao;
+
+    public void save() {
+        System.out.println("book service save ...");
+        bookDao.save();
+    }
+}
+```
+
+@Qualifier注解后的值就是需要注入的bean的名称。
+
+注意：@Qualifier不能独立使用，必须和@Autowired一起使用
+
+
+
+#### 简单数据类型注入 @Value("itheima")
+
+引用类型看完，简单类型注入就比较容易懂了。简单类型注入的是基本数据类型或者字符串类型。
+
+下面在BookDaoImpl类中添加一个name属性，用其进行简单类型注入
+
+```java
+@Repository("bookDao")
+public class BookDaoImpl implements BookDao {
+    //@Value：注入简单类型（无需提供set方法）
+    @Value("itheima")
+    private String name;
+
+    public void save() {
+        System.out.println("book dao save ..." + name);
+    }
+}
+```
+
+介绍完后，会有一种感觉就是这个注解好像没什么用，跟直接赋值是一个效果，还没有直接赋值简单，所以这个注解存在的意义是什么?
+
+
+
+#### 读取properties配置文件 @Value("${name}")
+
+@Value一般会被用在从properties配置文件中读取内容进行使用，具体如何实现？
+
+```bash
+1.resource下准备properties文件
+2.使用注解加载properties配置文件
+3.使用@Value读取配置文件中的内容
+```
+
+1.
+
+```properties
+name=itheima888
+```
+
+
+
+2.
+
+```java
+@Configuration
+@ComponentScan("com.itheima")
+//@PropertySource加载properties配置文件
+@PropertySource({"jdbc.properties"})
+public class SpringConfig {
+}
+```
+
+3.
+
+```java
+@Repository("bookDao")
+public class BookDaoImpl implements BookDao {
+    //@Value：注入简单类型（无需提供set方法）
+    @Value("${name}")
+    private String name;
+
+    public void save() {
+        System.out.println("book dao save ..." + name);
+    }
+}
+```
+
+
+
+```bash
+# 如果读取的properties配置文件有多个，可以使用@PropertySource的属性来指定多个
+@PropertySource({"jdbc.properties","xxx.properties"})
+# @PropertySource注解属性中可以把classpath:加上,代表从当前项目的根路径找文件
+@PropertySource({"classpath:jdbc.properties"})
+```
+
+
+
+## 12 IOC/DI 注解开发管理第三方bean
+
+
+
+
+
+## 13 注解开发总结
 
 
 
@@ -1515,11 +1776,109 @@ public class BookDaoImpl implements BookDao {
 
 
 
+## 14 整合Mybatis思路分析
+
+Mybatis的基础环境我们已经准备好了，接下来就得分析下在上述的内容中，哪些对象可以交给Spring来管理?
+
+
+
+```bash
+从图中可以获取到，真正需要交给Spring管理的是SqlSessionFactory
+```
 
 
 
 
 
+## 15 整合Mybatis
+
+```bash
+# 前面我们已经分析了Spring与Mybatis的整合，大体需要做两件事：
+第一件事是:Spring要管理MyBatis中的SqlSessionFactory
+第二件事是:Spring要管理Mapper接口的扫描
+
+# 具体实现，如下：
+```
+
+
+
+步骤1：项目中导入整合需要的jar包
+
+```xml
+        <!--Spring操作数据库需要该jar包-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.2.10.RELEASE</version>
+        </dependency>
+
+        <!--Spring与Mybatis整合的jar包 这个jar包mybatis在前面，是Mybatis提供的 -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+```
+
+步骤2：创建Spring的主配置类
+
+```java
+//配置类注解 
+@Configuration 
+//包扫描，主要扫描的是项目中的AccountServiceImpl类 
+@ComponentScan("com.itheima") 
+public class SpringConfig { 
+}
+```
+
+步骤3：创建数据源的配置类
+
+在配置类中完成数据源的创建
+
+```java
+```
+
+
+
+
+
+
+
+
+
+## 16 整合Junit
+
+
+
+
+
+
+
+
+
+# 六、AOP
+
+Spring有两个核心的概念，一个是IOC/DI，一个是AOP。
+
+
+
+对于AOP,我们前面提过一句话是：**AOP是在不改原有代码的前提下对其进行增强**。
+
+对于下面的内容，我们主要就是围绕着这一句话进行展开学习
+
+## 17 AOP简介
+
+## 18 AOP入门案例
+
+
+
+
+
+
+
+
+
+老版比较乱，是层层深入；新版注重总结，易理解
 
 
 
