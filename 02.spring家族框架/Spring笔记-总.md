@@ -428,7 +428,7 @@ bean本质上就是对象，对象在new的时候会使用构造方法完成，�
 
 ```java
 public class BookDaoImpl implements BookDao {
-		// 类中提供构造函数测试
+    // 类中提供构造函数测试
     public BookDaoImpl() {
         System.out.println("book dao constructor is running ....");
     }
@@ -446,7 +446,7 @@ Spring底层使用的是类的无参构造方法。
 
 > 因为每一个类默认都会提供一个无参构造函数，所以其实真正在使用这种方式的时候，我们什么也不需要做。这也是我们以后比较常用的一种方式。
 
-分析Spring的错误信息：错误信息从下往上依次查看，因为上面的错误大都是对下面错误的一个包装，最核心错误是在最下面
+分析Spring的错误信息：错误信息从下往上依次查看，因为上面的错误大都是对下面错误的一个包装，最核心错误是在最下面。
 
 
 
@@ -708,13 +708,216 @@ destroy...
 
 ### 8.1 setter注入
 
+#### 注入引用数据类型
+
+步骤1：声明属性并提供setter方法
+
+```java
+public class BookServiceImpl implements BookService{
+    private BookDao bookDao;
+    private UserDao userDao;
+    //setter注入需要提供要注入对象的set方法
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+    //setter注入需要提供要注入对象的set方法
+    public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
+    }
+
+    public void save() {
+        System.out.println("book service save ...");
+        bookDao.save();
+        userDao.save();
+    }
+}
+```
+
+步骤2：配置文件中进行注入配置
+
+```xml
+<!--注入简单类型-->
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
+<bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
+
+<!--注入引用类型-->
+<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+  <!--property标签：设置注入属性-->
+  <!--name属性：设置注入的属性名，实际是set方法对应的名称-->
+  <!--ref属性：设置注入引用类型bean的id或name-->
+  <property name="bookDao" ref="bookDao"/>
+  <property name="userDao" ref="userDao"/>
+</bean>
+```
+
+
+
+#### 注入基本数据类型
+
+步骤1：声明属性并提供setter方法
+
+```java
+public class BookDaoImpl implements BookDao {
+
+    private String databaseName;
+    private int connectionNum;
+    //setter注入需要提供要注入对象的set方法
+    public void setConnectionNum(int connectionNum) {
+        this.connectionNum = connectionNum;
+    }
+    //setter注入需要提供要注入对象的set方法
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
+    }
+
+    public void save() {
+        System.out.println("book dao save ..."+databaseName+","+connectionNum);
+    }
+}
+```
+
+
+
+步骤2：配置文件中进行注入配置
+
+```xml
+    <!--注入简单类型-->
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
+        <!--property标签：设置注入属性-->
+        <!--name属性：设置注入的属性名，实际是set方法对应的名称-->
+        <!--value属性：设置注入简单类型数据值-->
+        <property name="connectionNum" value="100"/>
+        <property name="databaseName" value="mysql"/>
+    </bean>
+
+    <bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
+
+    <!--注入引用类型-->
+    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+        <!--property标签：设置注入属性-->
+        <!--name属性：设置注入的属性名，实际是set方法对应的名称-->
+        <!--ref属性：设置注入引用类型bean的id或name-->
+        <property name="bookDao" ref="bookDao"/>
+        <property name="userDao" ref="userDao"/>
+    </bean>
+```
+
+
+
+需要注意的是：
+
+```bash
+- 对于引用数据类型使用的是<property name="" ref=""/>
+- 对于简单数据类型使用的是<property name="" value=""/>
+```
 
 
 
 
 
+### 8.2 构造器（构造方法）注入
 
-### 8.2 构造器注入
+#### 构造器注入引用数据类型
+
+#### 构造器注入多个引用数据类型
+
+步骤1：删除setter方法并提供构造方法
+
+```java
+public class BookServiceImpl implements BookService{
+    private BookDao bookDao;
+    private UserDao userDao;
+
+    public BookServiceImpl(BookDao bookDao, UserDao userDao) {
+        this.bookDao = bookDao;
+        this.userDao = userDao;
+    }
+
+    public void save() {
+        System.out.println("book service save ...");
+        bookDao.save();
+        userDao.save();
+    }
+}
+```
+
+
+
+步骤2：配置文件中进行配置构造方式注入
+
+```xml
+<!--解决参数类型重复问题，使用位置解决参数匹配-->
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
+<bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
+
+<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+  <constructor-arg name="userDao" ref="userDao"/>
+  <constructor-arg name="bookDao" ref="bookDao"/>
+</bean>
+```
+
+- name属性对应的值为构造函数中方法形参的参数名，必须要保持一致。
+- ref属性指向的是spring的IOC容器中其他bean对象。
+
+
+
+#### 构造器注入多个简单数据类型
+
+步骤1：添加多个简单属性并提供构造方法
+
+```java
+public class BookDaoImpl implements BookDao {
+    private String databaseName;
+    private int connectionNum;
+
+    public BookDaoImpl(String databaseName, int connectionNum) {
+        this.databaseName = databaseName;
+        this.connectionNum = connectionNum;
+    }
+
+    public void save() {
+        System.out.println("book dao save ..."+databaseName+","+connectionNum);
+    }
+}
+```
+
+步骤2：配置完成多个属性构造器注入
+
+```xml
+<!--解决参数类型重复问题，使用位置解决参数匹配-->
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
+  <!--根据构造方法参数位置注入-->
+  <constructor-arg index="0" value="mysql"/>
+  <constructor-arg index="1" value="100"/>
+</bean>
+<bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
+
+<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+  <constructor-arg name="userDao" ref="userDao"/>
+  <constructor-arg name="bookDao" ref="bookDao"/>
+</bean>
+```
+
+
+
+上面已经完成了构造函数注入的基本使用，但是会存在一些问题：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427180901617.png)
+
+
+
+- 当构造函数中方法的参数名发生变化后，配置文件中的name属性也需要跟着变
+- 这两块存在紧耦合，具体该如何解决?
+
+
+
+在解决这个问题之前，需要提前说明的是，这个参数名发生变化的情况并不多，所以上面的还是比较主流的配置方式，下面介绍的，大家
+
+都以了解为主。
+
+
+
+
 
 
 
@@ -722,7 +925,21 @@ destroy...
 
 ### 8.3 自动配置
 
+前面花了大量的时间把Spring的注入去学习了下，总结起来就一个字麻烦。
 
+#### 8.3.1 什么是依赖自动装配?
+
+IoC容器根据bean所依赖的资源在容器中自动查找并注入到bean中的过程称为自动装配
+
+#### 8.3.2 自动装配方式有哪些?
+
+- 按类型（常用）
+
+- 按名称
+
+- 按构造方法
+
+- 不启用自动装配
 
 
 
