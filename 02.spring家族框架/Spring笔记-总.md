@@ -68,6 +68,13 @@ https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-ref
 
 
 
+```bash
+掌握Spring相关概念
+完成IOC/DI的入门案例编写
+掌握IOC的相关配置与使用
+掌握DI的相关配置与使用
+```
+
 
 
 # 一、Spring相关概念
@@ -706,7 +713,7 @@ destroy...
 	-引用类型
 ```
 
-### 8.1 setter注入
+### 8.1 setter注入 property
 
 #### 注入引用数据类型
 
@@ -815,7 +822,7 @@ public class BookDaoImpl implements BookDao {
 
 
 
-### 8.2 构造器（构造方法）注入
+### 8.2 构造器（构造方法）注入 constructor-arg
 
 #### 构造器注入引用数据类型
 
@@ -884,18 +891,47 @@ public class BookDaoImpl implements BookDao {
 步骤2：配置完成多个属性构造器注入
 
 ```xml
-<!--解决参数类型重复问题，使用位置解决参数匹配-->
-<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
-  <!--根据构造方法参数位置注入-->
-  <constructor-arg index="0" value="mysql"/>
-  <constructor-arg index="1" value="100"/>
-</bean>
-<bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
+<!--
+    标准书写
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
+        根据构造方法参数名称注入
+        <constructor-arg name="connectionNum" value="10"/>
+        <constructor-arg name="databaseName" value="mysql"/>
+    </bean>
+    <bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
 
-<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
-  <constructor-arg name="userDao" ref="userDao"/>
-  <constructor-arg name="bookDao" ref="bookDao"/>
-</bean>
+    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+        <constructor-arg name="userDao" ref="userDao"/>
+        <constructor-arg name="bookDao" ref="bookDao"/>
+    </bean>
+-->
+<!--
+    解决形参名称的问题，与形参名不耦合
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
+        根据构造方法参数类型注入
+        <constructor-arg type="int" value="10"/>
+        <constructor-arg type="java.lang.String" value="mysql"/>
+    </bean>
+    <bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
+
+    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+        <constructor-arg name="userDao" ref="userDao"/>
+        <constructor-arg name="bookDao" ref="bookDao"/>
+    </bean>-->
+
+    <!--解决参数类型重复问题，使用位置解决参数匹配-->
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
+        <!--根据构造方法参数位置注入-->
+        <constructor-arg index="0" value="mysql"/>
+        <constructor-arg index="1" value="100"/>
+    </bean>
+    <bean id="userDao" class="com.itheima.dao.impl.UserDaoImpl"/>
+
+    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+        <constructor-arg name="userDao" ref="userDao"/>
+        <constructor-arg name="bookDao" ref="bookDao"/>
+    </bean>
+</beans>
 ```
 
 
@@ -915,15 +951,32 @@ public class BookDaoImpl implements BookDao {
 
 都以了解为主。
 
+```bash
+# 方式一:删除name属性，添加type属性，按照类型注入
+- 这种方式可以解决构造函数形参名发生变化带来的耦合问题
+- 但是如果构造方法参数中有类型相同的参数，这种方式就不太好实现了
+# 方式二:删除type属性，添加index属性，按照索引下标注入，下标从0开始
+- 这种方式可以解决参数类型重复问题
+- 但是如果构造方法参数顺序发生变化后，这种方式又带来了耦合问题
+```
+
+介绍完两种参数的注入方式，具体我们该如何选择呢? 
+
+```bash
+# 1.强制依赖使用构造器进行，使用setter注入有概率不进行注入导致null对象出现
+- 强制依赖指对象在创建的过程中必须要注入指定的参数
+# 2.可选依赖使用setter注入进行，灵活性强
+- 可选依赖指对象在创建过程中注入的参数可有可无
+# 3.Spring框架倡导使用构造器，第三方框架内部大多数采用构造器注入的形式进行数据初始化，相对严谨
+# 4.如果有必要可以两者同时使用，使用构造器注入完成强制依赖的注入，使用setter注入完成可选依赖的注入
+# 5.实际开发过程中还要根据实际情况分析，如果受控对象没有提供setter方法就必须使用构造器注入
+
+# 6.[ 自己开发的模块推荐使用setter注入 ]
+```
 
 
 
-
-
-
-
-
-### 8.3 自动配置
+### 8.3 自动配置 autowire属性
 
 前面花了大量的时间把Spring的注入去学习了下，总结起来就一个字麻烦。
 
@@ -943,17 +996,168 @@ IoC容器根据bean所依赖的资源在容器中自动查找并注入到bean中
 
 
 
+```xml
+<bean class="com.itheima.dao.impl.BookDaoImpl"/>
+<!--autowire属性：开启自动装配，通常使用按类型装配-->
+<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl" autowire="byType"/>
+```
 
+注意事项：
+```bash
+# 需要注入属性的类中对应属性的setter方法不能省略
+# 被注入的对象必须要被Spring的IOC容器管理
+# 按照类型在Spring的IOC容器中如果找到多个对象，会报NoUniqueBeanDefinitionException
+# 一个类型在IOC中有多个对象，还想要注入成功，这个时候就需要按照名称注入byName
+# 按照名称注入中的名称指的是什么
+- 对外部类来说，setBookDao方法名，去掉set后首字母小写是其属性名
+
+# 两种方式介绍完后，以后用的更多的是按照类型注入
+```
+
+
+
+```bash
+1. 自动装配用于引用类型依赖注入，不能对简单类型进行操作
+2. 使用按类型装配时（byType）必须保障容器中相同类型的bean唯一，推荐使用
+3. 使用按名称装配时（byName）必须保障容器中具有指定名称的bean，因变量名与配置耦合，不推荐使用
+4. 自动装配优先级低于setter注入与构造器注入，同时出现时自动装配配置失效
+```
 
 
 
 ### 8.4 集合注入
 
+前面我们已经能完成引用数据类型和简单数据类型的注入，但是还有一种数据类型集合，集合中既可以装简单数据类型也可以装引用数据
+
+类型，对于集合，在Spring中该如何注入呢?
+
+```bash
+# 先来回顾下，常见的集合类型有哪些?
+数组
+List
+Set
+Map
+Properties
+
+# 针对不同的集合类型，该如何实现注入呢?
+```
+
+下面的所有配置方式，都是在bookDao的bean标签中进行注入
+
+```xml
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"> 
+</bean>
+```
+
+#### 8.4.1 注入数组类型数据
+
+```xml
+<!--数组注入-->
+<property name="array">
+  <array>
+    <value>100</value>
+    <value>200</value>
+    <value>300</value>
+  </array>
+</property>
+```
+
+
+
+#### 8.4.2 注入List类型数据
+
+```xml
+<!--list集合注入-->
+<property name="list">
+  <list>
+    <value>itcast</value>
+    <value>itheima</value>
+    <value>boxuegu</value>
+    <value>chuanzhihui</value>
+  </list>
+</property>
+```
+
+
+
+#### 8.4.3 注入Set类型数据
+
+```xml
+<!--set集合注入-->
+<property name="set">
+  <set>
+    <value>itcast</value>
+    <value>itheima</value>
+    <value>boxuegu</value>
+    <value>boxuegu</value>
+  </set>
+</property>
+```
+
+
+
+#### 8.4.4 注入map类型数据
+
+```xml
+<!--map集合注入-->
+<property name="map">
+  <map>
+    <entry key="country" value="china"/>
+    <entry key="province" value="henan"/>
+    <entry key="city" value="kaifeng"/>
+  </map>
+</property>
+```
+
+
+
+#### 8.4.5 注入Properties类型数据
+
+```xml
+<!--Properties注入-->
+<property name="properties">
+  <props>
+    <prop key="country">china</prop>
+    <prop key="province">henan</prop>
+    <prop key="city">kaifeng</prop>
+  </props>
+</property>
+```
+
+
+
+输出结果
+
+```bash
+book dao save ...
+遍历数组:[100, 200, 300]
+遍历List[itcast, itheima, boxuegu, chuanzhihui]
+遍历Set[itcast, itheima, boxuegu]
+遍历Map{country=china, province=henan, city=kaifeng}
+遍历Properties{province=henan, city=kaifeng, country=china}
+```
+
+说明
+
+```bash
+# property标签表示setter方式注入，构造方式注入constructor-arg标签内部也可以写<array>、<list>、<set>、<map>、<props>标签
+# List的底层也是通过数组实现的，所以<list>和<array>标签是可以混用
+# 集合中要添加引用类型，只需要把<value>标签改成<ref>标签，这种方式用的比较少
+```
 
 
 
 
 
+<br>
+
+```bash
+# day02
+掌握IOC/DI配置管理第三方bean
+掌握IOC/DI的注解开发
+掌握IOC/DI注解管理第三方bean
+完成Spring与Mybatis及Junit的整合开发
+```
 
 
 
@@ -961,9 +1165,184 @@ IoC容器根据bean所依赖的资源在容器中自动查找并注入到bean中
 
 # 9 IOC/DI配置管理第三方bean
 
+前面所讲的知识点都是基于我们自己写的类，现在如果有需求让我们去管理第三方jar包中的类，该如何管理?
+
+## 9.1 案例：数据源对象管理
+
+在这一节中，我们将通过一个案例来学习下对于第三方bean该如何进行配置管理。
+
+以后我们会用到很多第三方的bean,本次案例将使用咱们前面提到过的数据源Druid(德鲁伊)和C3P0来配置学习下。
+
+### 思路分析
+
+```bash
+# 需求:使用Spring的IOC容器来管理Druid连接池对象
+
+1.使用第三方的技术，需要在pom.xml添加依赖
+2.在配置文件中将【第三方的类】制作成一个bean，让IOC容器进行管理
+3.数据库连接需要基础的四要素驱动、连接、用户名和密码，【如何注入】到对应的bean中
+4.从IOC容器中获取对应的bean对象，将其打印到控制台查看结果
+```
+
+
+
+### 实现Druid的管理
+
+步骤1：导入druid的依赖
+
+```xml
+<dependency>
+  <groupId>com.alibaba</groupId>
+  <artifactId>druid</artifactId>
+  <version>1.1.16</version>
+</dependency>
+```
+
+步骤2：配置第三方bean
+
+在applicationContext.xml配置文件中添加DruidDataSource的配置
+
+```xml
+<!--    管理DruidDataSource对象-->
+<bean class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql://localhost:3306/spring_db"/>
+    <property name="username" value="root"/>
+    <property name="password" value="root"/>
+</bean>
+```
+
+步骤3：从IOC容器中获取对应的bean对象
+
+步骤4：运行程序
+
+```bash
+# 思考🤔
+# 第三方的类指的是什么?
+DruidDataSource
+# 如何注入数据库连接四要素?
+setter注入
+```
+
+
+
+### 实现C3P0管理
+
+同上
+
+
+
+## 9.2 加载properties文件
+
+```bash
+# 上节中我们已经完成两个数据源druid和C3P0的配置，但是其中包含了一些问题，我们来分析下:
+- 这两个数据源中都使用到了一些固定的常量如数据库连接四要素，把这些值写在Spring的配置文件中不利于后期维护
+- 需要将这些值提取到一个外部的properties配置文件中
+- Spring框架如何从配置文件中读取属性值来配置就是接下来要解决的问题。
+```
+
+### 第三方bean属性优化
+
+```bash
+# 需求:将数据库连接四要素提取到properties配置文件，spring来加载配置信息并使用这些信息来完成属性注入。
+1.在resources下创建一个jdbc.properties(文件的名称可以任意) 
+2.将数据库连接四要素配置到配置文件中
+3.在Spring的配置文件中加载properties文件
+4.使用加载到的值实现属性注入
+其中第3，4步骤是需要大家重点关注，具体是如何实现。
+```
+
+
+
+（1）准备properties配置文件
+
+```properties
+jdbc.driver=com.mysql.jdbc.Driver 
+jdbc.url=jdbc:mysql://127.0.0.1:3306/spring_db 
+jdbc.username=root 
+jdbc.password=root
+```
+
+
+
+（2）在applicationContext.xml中开context命名空间
+
+（3）加载properties配置文件
+
+```xml
+<context:property-placeholder location="jdbc.properties"/>
+```
+
+（4）完成属性注入
+
+使用 ${key} 来读取properties配置文件中的内容并完成属性注入
+
+```xml
+<!--    3.使用属性占位符${}读取properties文件中的属性-->
+<!--    说明：idea自动识别${}加载的属性值，需要手工点击才可以查阅原始书写格式-->
+<bean class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="${jdbc.driver}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+</bean>
+```
+
+
+
+### 读取单个属性
+
+```bash
+# 需求:从properties配置文件中读取key为name的值，并将其注入到BookDao中并在save方法中进行打印。
+1.在项目中添加BookDao和BookDaoImpl类
+2.为BookDaoImpl添加一个name属性并提供setter方法
+3.在jdbc.properties中添加数据注入到bookDao中打印方便查询结果
+4.在applicationContext.xml添加配置完成配置文件加载、属性注入(${key})
+```
+
+1,2
+
+```java
+public class BookDaoImpl implements BookDao {
+    private String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void save() {
+        System.out.println("book dao save ..." + name);
+    }
+}
+```
+
+3
+
+```properties
+username=root666
+```
+
+4
+
+```xml
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
+  	<property name="name" value="${username}"/>
+</bean>
+```
+
+
+
 
 
 # 10 核心容器
+
+```bash
+这里所说的核心容器，大家可以把它简单的理解为ApplicationContext，前面虽然已经用到过，但是并没有系统的学习，接下来咱们从以下几个问题入手来学习下容器的相关知识:
+- 如何创建容器?
+- 创建好容器后，如何从容器中获取bean对象?
+- 容器类的层次结构是什么?
+- BeanFactory是什么?
+```
 
 
 
