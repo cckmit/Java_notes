@@ -902,7 +902,7 @@ public class BookDaoImpl implements BookDao {
 
 上面已经完成了构造函数注入的基本使用，但是会存在一些问题：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427180901617.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427180901617.png?w=600)
 
 
 
