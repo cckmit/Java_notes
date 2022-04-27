@@ -470,7 +470,7 @@ public class OrderDaoFactory {
 <bean id="orderDao" class="com.itheima.factory.OrderDaoFactory" factory-method="getOrderDao"/>
 ```
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427124231411.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427124231411.png?w=600)
 
 这种方式一般是用来兼容早期的一些老系统，所以**了解为主**。
 
