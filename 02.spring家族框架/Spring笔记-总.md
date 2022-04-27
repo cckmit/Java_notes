@@ -271,6 +271,194 @@ DI（Dependency Injection）依赖注入
 
 
 
+# 二、入门案例
+
+## 5 IOC入门案例
+
+IOC思路分析
+
+```bash
+# 1.管理什么？（Service与Dao）
+# 2.如何将被管理的对象告知IoC容器？（配置）
+# 3.被管理的对象交给IoC容器，如何获取到IoC容器？（接口）
+# 4.IoC容器得到后，如何从坐标中获取IoC容器？（接口方法）
+# 5.使用Spring导入哪些坐标？（pom.xml）
+```
+
+
+
+## 6 DI入门案例
+
+DI思路分析
+
+```bash
+# 1.基于IOC管理Bean
+# 2.Service中使用new形式创建的Dao对象是否保留?（否）
+# 3.Service中需要的Dao对象如何进入到Service中?（提供方法）
+# 4.Service与Dao间的关系如何描述?（配置）
+```
+
+
+
+程序代码详见 spring_01_quickstart
+
+```java
+// 1.导入spring的坐标spring-context，对应版本是5.2.10.RELEASE
+// 添加spring配置文件applicationContext.xml，并完成bean的配置
+<!--2.配置bean-->
+<!--bean标签表示配置bean
+id属性表示给bean起名字
+class属性表示给bean定义类型-->
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
+  
+<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+    <!--7.配置server与dao的关系-->
+    <!--property标签表示配置当前bean的属性
+    name属性表示配置哪一个具体的属性
+    ref属性表示参照哪一个bean-->
+    <property name="bookDao" ref="bookDao"/>
+</bean>
+
+// 3.获取IoC容器
+ ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+// 4.获取bean（根据bean配置id获取）
+BookService bookService = (BookService) ctx.getBean("bookService");
+bookService.save();
+
+public class BookServiceImpl implements BookService {
+    // DI入门案例部分开始
+    //5.删除业务层中使用new的方式创建的dao对象
+    private BookDao bookDao;
+
+    public void save() {
+        System.out.println("book service save ...");
+        bookDao.save();
+    }
+    //6.提供对应的set方法
+    public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
+    }
+}
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427102258552.png)
+
+
+
+
+
+## 7 IOC相关内容
+
+### 7.1 bean基础配置
+
+#### 7.1.1 bean基础配置(id与class)
+
+bean标签的功能、使用方式以及id和class属性的作用，我们通过一张图来描述下
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427103736803.png)
+
+```bash
+# class属性能不能写接口如BookDao的类全名呢?
+答案肯定是不行，因为接口是没办法创建对象的。
+# 前面提过为bean设置id时，id必须唯一，但是如果由于命名习惯而产生了分歧后，该如何解决?
+配置别名
+```
+
+#### 7.1.2 bean的name属性指定别名
+
+```xml
+<!--name:为bean指定别名，别名可以有多个，使用逗号，分号，空格进行分隔-->
+<bean id="bookService" name="service service4 bookEbi" class="com.itheima.service.impl.BookServiceImpl">
+    <property name="bookDao" ref="bookDao"/>
+</bean>
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427103924701.png)
+
+
+
+获取bean无论是通过id还是name获取，如果无法获取到，将抛出异常 **NoSuchBeanDefinitionException**
+
+#### 7.1.3 bean作用范围scope配置
+
+```xml
+<!--scope：为bean设置作用范围，可选值为单例singloton，非单例prototype-->
+<bean id="bookDao" name="dao" class="com.itheima.dao.impl.BookDaoImpl" scope="prototype"/>
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427104611627.png)
+
+```bash
+# 为什么bean默认为单例?
+bean为单例的意思是在Spring的IOC容器中只会有该类的一个对象
+bean对象只有一个就避免了对象的频繁创建与销毁，达到了bean对象的复用，性能高
+
+# 哪些bean对象适合交给容器进行管理?
+表现层对象
+业务层对象
+数据层对象
+工具对象
+
+# 哪些bean对象不适合交给容器进行管理?
+封装实例的域对象，因为会引发线程安全问题，所以不适合。
+```
+
+
+
+那么单例lbean是怎么造出来的呢？
+
+### 7.2 bean实例化
+
+#### 7.2.1 方法1：构造方法
+
+
+
+
+
+#### 7.2.2 方法2：静态工厂
+
+
+
+
+
+#### 7.2.3 方法3：实例工厂与FactoryBean
+
+
+
+### 7.3 bean的生命周期
+
+
+
+
+
+
+
+
+
+
+
+## 8 DI相关内容
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
