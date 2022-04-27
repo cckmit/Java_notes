@@ -354,7 +354,7 @@ public class BookServiceImpl implements BookService {
 
 
 
-
+# 三、IoC/DI相关内容
 
 ## 7 IOC相关内容
 
@@ -1163,17 +1163,17 @@ book dao save ...
 
 
 
-# 9 IOC/DI配置管理第三方bean
+## 9 IOC/DI配置管理第三方bean
 
 前面所讲的知识点都是基于我们自己写的类，现在如果有需求让我们去管理第三方jar包中的类，该如何管理?
 
-## 9.1 案例：数据源对象管理
+### 9.1 案例：数据源对象管理
 
 在这一节中，我们将通过一个案例来学习下对于第三方bean该如何进行配置管理。
 
-以后我们会用到很多第三方的bean,本次案例将使用咱们前面提到过的数据源Druid(德鲁伊)和C3P0来配置学习下。
+以后我们会用到很多第三方的bean，本次案例将使用咱们前面提到过的数据源Druid(德鲁伊)和C3P0来配置学习下。
 
-### 思路分析
+#### 思路分析
 
 ```bash
 # 需求:使用Spring的IOC容器来管理Druid连接池对象
@@ -1186,15 +1186,15 @@ book dao save ...
 
 
 
-### 实现Druid的管理
+#### 实现Druid的管理
 
 步骤1：导入druid的依赖
 
 ```xml
 <dependency>
-  <groupId>com.alibaba</groupId>
-  <artifactId>druid</artifactId>
-  <version>1.1.16</version>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.16</version>
 </dependency>
 ```
 
@@ -1226,13 +1226,25 @@ setter注入
 
 
 
-### 实现C3P0管理
+#### 实现C3P0管理
 
 同上
 
+```xml
+<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+    <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring_db"/>
+    <property name="user" value="root"/>
+    <property name="password" value="root"/>
+    <property name="maxPoolSize" value="1000"/>
+</bean>
+```
 
 
-## 9.2 加载properties文件
+
+
+
+### 9.2 加载properties文件
 
 ```bash
 # 上节中我们已经完成两个数据源druid和C3P0的配置，但是其中包含了一些问题，我们来分析下:
@@ -1241,13 +1253,13 @@ setter注入
 - Spring框架如何从配置文件中读取属性值来配置就是接下来要解决的问题。
 ```
 
-### 第三方bean属性优化
+#### 第三方bean属性优化
 
 ```bash
 # 需求:将数据库连接四要素提取到properties配置文件，spring来加载配置信息并使用这些信息来完成属性注入。
 1.在resources下创建一个jdbc.properties(文件的名称可以任意) 
 2.将数据库连接四要素配置到配置文件中
-3.在Spring的配置文件中加载properties文件
+3.在Spring的配置文件中[ 加载properties文件 ]
 4.使用加载到的值实现属性注入
 其中第3，4步骤是需要大家重点关注，具体是如何实现。
 ```
@@ -1290,7 +1302,7 @@ jdbc.password=root
 
 
 
-### 读取单个属性
+#### 读取单个属性
 
 ```bash
 # 需求:从properties配置文件中读取key为name的值，并将其注入到BookDao中并在save方法中进行打印。
@@ -1334,7 +1346,7 @@ username=root666
 
 
 
-# 10 核心容器
+## 10 核心容器
 
 ```bash
 这里所说的核心容器，大家可以把它简单的理解为ApplicationContext，前面虽然已经用到过，但是并没有系统的学习，接下来咱们从以下几个问题入手来学习下容器的相关知识:
@@ -1343,6 +1355,163 @@ username=root666
 - 容器类的层次结构是什么?
 - BeanFactory是什么?
 ```
+
+### 10.1 创建容器
+
+```java
+//1.加载类路径下的配置文件
+ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+//2.从文件系统下加载配置文件
+//ApplicationContext ctx = new FileSystemXmlApplicationContext("D:\\workspace\\spring\\spring_10_container\\src\\main\\resources\\applicationContext.xml");
+```
+
+### 10.2 获取bean的3种方式
+
+方式一：使用bean名称获取
+
+```java
+BookDao bookDao = (BookDao) ctx.getBean("bookDao");
+```
+
+> 这种方式存在的问题是每次获取的时候都需要进行类型转换，有没有更简单的方式呢?
+
+方式二：使用bean名称获取并指定类型
+
+```java
+BookDao bookDao = ctx.getBean("bookDao"，BookDao.class);
+```
+
+方式三：使用bean类型获取
+
+```java
+BookDao bookDao = ctx.getBean(BookDao.class);
+```
+
+> 这种方式就类似我们之前所学习依赖注入中的按类型注入。必须要确保IOC容器中该类型对应的bean对象只能有一个。
+
+
+
+
+
+### 10.3 容器类层次结构
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427232052349.png)
+
+
+
+
+
+### 10.4 BeanFactory
+
+顶级接口
+
+### 10.5 核心容器总结
+
+#### 容器相关
+
+- BeanFactory是IoC容器的顶层接口，初始化BeanFactory对象时，加载的bean延迟加载
+- ApplicationContext接口是Spring容器的核心接口，初始化时bean立即加载
+- ApplicationContext接口提供基础的bean操作相关方法，通过其他接口扩展其功能
+- ApplicationContext接口常用初始化类
+  - ClassPathXmlApplicationContext (常用)
+  - FileSystemXmlApplicationContext
+
+
+
+#### bean相关
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427233322002.png)
+
+其实整个配置中最常用的就两个属性**id**和**class**。
+
+把scope、init-method、destroy-method框起来的原因是，后面注解讲解的时候还会用到，所以大家对这三个属性关注下。
+
+#### 依赖注入相关
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427233436737.png)
+
+
+
+# 四、注解开发
+
+## 11 注解开发
+
+```bash
+# 要想真正简化开发，就需要用到Spring的注解开发，Spring对注解支持的版本历程:
+2.0版开始支持注解
+2.5版注解功能趋于完善
+3.0版支持纯注解开发
+
+# 关于注解开发，我们会讲解两块内容：注解开发定义bean和纯注解开发。
+注解开发定义bean用的是2.5版提供的注解，纯注解开发用的是3.0版提供的注解。
+```
+
+
+
+
+
+### 11.1 注解开发定义bean Spring 2.5
+
+添加注解
+
+```java
+//@Component定义bean
+//@Component("bookDao")
+//@Repository：@Component衍生注解
+@Repository("bookDao")
+public class BookDaoImpl implements BookDao {
+    public void save() {
+        System.out.println("book dao save ...");
+    }
+}
+```
+
+> @Component注解如果不起名称，会有一个默认值就是当前类名首字母小写，所以也可以按照名称获取
+
+
+
+配置Spring的注解包扫描
+
+```xml
+<context:component-scan base-package="com.itheima"/>
+```
+
+> base-package指定Spring框架扫描的包路径，它会扫描指定包及其子包中的所有类上的注解。
+
+
+
+<br>
+
+对于@Component注解，还衍生出了其他三个注解@Controller、@Service、@Repository
+
+通过查看源码会发现：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220427234712777.png)
+
+这三个注解和@Component注解的作用是一样的，为什么要衍生出这三个呢?
+
+方便我们后期在编写类的时候能很好的区分出这个类是属于表现层、业务层还是数据层的类。
+
+
+
+### 11.2 纯注解开发 Spring 3.0
+
+上面已经可以使用注解来配置bean,但是依然有用到配置文件，在配置文件中对包进行了扫描，Spring在3.0版已经支持纯注解开发。
+
+**Spring3.0开启了纯注解开发模式，使用Java类替代配置文件，开启了Spring快速开发赛道**。
+
+
+
+```java
+```
+
+
+
+
+
+
+
+# 五、Spring整合
 
 
 
