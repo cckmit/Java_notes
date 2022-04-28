@@ -2732,7 +2732,7 @@ Spring事务作用：在数据层或**业务层**保障一系列的数据库操�
 
 Spring为了管理事务，提供了一个平台事务管理器PlatformTransactionManager
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428171002519.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428171002519.png?w=600)
 
 commit是用来提交事务，rollback是用来回滚事务。
 
@@ -3202,7 +3202,7 @@ public class AccountServiceImpl implements AccountService {
 
 #### 事务传播行为
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428212625610.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428212625610.png?w=600)
 
 
 
