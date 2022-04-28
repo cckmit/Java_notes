@@ -2915,6 +2915,21 @@ public class AccountServiceImpl implements AccountService {
 }
 ```
 
+9
+
+```java
+@Configuration
+@ComponentScan("com.itheima")
+@PropertySource("classpath:jdbc.properties")
+@Import({JdbcConfig.class,MybatisConfig.class})
+//开启注解式事务驱动
+@EnableTransactionManagement
+public class SpringConfig {
+}
+```
+
+
+
 10
 
 ```java
@@ -2933,33 +2948,136 @@ public class AccountServiceTest {
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
-### 事务管理
+#### 事务管理
 
 上述环境，运行单元测试类，会执行转账操作，Tom的账户会减少100，Jerry的账户会加100。
 
 这是正常情况下的运行结果，但是如果在转账的过程中出现了异常，如：
 
+```java
+    public void transfer(String out,String in ,Double money) {
+        accountDao.outMoney(out,money);
+        int i = 1/0;
+        accountDao.inMoney(in,money);
+    }
+```
 
+
+
+①：程序正常执行时，账户金额A减B加，没有问题
+
+②：程序出现异常后，转账失败，但是异常之前操作成功，异常之后操作失败，整体业务失败
+
+
+
+当程序出问题后，我们需要让事务进行回滚，而且这个事务应该是加在业务层上，而Spring的事务管理就是用来解决这类问题的。
+
+##### 步骤1：在需要被事务管理的方法上添加注解 @Transactional
+
+```java
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AccountDao accountDao;
+    @Transactional
+    public void transfer(String out,String in ,Double money) {
+        accountDao.outMoney(out,money);
+        int i = 1/0;
+        accountDao.inMoney(in,money);
+    }
+
+}
+```
+
+```bash
+# @Transactional可以写在接口类上、接口方法上、实现类上和实现类方法上
+
+写在接口类上，该接口的所有实现类的所有方法都会有事务
+写在接口方法上，该接口的所有实现类的该方法都会有事务
+写在实现类上，该类中的所有方法都会有事务
+写在实现类方法上，该方法上有事务
+
+建议写在实现类或实现类的方法上
+```
+
+
+
+##### 步骤2：在JdbcConfig类中配置事务管理器
+
+```java
+public class JdbcConfig {
+		...
+
+    //配置事务管理器，mybatis使用的是jdbc事务
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource){
+        DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
+        transactionManager.setDataSource(dataSource);
+        return transactionManager;
+    }
+}
+```
+
+> 事务管理器要根据使用技术进行选择，Mybatis框架使用的是JDBC事务，可以直接使用 DataSourceTransactionManager
+
+
+
+##### 步骤3：开启事务注解 @EnableTransactionManagement
+
+```java
+@Configuration
+@ComponentScan("com.itheima")
+@PropertySource("classpath:jdbc.properties")
+@Import({JdbcConfig.class,MybatisConfig.class})
+//开启注解式事务驱动
+@EnableTransactionManagement
+public class SpringConfig {
+}
+```
+
+
+
+##### 步骤4：运行测试类
+
+会发现在转账的业务出现错误后，事务就可以控制回滚，保证数据的正确性。
 
 
 
 ### 18.2 Spring事务角色
 
+重点要理解两个概念，分别是事务管理员和事务协调员。
+
+```bash
+事务管理员：发起事务方，在Spring中通常指代业务层开启事务的方法
+事务协调员：加入事务方，在Spring中通常指代数据层方法，也可以是业务层方法
+```
 
 
 
+1. 未开启Spring事务之前:
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428210101786.png)
 
+```bash
+AccountDao的outMoney因为是修改操作，会开启一个事务T1
+AccountDao的inMoney因为是修改操作，会开启一个事务T2
+AccountService的transfer没有事务，
+- 运行过程中如果没有抛出异常，则T1和T2都正常提交，数据正确
+- 如果在两个方法中间抛出异常，T1因为执行成功提交事务，T2因为抛异常不会被执行
+- 就会导致数据出现错误
+```
+
+2. 开启Spring的事务管理后
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428210228581.png)
+
+```bash
+transfer上添加了@Transactional注解，在该方法上就会有一个事务T
+AccountDao的outMoney方法的事务T1加入到transfer的事务T中
+AccountDao的inMoney方法的事务T2加入到transfer的事务T中
+这样就保证他们在同一个事务中，当业务层中出现异常，整个事务就会回滚，保证数据的准确性。
+```
 
 
 
@@ -2973,9 +3091,174 @@ public class AccountServiceTest {
 
 上面这些属性都可以在@Transactional注解的参数上进行设置。
 
+```bash
+readOnly：true只读事务，false读写事务，增删改要设为false,查询设为true。
+timeout:设置超时时间单位秒，在多长时间之内事务没有提交成功就自动回滚，-1表示不设置超时时间。
+rollbackFor:当出现指定异常进行事务回滚
+noRollbackFor:当出现指定异常不进行事务回滚
+
+isolation设置事务的隔离级别
+- DEFAULT :默认隔离级别, 会采用数据库的隔离级别
+- READ_UNCOMMITTED : 读未提交
+- READ_COMMITTED : 读已提交
+- REPEATABLE_READ : 重复读取
+- SERIALIZABLE: 串行化
+```
 
 
 
+<br>
+
+并不是所有的异常都会回滚事务，如下
+
+```java
+    public void transfer(String out, String in, Double money) throws IOException {
+        try {
+            accountDao.outMoney(out, money);
+            //int i = 1 / 0;  //这个异常事务会回滚
+            if (true) {
+                throw new IOException();  //这个异常事务就不会回滚
+            }
+            accountDao.inMoney(in, money);
+        } finally {
+            logService.log(out, in, money);
+        }
+    }
+```
+
+出现这个问题的原因是，Spring的事务只会对**Error异常**和**RuntimeException异常及其子类**进行事务回滚，其他的异常类型是不会回滚
+
+的，对应IOException不符合上述条件所以不回滚
+
+
+
+#### 案例：转账业务追加日志案例
+
+介绍完上述属性后，还有最后一个事务的传播行为，为了讲解该属性的设置，我们需要完成下面的案例。
+
+```bash
+# 需求
+需求：实现任意两个账户间转账操作，并对每次转账操作在数据库进行留痕
+需求微缩：A账户减钱，B账户加钱，数据库记录日志
+
+# 分析
+①：基于转账操作案例添加日志模块，实现数据库中记录日志
+②：业务层转账操作（transfer），调用减钱、加钱与记录日志功能
+
+# 实现预期效果
+无论转账操作是否成功，均进行转账操作的日志留痕
+```
+
+
+
+```bash
+步骤1:创建日志表
+步骤2:添加LogDao接口
+步骤3:添加LogService接口与实现类
+步骤4:在转账的业务中添加记录日志
+```
+
+4
+
+```java
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AccountDao accountDao;
+
+    @Autowired
+    private LogService logService;
+
+    public void transfer(String out, String in, Double money) throws IOException {
+        try {
+            accountDao.outMoney(out, money);
+            //int i = 1 / 0;  //这个异常事务会回滚
+            //if (true) {
+            //    throw new IOException();  //这个异常事务就不会回滚
+            //}
+            accountDao.inMoney(in, money);
+        } finally {
+            logService.log(out, in, money);
+        }
+    }
+
+}
+```
+
+结果：
+
+- 当程序正常运行，tbl_account表中转账成功，tbl_log表中日志记录成功
+
+- 当转账业务之间出现异常(int i =1/0),转账失败，tbl_account成功回滚，但是tbl_log表未添加数据
+
+
+
+存在问题：日志的记录与转账操作隶属同一个事务，同成功同失败
+
+实现效果预期改进：无论转账操作是否成功，日志必须保留
+
+
+
+#### 事务传播行为
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428212625610.png)
+
+
+
+```bash
+# 分析
+log方法、inMoney方法和outMoney方法都属于增删改，分别有事务T1,T2,T3
+transfer因为加了@Transactional注解，也开启了事务T
+前面我们讲过Spring事务会把T1,T2,T3都加入到事务T中
+所以当转账失败后，所有的事务都回滚，导致日志没有记录下来
+这和我们的需求不符，这个时候我们就想能不能让log方法单独是一个事务呢?
+
+# 要想解决这个问题，就需要用到事务传播行为
+```
+
+事务传播行为：事务协调员对事务管理员所携带事务的处理态度。
+
+具体如何解决，就需要用到之前我们没有说的propagation属性。
+
+
+
+##### 设置传播行为解决问题
+
+```java
+// 修改logService改变事务的传播行为
+
+@Service
+public class LogServiceImpl implements LogService {
+
+    @Autowired
+    private LogDao logDao;
+
+    //propagation设置事务属性：传播行为设置为当前操作需要新事务
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void log(String out,String in,Double money ) {
+        logDao.log("转账操作由"+out+"到"+in+",金额："+money);
+    }
+}
+```
+
+运行后，就能实现我们想要的结果，不管转账是否成功，都会记录日志。
+
+##### 事务传播行为的可选值
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428212955492.png)
+
+
+
+对于我们开发实际中使用的话，因为默认值需要事务是常态的。根据开发过程选择其他的就可以了，例如案例中需要新事务就需要手工配
+
+置。
+
+其实入账和出账操作上也有事务，采用的就是默认值。
+
+<br>
+
+老版比较乱，是层层深入；新版注重总结，易理解
 
 
 
@@ -2985,7 +3268,7 @@ public class AccountServiceTest {
 
 
 
-老版比较乱，是层层深入；新版注重总结，易理解
+
 
 
 

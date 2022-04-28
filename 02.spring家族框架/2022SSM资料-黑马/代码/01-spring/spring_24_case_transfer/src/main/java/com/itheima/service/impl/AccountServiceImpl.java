@@ -13,7 +13,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private AccountDao accountDao;
-
+    //@Transactional
     public void transfer(String out,String in ,Double money) {
         accountDao.outMoney(out,money);
         int i = 1/0;
