@@ -175,7 +175,7 @@ Spring全家桶中的地位：其它所有的技术都是依赖它执行的，�
 
 Spring Framework的5版本目前没有最新的架构图，而最新的是4版本，所以接下来主要研究的是4的架构图
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517.png?w=550)
 
 
 
@@ -2861,6 +2861,81 @@ insert into tbl_account values(2,'Jerry',1000); 1
 
 
 3
+
+```java
+public class Account implements Serializable {
+
+    private Integer id;
+    private String name;
+    private Double money;
+  	//setter...getter...toString...方法略
+}
+```
+
+4
+
+```java
+public interface AccountDao {
+
+    @Update("update tbl_account set money = money + #{money} where name = #{name}")
+    void inMoney(@Param("name") String name, @Param("money") Double money);
+
+    @Update("update tbl_account set money = money - #{money} where name = #{name}")
+    void outMoney(@Param("name") String name, @Param("money") Double money);
+}
+```
+
+5
+
+```java
+public interface AccountService {
+    /**
+     * 转账操作
+     * @param out 传出方
+     * @param in 转入方
+     * @param money 金额
+     */
+    //配置当前接口方法具有事务
+    @Transactional
+    public void transfer(String out,String in ,Double money) ;
+}
+
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AccountDao accountDao;
+
+    public void transfer(String out,String in ,Double money) {
+        accountDao.outMoney(out,money);
+        int i = 1/0;
+        accountDao.inMoney(in,money);
+    }
+
+}
+```
+
+10
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SpringConfig.class)
+public class AccountServiceTest {
+
+    @Autowired
+    private AccountService accountService;
+
+    @Test
+    public void testTransfer() throws IOException {
+        accountService.transfer("Tom","Jerry",100D);
+    }
+
+}
+```
+
+
+
+
 
 
 
