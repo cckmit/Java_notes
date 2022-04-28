@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 
 //@Configuration
 public class JdbcConfig {
-    //1.定义一个方法获得要管理的对象
+
     @Value("com.mysql.jdbc.Driver")
     private String driver;
     @Value("jdbc:mysql://localhost:3306/spring_db")
@@ -19,6 +19,7 @@ public class JdbcConfig {
     private String userName;
     @Value("root")
     private String password;
+    //1.定义一个方法获得要管理的对象
     //2.添加@Bean，表示当前方法的返回值是一个bean
     //@Bean修饰的方法，形参根据类型自动装配
     @Bean

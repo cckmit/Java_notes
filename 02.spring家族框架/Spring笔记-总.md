@@ -175,7 +175,7 @@ Spring全家桶中的地位：其它所有的技术都是依赖它执行的，�
 
 Spring Framework的5版本目前没有最新的架构图，而最新的是4版本，所以接下来主要研究的是4的架构图
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517.png?w=600)
 
 
 
@@ -1762,11 +1762,145 @@ public class BookDaoImpl implements BookDao {
 
 ## 12 IOC/DI 注解开发管理第三方bean
 
+### 第三方bean管理 @Bean
+
+```bash
+# 前面定义bean的时候都是在自己开发的类上面写个注解就完成了，但如果是第三方的类，这些类都是在jar包中，我们没有办法在类上面添加注解，这个时候该怎么办?
+遇到上述问题，我们就需要有一种更加灵活的方式来定义bean,这种方式不能在原始代码上面书写注解，一样能定义bean。
+这就用到了一个全新的注解@Bean。
+
+```
+
+
+
+- 使用独立的配置类管理第三方bean
+
+```java
+public class JdbcConfig {
+    
+    @Value("com.mysql.jdbc.Driver")
+    private String driver;
+    @Value("jdbc:mysql://localhost:3306/spring_db")
+    private String url;
+    @Value("root")
+    private String userName;
+    @Value("root")
+    private String password;
+    //1.定义一个方法获得要管理的对象
+    //2.添加@Bean，表示当前方法的返回值是一个bean
+    //@Bean修饰的方法，形参根据类型自动装配
+    @Bean
+    public DataSource dataSource(BookDao bookDao){
+        System.out.println(bookDao);
+        DruidDataSource ds = new DruidDataSource();
+        ds.setDriverClassName(driver);
+        ds.setUrl(url);
+        ds.setUsername(userName);
+        ds.setPassword(password);
+        return ds;
+    }
+}
+```
+
+
+
+- 将独立的配置类加入核心注解
+
+使用@Import注解手动加入配置类到核心配置，次注解只能添加一次，多个数据请用数组格式
+
+```java
+@Configuration
+//@Import:导入配置信息
+@Import({JdbcConfig.class})
+public class SpringConfig {
+}
+```
+
+
+
+### 第三方bean依赖注入
+
+在使用@Bean创建bean对象的时候，如果方法在创建的过程中需要其他资源该怎么办?
+
+这些资源会有两大类，分别是简单数据类型 和引用数据类型。
+
+<br>
+
+#### 简单数据类型 @Value
+
+```java
+public class JdbcConfig {
+
+    @Value("com.mysql.jdbc.Driver")
+    private String driver;
+    @Value("jdbc:mysql://localhost:3306/spring_db")
+    private String url;
+    @Value("root")
+    private String userName;
+    @Value("root")
+    private String password;
+    //1.定义一个方法获得要管理的对象
+    //2.添加@Bean，表示当前方法的返回值是一个bean
+    //@Bean修饰的方法，形参根据类型自动装配
+    @Bean
+    public DataSource dataSource(BookDao bookDao){
+        System.out.println(bookDao);
+        DruidDataSource ds = new DruidDataSource();
+        ds.setDriverClassName(driver);
+        ds.setUrl(url);
+        ds.setUsername(userName);
+        ds.setPassword(password);
+        return ds;
+    }
+}
+```
+
+
+
+#### 引用数据类型
+
+假设在构建DataSource对象的时候，需要用到BookDao对象，该如何把BookDao对象注入进方法内让其使用呢?
+
+引用类型注入只需要为bean定义方法设置形参即可，容器会根据类型自动装配对象。
+
+
+
+- 在SpringConfig中扫描BookDao
+
+扫描的目的是让Spring能管理到BookDao,也就是说要让IOC容器中有一个bookDao对象
+
+```java
+@Configuration
+@ComponentScan("com.itheima")
+//@Import:导入配置信息
+@Import({JdbcConfig.class})
+public class SpringConfig {
+}
+```
+
+
+
+- 在JdbcConfig类的方法上添加参数
+
+```java
+@Bean
+public DataSource dataSource(BookDao bookDao){
+    System.out.println(bookDao);
+    DruidDataSource ds = new DruidDataSource();
+    // 属性设置
+    return ds;
+}
+```
+
 
 
 
 
 ## 13 注解开发总结
+
+前面我们已经完成了XML配置和注解的开发实现，至于两者之间的差异，咱们放在一块去对比回顾下:
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428104751964.png)
 
 
 
@@ -1774,11 +1908,38 @@ public class BookDaoImpl implements BookDao {
 
 # 五、Spring整合
 
+Spring有一个容器，叫做IoC容器，里面保存bean。
+
+在进行企业级开发的时候，其实除了将自己写的类让Spring管理之外，还有一部分重要的工作就是使用第三方的技术。
+
+前面已经讲了如何管理第三方bean了，下面结合IoC和DI，整合2个常用技术，进一步加深对Spring的使用理解。
 
 
-## 14 整合Mybatis思路分析
+
+## 14 整合Mybatis
+
+### 环境准备
+
+```bash
+步骤1:准备数据库表
+步骤2:创建项目导入jar包
+步骤3:根据表创建模型类
+步骤4:创建Dao接口
+步骤5:创建Service接口和实现类
+步骤6:添加jdbc.properties文件
+- resources目录下添加，用于配置数据库连接四要素
+步骤7:添加Mybatis核心配置文件
+步骤8:编写应用程序
+步骤9:运行程序
+```
+
+### 整合思路分析
+
+- Mybatis程序核心对象分析
 
 Mybatis的基础环境我们已经准备好了，接下来就得分析下在上述的内容中，哪些对象可以交给Spring来管理?
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428105438641.png)
 
 
 
@@ -1786,11 +1947,32 @@ Mybatis的基础环境我们已经准备好了，接下来就得分析下在上�
 从图中可以获取到，真正需要交给Spring管理的是SqlSessionFactory
 ```
 
+- 整合Mybatis，就是将Mybatis用到的内容交给Spring管理，分析下配置文件
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428105615814.png)
+
+
+
+```bash
+第一行读取外部properties配置文件，Spring有提供具体的解决方案@PropertySource ,需要交给Spring
+
+第二行起别名包扫描，为SqlSessionFactory服务的，需要交给Spring
+
+第三行主要用于做连接池，Spring之前我们已经整合了Druid连接池，这块也需要交给Spring
+
+前面三行一起都是为了创建SqlSession对象用的，那么用Spring管理SqlSession对象吗?
+回忆下SqlSession是由SqlSessionFactory创建出来的，所以只需要将SqlSessionFactory交给Spring管理即可。
+
+第四行是Mapper接口和映射文件[如果使用注解就没有该映射文件]，这个是在获取到SqlSession以后执行具体操作的时候用，所以它和SqlSessionFactory创建的时机都不在同一个时间，可能需要单独管理。
+```
 
 
 
 
-## 15 整合Mybatis
+
+
+
+### 整合
 
 ```bash
 # 前面我们已经分析了Spring与Mybatis的整合，大体需要做两件事：
@@ -1805,19 +1987,19 @@ Mybatis的基础环境我们已经准备好了，接下来就得分析下在上�
 步骤1：项目中导入整合需要的jar包
 
 ```xml
-        <!--Spring操作数据库需要该jar包-->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>5.2.10.RELEASE</version>
-        </dependency>
+<!--Spring操作数据库需要该jar包-->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-jdbc</artifactId>
+    <version>5.2.10.RELEASE</version>
+</dependency>
 
-        <!--Spring与Mybatis整合的jar包 这个jar包mybatis在前面，是Mybatis提供的 -->
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis-spring</artifactId>
-            <version>1.3.0</version>
-        </dependency>
+<!--Spring与Mybatis整合的jar包 这个jar包mybatis在前面，是Mybatis提供的 -->
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis-spring</artifactId>
+    <version>1.3.0</version>
+</dependency>
 ```
 
 步骤2：创建Spring的主配置类
@@ -1836,23 +2018,169 @@ public class SpringConfig {
 在配置类中完成数据源的创建
 
 ```java
+public class JdbcConfig {
+    @Value("${jdbc.driver}")
+    private String driver;
+    @Value("${jdbc.url}")
+    private String url;
+    @Value("${jdbc.username}")
+    private String userName;
+    @Value("${jdbc.password}")
+    private String password;
+
+    @Bean
+    public DataSource dataSource(){
+        DruidDataSource ds = new DruidDataSource();
+        ds.setDriverClassName(driver);
+        ds.setUrl(url);
+        ds.setUsername(userName);
+        ds.setPassword(password);
+        return ds;
+    }
+}
+```
+
+步骤4：主配置类中读properties并引入数据源配置类
+
+```java
+@Configuration
+@ComponentScan("com.itheima")
+//@PropertySource：加载类路径jdbc.properties文件
+@PropertySource("classpath:jdbc.properties")
+@Import({JdbcConfig.class,MybatisConfig.class})
+public class SpringConfig {
+}
 ```
 
 
 
+步骤5：创建Mybatis配置类并配置SqlSessionFactory
+
+```java
+public class MybatisConfig {
+    //定义bean，SqlSessionFactoryBean，用于产生SqlSessionFactory对象
+    @Bean
+    public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource){
+        SqlSessionFactoryBean ssfb = new SqlSessionFactoryBean();
+        ssfb.setTypeAliasesPackage("com.itheima.domain");
+        ssfb.setDataSource(dataSource);
+        return ssfb;
+    }
+    //定义bean，返回MapperScannerConfigurer对象
+    @Bean
+    public MapperScannerConfigurer mapperScannerConfigurer(){
+        MapperScannerConfigurer msc = new MapperScannerConfigurer();
+        msc.setBasePackage("com.itheima.dao");
+        return msc;
+    }
+}
+```
+
+使用SqlSessionFactoryBean封装SqlSessionFactory需要的环境信息
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428110457465.png)
+
+使用MapperScannerConfigurer加载Dao接口，创建代理对象保存到IOC容器中
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428110521945.png)
 
 
 
+步骤6：主配置类中引入Mybatis配置类
+
+```java
+@Import({JdbcConfig.class,MybatisConfig.class})
+public class SpringConfig {
+}
+```
+
+步骤7：编写运行类
+
+在运行类中，从IOC容器中获取Service对象，调用方法获取结果
+
+```bash
+支持Spring与Mybatis的整合就已经完成了，其中主要用到的两个类分别是:
+- SqlSessionFactoryBean
+- MapperScannerConfigurer
+```
 
 
 
-## 16 整合Junit
+## 15 整合Junit
+
+整合Junit与整合Druid和MyBatis差异比较大，为什么呢？
+
+Junit是一个搞单元测试用的工具，它不是我们程序的主体，也不会参加最终程序的运行，从作用上来说就和之前的东西不一样，它不是做
+
+功能的，看做是一个辅助工具就可以了。
+
+```bash
+步骤1:引入依赖
+步骤2:编写测试类
+在test\java下创建一个AccountServiceTest,这个名字任意
+```
+
+1
+
+```xml
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.12</version>
+    <scope>test</scope>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-test</artifactId>
+    <version>5.2.10.RELEASE</version>
+</dependency>
+```
+
+2
+
+```java
+//设置类运行器
+@RunWith(SpringJUnit4ClassRunner.class)
+//设置Spring环境对应的配置类
+@ContextConfiguration(classes = SpringConfig.class)
+public class AccountServiceTest {
+    //支持自动装配注入bean
+    @Autowired
+    private AccountService accountService;
+
+    @Test
+    public void testFindById(){
+        System.out.println(accountService.findById(1));
+
+    }
+
+    @Test
+    public void testFindAll(){
+        System.out.println(accountService.findAll());
+    }
+
+
+}
+```
+
+Junit运行后是基于Spring环境运行的，所以Spring提供了一个专用的类运行器，这个务必要设置，这个类运行器就在Spring的测试专用包
+
+中提供的，导入的坐标就是这个东西SpringJUnit4ClassRunner
+
+上面两个配置都是固定格式，当需要测试哪个bean时，使用自动装配加载对应的对象，下面的工作就和以前做Junit单元测试完全一样了
 
 
 
+<br>
 
-
-
+```bash
+#  day03
+理解并掌握AOP相关概念
+能够说出AOP的工作流程
+能运用AOP相关知识完成对应的案例编写
+重点掌握Spring的声明式事务管理
+```
 
 
 
@@ -1866,9 +2194,186 @@ Spring有两个核心的概念，一个是IOC/DI，一个是AOP。
 
 对于下面的内容，我们主要就是围绕着这一句话进行展开学习
 
-## 17 AOP简介
+## 16 AOP简介
 
-## 18 AOP入门案例
+### 什么是AOP
+
+- AOP(Aspect Oriented Programming)面向切面编程，一种编程范式，指导开发者如何组织程序结构。
+  - OOP(Object Oriented Programming)面向对象编程
+
+我们都知道OOP是一种编程思想，那么AOP也是一种编程思想，编程思想主要的内容就是指导程序员该如何编写程序，所以它们两个是不
+
+同的编程范式。
+
+### AOP作用
+
+在不惊动原始设计的基础上为其进行功能增强，前面咱们有技术就可以实现这样的功能即代理模式。
+
+
+
+### AOP核心概念
+
+```bash
+# 这一节中主要讲解了AOP的概念与作用，以及AOP中的核心概念，学完以后大家需要能说出:
+什么是AOP?
+AOP的作用是什么?
+AOP中核心概念分别指的是什么?
+- 连接点
+- 切入点
+- 通知
+- 通知类
+- 切面
+```
+
+
+
+```java
+@Repository
+public class BookDaoImpl implements BookDao {
+
+    public void save() {
+        //记录程序当前执行执行（开始时间）
+        Long startTime = System.currentTimeMillis();
+        //业务执行万次
+        for (int i = 0;i<10000;i++) {
+            System.out.println("book dao save ...");
+        }
+        //记录程序当前执行时间（结束时间）
+        Long endTime = System.currentTimeMillis();
+        //计算时间差
+        Long totalTime = endTime-startTime;
+        //输出信息
+        System.out.println("执行万次消耗时间：" + totalTime + "ms");
+    }
+
+    public void update(){
+        System.out.println("book dao update ...");
+    }
+
+    public void delete(){
+        System.out.println("book dao delete ...");
+    }
+
+    public void select(){
+        System.out.println("book dao select ...");
+    }
+}
+```
+
+代码的内容相信大家都能够读懂，对于save方法中有计算万次执行消耗的时间。
+
+当在App类中从容器中获取bookDao对象后，分别执行其save , delete , update和select方法后会有如下的打印结果:
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428113123545.png)
+
+
+
+这个时候，我们就应该有些疑问?
+
+- 对于计算万次执行消耗的时间只有save方法有，为什么delete和update方法也会有呢?
+
+- delete和update方法有，那什么select方法为什么又没有呢?
+
+
+
+这个案例中其实就使用了Spring的AOP，在不惊动(改动)原有设计(代码)的前提下，想给谁添加功能就给谁添加。这也就是Spring的理念：
+
+- 无入侵式
+
+
+
+说了这么多，Spring到底是如何实现的呢?
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428112331678.png)
+
+
+
+（1）前面一直在强调，Spring的AOP是对一个类的方法在不进行任何修改的前提下实现增强。对于上面的案例中BookServiceImpl中有
+
+save , update , delete和select方法,这些方法我们给起了一个名字叫**连接点**
+
+（2）在BookServiceImpl的四个方法中，update和delete只有打印没有计算万次执行消耗时间，但是在运行的时候已经有该功能，那也
+
+就是说update和delete方法都已经被增强，所以对于需要增强的方法我们给起了一个名字叫**切入点**
+
+（3）执行BookServiceImpl的update和delete方法的时候都被添加了一个计算万次执行消耗时间的功能，将这个功能抽取到一个方法
+
+中，换句话说就是存放共性功能的方法，我们给起了个名字叫**通知**
+
+（4）通知是要增强的内容，会有多个，切入点是需要被增强的方法，也会有多个。那哪个切入点需要添加哪个通知，就需要提前将它们
+
+之间的关系描述清楚。那么对于通知和切入点之间的关系描述，我们给起了个名字叫**切面**
+
+（5）通知是一个方法，方法不能独立存在需要被写在一个类中，这个类我们也给起了个名字叫**通知类**
+
+
+
+```bash
+# 至此AOP中的核心概念就已经介绍完了，总结下:
+
+连接点(JoinPoint)：程序执行过程中的任意位置，粒度为执行方法、抛出异常、设置变量等
+- 在SpringAOP中，理解为方法的执行
+
+切入点(Pointcut):匹配连接点的式子
+- 在SpringAOP中，一个切入点可以描述一个具体方法，也可也匹配多个方法
+		- 一个具体的方法:如com.itheima.dao包下的BookDao接口中的无形参无返回值的save方法
+		- 匹配多个方法:所有的save方法，所有的get开头的方法，所有以Dao结尾的接口中的任意方法，所有带有一个参数的方法
+- 连接点范围要比切入点范围大，是切入点的方法也一定是连接点，但是是连接点的方法就不一定要被增强，所以可能不是切入点。
+
+通知(Advice):在切入点处执行的操作，也就是共性功能
+- 在SpringAOP中，功能最终以方法的形式呈现
+
+通知类：定义通知的类
+切面(Aspect):描述通知与切入点的对应关系。
+```
+
+
+
+
+
+## 17 AOP入门案例
+
+### 需求分析
+
+```bash
+案例设定：测算接口执行效率，但是这个案例稍微复杂了点，我们对其进行简化。
+简化设定：在方法执行前输出当前系统时间。
+
+对于SpringAOP的开发有两种方式，XML 和 注解，我们使用哪个呢?
+因为现在注解使用的比较多，所以本次课程就采用注解完成AOP的开发。
+
+总结需求为:使用SpringAOP的注解方式完成在方法执行的前打印出当前系统时间。
+```
+
+
+
+### 思路分析
+
+```bash
+1.导入坐标(pom.xml)
+2.制作连接点(原始操作，Dao接口与实现类)
+3.制作共性功能(通知类与通知)
+4.定义切入点
+5.绑定切入点与通知关系(切面)
+```
+
+
+
+### 环境准备
+
+
+
+
+
+
+
+### AOP实现
+
+
+
+
+
+
 
 
 
