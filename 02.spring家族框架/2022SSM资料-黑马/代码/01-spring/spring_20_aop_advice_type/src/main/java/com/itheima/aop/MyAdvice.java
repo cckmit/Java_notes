@@ -25,7 +25,7 @@ public class MyAdvice {
     }
 
     //@Around：环绕通知，在原始方法运行的前后执行
-//    @Around("pt()")
+    //@Around("pt()")
     public Object around(ProceedingJoinPoint pjp) throws Throwable {
         System.out.println("around before advice ...");
         //表示对原始操作的调用
@@ -34,7 +34,7 @@ public class MyAdvice {
         return ret;
     }
 
-//    @Around("pt2()")
+    @Around("pt2()")
     public Object aroundSelect(ProceedingJoinPoint pjp) throws Throwable {
         System.out.println("around before advice ...");
         //表示对原始操作的调用
@@ -50,7 +50,7 @@ public class MyAdvice {
     }
 
     //@AfterThrowing：抛出异常后通知，在原始方法执行过程中出现异常后运行
-    @AfterThrowing("pt2()")
+    //@AfterThrowing("pt2()")
     public void afterThrowing() {
         System.out.println("afterThrowing advice ...");
     }

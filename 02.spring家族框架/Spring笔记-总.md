@@ -2078,11 +2078,11 @@ public class MybatisConfig {
 
 使用SqlSessionFactoryBean封装SqlSessionFactory需要的环境信息
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428110457465.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428110457465.png?w=600)
 
 使用MapperScannerConfigurer加载Dao接口，创建代理对象保存到IOC容器中
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428110521945.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428110521945.png?w=600)
 
 
 
@@ -2184,7 +2184,7 @@ Junit运行后是基于Spring环境运行的，所以Spring提供了一个专用
 
 
 
-# 六、AOP
+# 六、AOP（代理模式）
 
 Spring有两个核心的概念，一个是IOC/DI，一个是AOP。
 
@@ -2218,11 +2218,11 @@ Spring有两个核心的概念，一个是IOC/DI，一个是AOP。
 什么是AOP?
 AOP的作用是什么?
 AOP中核心概念分别指的是什么?
-- 连接点
-- 切入点
-- 通知
-- 通知类
-- 切面
+- 连接点（原始方法）
+- 切入点Pointcut（哪些方法要追加功能）（匹配连接点的式子）
+- 通知Advice（存放共性功能的方法）
+- 通知类（通知方法所在的类）
+- 切面Aspect（通知和切入点之间的关系描述）
 ```
 
 
@@ -2355,11 +2355,511 @@ save , update , delete和select方法,这些方法我们给起了一个名字叫
 3.制作共性功能(通知类与通知)
 4.定义切入点
 5.绑定切入点与通知关系(切面)
+
+6.将通知类配给容器并标识其为切面类
+7.开启注解格式AOP功能
 ```
 
 
 
-### 环境准备
+### 环境准备和AOP实现
+
+1
+
+```bash
+因为spring-context中已经导入了spring-aop ,所以不需要再单独导入spring-aop
+
+导入AspectJ的jar包,AspectJ是AOP思想的一个具体实现，Spring有自己的AOP实现，但是相比于AspectJ来说比较麻烦，所以我们直接采用Spring整合ApsectJ的方式进行AOP开发。
+```
+
+
+
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>5.2.10.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.4</version>
+</dependency>
+```
+
+3
+
+```java
+public class MyAdvice {
+    public void method(){
+        System.out.println(System.currentTimeMillis());
+    }
+}
+```
+
+4
+
+```java
+//【核心概念2,切入点Pointcut（哪些方法要追加功能）（匹配连接点的式子）】
+//设置切入点，要求配置在方法上方
+@Pointcut("execution(void com.itheima.dao.BookDao.update())")
+private void pt(){}
+```
+
+5
+
+```java
+//通知类必须配置成Spring管理的bean
+@Component
+//设置当前类为切面类类
+@Aspect
+//【核心概念4,通知类（通知方法所在的类）】
+public class MyAdvice {
+    //【核心概念2,切入点Pointcut（哪些方法要追加功能）（匹配连接点的式子）】
+    //设置切入点，要求配置在方法上方
+    @Pointcut("execution(void com.itheima.dao.BookDao.update())")
+    private void pt(){}
+
+    //【核心概念5,切面Aspect（通知和切入点之间的关系描述）】
+    //设置在切入点pt()的前面运行当前操作（前置通知）
+    // @Before("pt()")
+
+    //【核心概念3,通知Advice（存放共性功能的方法）】
+    public void method(){
+        System.out.println(System.currentTimeMillis());
+    }
+}
+```
+
+
+
+
+
+6 将通知类配给容器并标识其为切面类
+
+- @Component
+
+- @Aspect
+
+```java
+//通知类必须配置成Spring管理的bean
+@Component
+//设置当前类为切面类类
+@Aspect
+//【核心概念4,通知类（通知方法所在的类）】
+public class MyAdvice {
+  ...
+}
+```
+
+
+
+7 开启注解格式AOP功能
+
+- @EnableAspectJAutoProxy
+
+```java
+@Configuration
+@ComponentScan("com.itheima")
+//开启注解开发AOP功能
+@EnableAspectJAutoProxy
+public class SpringConfig {
+}
+```
+
+
+
+
+
+### AOP工作流程
+
+由于AOP是基于Spring容器管理的bean做的增强，所以整个工作过程需要从Spring加载bean说起：
+
+```bash
+# 流程1:Spring容器启动
+容器启动就需要去加载bean,哪些类需要被加载呢?
+需要被增强的类，如:BookServiceImpl
+通知类，如:MyAdvice
+注意此时bean对象还没有创建成功
+
+# 流程2:读取所有切面配置中的切入点
+上面这个例子中有两个切入点的配置，但是第一个ptx()并没有被使用，所以不会被读取。
+
+# 流程3:初始化bean，判定bean对应的类中的方法是否匹配到任意切入点
+- 注意第1步在容器启动的时候，bean对象还没有被创建成功。
+- 要被实例化bean对象的类中的方法和切入点进行匹配
+	- 匹配失败，创建原始对象,如UserDao
+		- 匹配失败说明不需要增强，直接调用原始对象的方法即可。
+	- 匹配成功，创建原始对象（目标对象）的代理对象,如: BookDao
+		- 匹配成功说明需要对其进行增强
+		- 对哪个类做增强，这个类对应的对象就叫做目标对象
+		- 因为要对目标对象进行功能增强，而采用的技术是动态代理，所以会为其创建一个代理对象
+		- 最终运行的是代理对象的方法，在该方法中会对原始方法进行功能增强
+
+# 流程4:获取bean执行方法
+获取的bean是原始对象时，调用方法并执行，完成操作
+获取的bean是代理对象时，根据代理对象的运行模式运行原始方法与增强的内容，完成操作
+
+# 验证容器中是否为代理对象
+为了验证IOC容器中创建的对象和我们刚才所说的结论是否一致，首先先把结论理出来：
+
+如果目标对象中的方法会被增强，那么容器中将存入的是目标对象的代理对象
+如果目标对象中的方法不被增强，那么容器中将存入的是目标对象本身。
+```
+
+通过这一节中，我们需要掌握的内容有：
+
+```bash
+能说出AOP的工作流程
+AOP的核心概念
+- 目标对象、连接点、切入点
+- 通知类、通知
+- 切面
+- 代理
+SpringAOP的本质或者可以说底层实现是通过代理模式。
+```
+
+
+
+
+
+### AOP配置管理
+
+#### AOP切入点表达式
+
+对于AOP中切入点表达式，我们总共会学习三个内容，分别是语法格式、通配符和书写技巧。
+
+##### 语法格式
+
+切入点：要进行增强的方法
+
+切入点表达式：要进行增强的方法的描述方式
+
+```java
+execution(public User com.itheima.service.UserService.findById(int))
+```
+
+切入点表达式就是要找到需要增强的方法，所以它就是对一个具体方法的描述，但是方法的定义会有很多，所以如果每一个方法对应一个
+
+切入点表达式，想想这块就会觉得将来编写起来会比较麻烦，有没有更简单的方式呢?
+
+就需要用到下面所学习的通配符。
+
+##### 通配符
+
+```java
+// * 单个独立的任意符号，可以独立出现，也可以作为前缀或者后缀的匹配符出现
+execution（public * com.itheima.*.UserService.find*(*))
+匹配com.itheima包下的任意包中的UserService类或接口中所有find开头的带有一个参数的方法
+
+// .. 多个连续的任意符号，可以独立出现，常用于简化包名与参数的书写
+execution（public User com..UserService.findById(..))
+
+// 符合我们平常切入点表达式的编写规则  
+execution(* com.itheima.*.*Service.find*(..)) 
+将项目中所有业务层方法的以find开头的方法匹配 
+execution(* com.itheima.*.*Service.save*(..)) 
+将项目中所有业务层方法的以save开头的方法匹配  
+```
+
+##### 书写技巧✍🏻
+
+```bash
+所有代码按照标准规范开发，否则以下技巧全部失效
+描述切入点通 【常描述接口】，而不描述实现类,如果描述到实现类，就出现紧耦合了
+访问控制修饰符针对接口开发均采用public描述（【可省略访问控制修饰符描述】）
+返回值类型对于增删改类使用精准类型加速匹配，对于查询类使用*通配快速描述
+
+包名书写【尽量不使用..匹配】，效率过低，常用*做单个包描述匹配，或精准匹配
+接口名/类名书写名称与模块相关的【采用*匹配】，例如UserService书写成*Service，绑定业务层接口名
+方法名书写【以动词进行精准匹配】，名词采用匹配，例如getById书写成getBy,selectAll书写成selectAll
+参数规则较为复杂，根据业务方法灵活调整
+通常不使用异常作为匹配规则
+```
+
+
+
+#### AOP通知类型
+
+AOP通知描述了抽取的共性功能，根据共性功能抽取的位置不同，最终运行代码时要将其加入到合理的位置
+
+通知具体要添加到切入点的哪里？共提供了5种通知类型：
+
+- 前置通知
+- 后置通知
+- 环绕通知 [ 重点 ]
+- 返回后通知(了解)
+- 抛出异常后通知(了解)
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428164457435.png)
+
+
+
+```bash
+(1)前置通知，追加功能到方法执行前,类似于在代码1或者代码2添加内容
+(2)后置通知,追加功能到方法执行后,不管方法执行的过程中有没有抛出异常都会执行，类似于在代码5添加内容
+(3)返回后通知,追加功能到方法执行后，只有方法正常执行结束后才进行。
+类似于在代码3添加内容，如果方法执行抛出异常，返回后通知将不会被添加
+(4)抛出异常后通知,追加功能到方法抛出异常后，只有方法执行出异常才进行,类似于在代码4添加内容，只有方法抛出异常后才会被添加
+
+(5)环绕通知,环绕通知功能比较强大，它可以追加功能到方法执行的前后，这也是比较常用的方式。
+它可以实现其他四种通知类型的功能，具体是如何实现的，需要我们往下学习。
+```
+
+
+
+```java
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(void com.itheima.dao.BookDao.update())")
+    private void pt(){}
+    @Pointcut("execution(int com.itheima.dao.BookDao.select())")
+    private void pt2(){}
+
+    //@Before：前置通知，在原始方法运行之前执行
+//    @Before("pt()")
+    public void before() {
+        System.out.println("before advice ...");
+    }
+
+    //@After：后置通知，在原始方法运行之后执行
+//    @After("pt2()")
+    public void after() {
+        System.out.println("after advice ...");
+    }
+
+    //@Around：环绕通知，在原始方法运行的前后执行
+    //@Around("pt()")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+        System.out.println("around before advice ...");
+        //表示对原始操作的调用
+        Object ret = pjp.proceed();
+        System.out.println("around after advice ...");
+        return ret;
+    }
+
+    @Around("pt2()")
+    public Object aroundSelect(ProceedingJoinPoint pjp) throws Throwable {
+        System.out.println("around before advice ...");
+        //表示对原始操作的调用
+        Integer ret = (Integer) pjp.proceed();
+        System.out.println("around after advice ...");
+        return ret;
+    }
+
+    //@AfterReturning：返回后通知，在原始方法执行完毕后运行，且原始方法执行过程中未出现异常现象
+//    @AfterReturning("pt2()")
+    public void afterReturning() {
+        System.out.println("afterReturning advice ...");
+    }
+
+    //@AfterThrowing：抛出异常后通知，在原始方法执行过程中出现异常后运行
+    //@AfterThrowing("pt2()")
+    public void afterThrowing() {
+        System.out.println("afterThrowing advice ...");
+    }
+}
+```
+
+
+
+重点是环绕通知
+
+```java
+    //@Around：环绕通知，在原始方法运行的前后执行
+    //@Around("pt()")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+        System.out.println("around before advice ...");
+        //表示对原始操作的调用
+        Object ret = pjp.proceed();
+        System.out.println("around after advice ...");
+        return ret;
+    }
+```
+
+<br>
+
+环绕通知注意事项
+
+```bash
+1. 环绕通知必须依赖形参ProceedingJoinPoint才能实现对原始方法的调用，进而实现原始方法调用前后同时添加通知
+2. 通知中如果未使用ProceedingJoinPoint对原始方法进行调用将跳过原始方法的执行
+3. 对原始方法的调用可以不接收返回值，通知方法设置成void即可，如果接收返回值，最好设定为Object类型
+4. 原始方法的返回值如果是void类型，通知方法的返回值类型可以设置成void,也可以设置成Object
+5. 由于无法预知原始方法运行后是否会抛出异常，因此环绕通知方法必须要处理Throwable异常
+```
+
+
+
+
+
+### AOP总结
+
+```bash
+# AOP的核心概念
+
+# 切入点表达式
+
+# 五种通知类型
+
+# 通知中获取参数
+```
+
+
+
+## 18 AOP事务管理
+
+
+
+### 18.1 Spring事务简介
+
+事务作用：在数据层保障一系列的数据库操作同成功同失败
+
+Spring事务作用：在数据层或**业务层**保障一系列的数据库操作同成功同失败
+
+```bash
+# 数据层有事务我们可以理解，为什么业务层也需要处理事务呢?
+# 举个简单的例子，
+转账业务会有两次数据层的调用，一次是加钱一次是减钱
+把事务放在数据层，加钱和减钱就有两个事务
+没办法保证加钱和减钱同时成功或者同时失败
+这个时候就需要将事务放在业务层进行处理。
+```
+
+Spring为了管理事务，提供了一个平台事务管理器PlatformTransactionManager
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428171002519.png)
+
+commit是用来提交事务，rollback是用来回滚事务。
+
+PlatformTransactionManager只是一个接口，Spring还为其提供了一个具体的实现：
+
+```java
+public class DataSourceTransactionManager{
+  ...
+}
+```
+
+从名称上可以看出，我们只需要给它一个DataSource对象，它就可以帮你去在业务层管理事务。
+
+其内部采用的是JDBC的事务。
+
+所以说如果你持久层采用的是JDBC相关的技术，就可以采用这个事务管理器来管理你的事务。
+
+而Mybatis内部采用的就是JDBC的事务，所以后期我们Spring整合Mybatis就采用的这个DataSourceTransactionManager事务管理器。
+
+
+
+<hr>
+
+
+
+#### 转账案例-需求分析
+
+接下来通过一个案例来学习下Spring是如何来管理事务的。
+
+```bash
+需求: 实现任意两个账户间转账操作
+需求微缩: A账户减钱，B账户加钱
+
+# 为了实现上述的业务需求，我们可以按照下面步骤来实现下: 
+①：数据层提供基础操作，指定账户减钱（outMoney），指定账户加钱（inMoney）
+②：业务层提供转账操作（transfer），调用减钱与加钱的操作
+③：提供2个账号和操作金额执行转账操作
+④：基于Spring整合MyBatis环境搭建上述操作
+```
+
+
+
+#### 转账案例-环境搭建
+
+```bash
+1.准备数据库表
+2.创建项目导入jar包
+3.根据表创建模型类
+4.创建Dao接口
+5.创建Service接口和实现类
+6.添加jdbc.properties文件
+7.创建JdbcConfig配置类
+8.创建MybatisConfig配置类
+9.创建SpringConfig配置类
+10.编写测试类
+```
+
+1
+
+```sql
+create database spring_db character set utf8; 
+use spring_db; 
+
+create table tbl_account( 
+  	id int primary key auto_increment, 
+  	name varchar(35), 
+  	money double 
+);
+
+insert into tbl_account values(1,'Tom',1000); 
+insert into tbl_account values(2,'Jerry',1000); 1
+```
+
+2
+
+```xml
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.2.10.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.16</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.2.10.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>5.2.10.RELEASE</version>
+        </dependency>
+```
+
+
+
+3
 
 
 
@@ -2367,7 +2867,17 @@ save , update , delete和select方法,这些方法我们给起了一个名字叫
 
 
 
-### AOP实现
+### 事务管理
+
+上述环境，运行单元测试类，会执行转账操作，Tom的账户会减少100，Jerry的账户会加100。
+
+这是正常情况下的运行结果，但是如果在转账的过程中出现了异常，如：
+
+
+
+
+
+### 18.2 Spring事务角色
 
 
 
@@ -2379,7 +2889,23 @@ save , update , delete和select方法,这些方法我们给起了一个名字叫
 
 
 
+### 18.3 Spring事务属性
 
+#### 事务配置
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428171708917.png)
+
+上面这些属性都可以在@Transactional注解的参数上进行设置。
+
+
+
+
+
+
+
+
+
+<hr>
 
 
 
