@@ -2369,7 +2369,8 @@ save , update , delete和select方法,这些方法我们给起了一个名字叫
 ```bash
 因为spring-context中已经导入了spring-aop ,所以不需要再单独导入spring-aop
 
-导入AspectJ的jar包,AspectJ是AOP思想的一个具体实现，Spring有自己的AOP实现，但是相比于AspectJ来说比较麻烦，所以我们直接采用Spring整合ApsectJ的方式进行AOP开发。
+导入AspectJ的jar包,AspectJ是AOP思想的一个具体实现，Spring有自己的AOP实现，但是相比于AspectJ来说比较麻烦。
+所以我们直接采用Spring整合ApsectJ的方式进行AOP开发。
 ```
 
 

@@ -1,4 +1,4 @@
-## 面试准备
+# 面试准备
 
 
 
@@ -8,60 +8,100 @@
 
 
 
-## 笔记总结
+# 笔记总结
 
-### 一、Java基础
+## 一、Java基础
 
-
-
-
-### 二、spring家族框架
-
-
-
-### 三、分布式&微服务
-
-
-
-
-
-### 四、数据结构与算法
-
-leetcode中文官网：https://leetcode-cn.com/problemset/all/
-
-刷题的3个地方：
-- vscode上刷题
-- Idea上刷题
-- leetcode中文官网上刷题
-
-推荐的资料：
-- labuladong：刷题三件套共包含《labuladong 的算法秘籍》和《labuladong 的刷题笔记》这两本 PDF 以及 labuladong 的 辅助刷题插件
-
-> 算法秘籍.pdf：教材
-> 刷题笔记.pdf：练习册
-> 插件：刷题工具
-
-注：参考Github上开源项目的`Readme.md`
-
-
-
-### 五、环境配置
-
-
-
-### 六、前端基础
+```bash
+# 尚硅谷宋红康课程目录
+1.概述
+2.Java基本语法
+3.数组
+4.面向对象（上）
+5.面向对象（中）
+6.面向对象（下）
+7.异常处理
+8.多线程
+9.Java常用类
+10.枚举类与注解
+11.Java集合
+12.泛型
+13.IO流
+14.网络编程
+15.Java反射机制
+16.Java8的其它特性
+17.Java9&Java10&Java11新特性
+```
 
 
 
 
 
-### 七、项目一mall
+
+
+## 二、spring家族框架
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517-20220428201029236.png)
 
 
 
 
 
-### 八、数据库
+## 三、分布式&微服务
+
+
+
+
+
+## 四、数据结构与算法
+
+[leetcode 官网](https://leetcode-cn.com/problemset/all/)
+
+
+
+```bash
+# 刷题工具推荐
+Idea
+vscode
+leetcode官网
+```
+
+<br>
+
+```bash
+# 推荐资料
+在线网站：labuladong的算法小抄
+刷题三件套
+- 算法秘籍PDF[ 教材 ]
+- 刷题笔记PDF[ 练习 ]
+- 刷题插件[ 刷题工具 ]
+```
+
+[labuladong 的算法小抄](https://labuladong.gitee.io/algo/)
+
+
+
+
+
+## 五、环境配置
+
+
+
+## 六、前端基础
+
+
+
+
+
+## 七、项目一mall
+
+
+
+
+
+## 八、数据库
 
 > MySQL、Jdbc
 
@@ -71,7 +111,7 @@ leetcode中文官网：https://leetcode-cn.com/problemset/all/
 
 
 
-### 十一、项目二litemall（进行中）
+## 十一、项目二litemall（进行中）
 
 > 完整资料备份至阿里云盘。
 
@@ -83,17 +123,21 @@ leetcode中文官网：https://leetcode-cn.com/problemset/all/
 
 
 
-### 十二、项目三pinda_authority
+## 十二、项目三pinda_authority
+
+
+
+## 十三、
 
 
 
 
 
-## 优秀文章记录
+# 优秀文章记录
 
 
 
-
+[如何用Elasticsearch实现Word、PDF，TXT文件的全文内容检索？](https://mp.weixin.qq.com/s/aLD-rbJCXWK8K2aJWj-DYA)
 
 
 
