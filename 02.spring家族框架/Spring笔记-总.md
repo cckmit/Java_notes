@@ -3057,7 +3057,7 @@ public class SpringConfig {
 
 1. 未开启Spring事务之前:
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428210101786.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428210101786.png?w=550)
 
 ```bash
 AccountDao的outMoney因为是修改操作，会开启一个事务T1
@@ -3246,7 +3246,7 @@ public class LogServiceImpl implements LogService {
 
 ##### 事务传播行为的可选值
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428212955492.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220428212955492.png?w=550)
 
 
 
