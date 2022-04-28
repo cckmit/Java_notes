@@ -43,7 +43,7 @@
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517-20220428201029236.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517-20220428201029236.png?w=550)
 
 
 
