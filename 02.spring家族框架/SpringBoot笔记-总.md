@@ -438,15 +438,16 @@ class Springboot07JunitApplicationTests {
 
 ### 4.2 整合Mybatis
 
-> 核心配置：数据库连接相关信息（连什么？连谁？什么权限）
->
-> 映射配置：SQL映射（XML/注解）
-
 ```bash
-（1）导入MyBatis对应的starter
-（2）设置数据源参数
-（3）定义数据层接口与映射配置
-（4）测试类中注入dao接口，测试功能
+# 思考🤔
+核心配置：数据库连接相关信息（连什么？连谁？什么权限）
+映射配置：SQL映射（XML/注解）
+
+# 整合步骤
+1.导入MyBatis对应的starter
+2.设置数据源参数
+3.定义数据层接口与映射配置
+4.测试类中注入dao接口，测试功能
 ```
 
 
@@ -521,14 +522,21 @@ class Springboot08MybatisApplicationTests {
 
 ### 4.3 整合Mybatis-Plus
 
-> MyBatis-Plus与MyBatis区别
->
-> - 导入坐标不同
-> - 数据层实现简化
+```bash
+# MyBatis-Plus与MyBatis区别
+- 导入坐标不同
+- 数据层实现简化
+
+# 整合步骤
+1.手动添加SpringBoot整合MyBatis-Plus的坐标，可以通过mvn repository获取
+- 由于SpringBoot中未收录MyBatis-Plus的坐标版本，需要指定对应的Version
+2.定义数据层接口与映射配置，继承 BaseMapper
+3.其他同SpringBoot整合MyBatis
+```
 
 
 
-> ①：手动添加SpringBoot整合MyBatis-Plus的坐标，可以通过mvn repository获取
+> ① 添加坐标👈🏻
 
 ```xml
 <dependency> 
@@ -538,17 +546,16 @@ class Springboot08MybatisApplicationTests {
 </dependency>
 ```
 
-> 由于SpringBoot中未收录MyBatis-Plus的坐标版本，需要指定对应的Version
 
 
-
-> ②：定义数据层接口与映射配置，继承**BaseMapper**
+> ② 定义数据层接口与映射配置，继承**BaseMapper**
 >
-> ③：其他同SpringBoot整合MyBatis
+> ③ 其他同SpringBoot整合MyBatis
 
 ```java
 @Mapper
 public interface UserDao extends BaseMapper<User> {
+  
 }
 ```
 
@@ -556,7 +563,17 @@ public interface UserDao extends BaseMapper<User> {
 
 ### 4.4 整合Druid
 
-> 指定数据源类型
+```bash
+# 整合步骤
+1. 指定数据源类型
+2. 导入Druid对应的starter
+
+# 可以变更Druid的配置方式
+```
+
+
+
+> ① 指定数据源类型
 
 ```yml
 spring:
@@ -570,7 +587,7 @@ spring:
 
 
 
-> 导入Druid对应的starter
+> ② 导入Druid对应的starter
 
 ```xml
 <dependency> 
@@ -584,10 +601,10 @@ spring:
 
 > 变更Druid的配置方式
 
-```yaml
+```yacas
 spring:
-	datasource:
-		druid:
+  datasource:
+    druid:
 			driver-class-name: com.mysql.cj.jdbc.Driver
 			url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
 			username: root
@@ -598,11 +615,10 @@ spring:
 
 ### 4.5 整合任意第三方技术
 
-> 导入对应的starter
->
-> 根据提供的配置格式，配置非默认值对应的配置项
-
-
+```bash
+导入对应的starter
+根据提供的配置格式，配置非默认值对应的配置项
+```
 
 
 
