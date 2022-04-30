@@ -764,7 +764,9 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 ```
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220303151011943.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220303151011943.png?w=600)
+
+
 
 ### 5.4 数据层开发分页功能
 
@@ -805,7 +807,7 @@ public class MPConfig {
 
 
 
-### 5.5 数据层开发条件查询功能
+### 5.5 数据层开发条件查询功能 QueryWrapper
 
 > 使用QueryWrapper对象封装查询条件，推荐使用LambdaQueryWrapper对象，所有查询操作封装成方法调用
 
@@ -836,7 +838,7 @@ void testGetByCondition2(){
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220303155351978.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220303155351978.png?w=600)
 
 
 
