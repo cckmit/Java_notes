@@ -76,7 +76,7 @@ SpringBoot 是由 Pivotal 团队提供的全新框架，其设计目的是用来
 
 
 
-### 1. 四种创建方式：
+## 1. 四种创建方式：
 
 > - 基于Idea创建SpringBoot工程
 > - 基于官网创建SpringBoot工程
@@ -85,7 +85,7 @@ SpringBoot 是由 Pivotal 团队提供的全新框架，其设计目的是用来
 
 
 
-#### 1.1基于IDEA
+### 1.1基于IDEA
 
 ①：创建新模块，选择Spring Initializr，并配置模块相关基础信息
 
@@ -118,14 +118,15 @@ public class BookController {
 
 ④：运行自动生成的Application类
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162921543.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162921543.png?w=600)
 
 
 
-> 最简SpringBoot程序所包含的基础文件：
->
-> - pom.xml文件
-> - Application类
+```bash
+# 最简SpringBoot程序所包含的基础文件：
+- pom.xml文件
+- Application类
+```
 
 
 
@@ -149,7 +150,7 @@ public class BookController {
 
 
 
-#### 1.2 基于官网：https://start.spring.io/
+### 1.2 基于官网：https://start.spring.io/
 
 - 打开SpringBoot官网，选择Quickstart Your Project
 - 创建工程，并保存项目
@@ -157,7 +158,7 @@ public class BookController {
 
 
 
-#### 1.3 基于阿里云：https://start.aliyun.com
+### 1.3 基于阿里云：https://start.aliyun.com
 
 > - 阿里云提供的坐标版本较低，如果需要使用高版本，进入工程后手工切换SpringBoot版本
 > - 阿里云提供的工程模板与Spring官网提供的工程模板略有不同
@@ -166,7 +167,7 @@ public class BookController {
 
 
 
-#### 1.4 手工创建Maven工程修改为SpringBoot工程
+### 1.4 手工创建Maven工程修改为SpringBoot工程
 
 > 1. 创建普通Maven工程
 > 2. 继承spring-boot-starter-parent
@@ -175,7 +176,7 @@ public class BookController {
 
 
 
-### 2. IDEA中隐藏指定文件/文件夹
+## 2. IDEA中隐藏指定文件/文件夹
 
 ```bash
 Setting → File Types → Ignored Files and Folders
@@ -185,11 +186,11 @@ Setting → File Types → Ignored Files and Folders
 
 
 
-### 3. 初步解析
+## 3. 初步解析
 
 
 
-#### 3.1 parent
+### 3.1 parent
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326183112429.png?w=600)
 
@@ -224,22 +225,22 @@ Setting → File Types → Ignored Files and Folders
 
 
 
-#### 3.2 starter
+### 3.2 starter
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302173752751.png?w=600)
 
 
 
-##### starter
+#### starter
 
 - SpringBoot中常见项目名称，定义了当前项目使用的所有依赖坐标，以达到减少依赖配置的目的
 
-##### parent（parent和stater主要解决配置问题！！！）
+#### parent（parent和stater主要解决配置问题！！！）
 
 - 所有SpringBoot项目要继承的项目，定义了若干个坐标版本号（依赖管理，而非依赖），以达到减少依赖冲突的目的
 - spring-boot-starter-parent各版本间存在着诸多坐标版本不同
 
-##### 实际开发
+#### 实际开发
 
 - 使用任意坐标时，仅书写GAV中的G和A，V由SpringBoot提供，除非SpringBoot未提供对应版本V
 - 如发生坐标错误，再指定Version（要小心版本冲突）
@@ -254,7 +255,7 @@ Setting → File Types → Ignored Files and Folders
 
 
 
-#### 3.3 引导类
+### 3.3 引导类
 
 ```java
 @SpringBootApplication
@@ -272,13 +273,13 @@ public class Springboot01QuickstartApplication {
 
 
 
-#### 3.4 内嵌tomcat
+### 3.4 内嵌tomcat
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326181954751.png?w=600)
 
 
 
-##### Jetty
+#### Jetty
 
 > 使用maven依赖管理变更起步依赖项
 
@@ -294,7 +295,7 @@ Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应
 
 
 
-##### 总结
+#### 总结
 
 > 1. 内嵌Tomcat服务器是SpringBoot辅助功能之一
 > 2. 内嵌Tomcat工作原理是将Tomcat服务器作为对象运行，并将该对象交给Spring容器管理
@@ -302,7 +303,7 @@ Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应
 
 
 
-### 4. 基础配置
+## 4. 基础配置
 
 SpringBoot默认配置文件`application.properties`，通过键值对配置对应属性。
 
