@@ -1838,21 +1838,21 @@ public class BookController {
 
 
 
-> PID：进程ID，用于表明当前操作所处的进程，当多服务同时记录日志时，该值可用于协助程序员调试程序
->
-> 所属类/接口名：当前显示信息为SpringBoot重写后的信息，名称过长时，简化包名书写为首字母，甚至直接删除
 
 
+```bash
+# 说明
+PID：进程ID，用于表明当前操作所处的进程，当多服务同时记录日志时，该值可用于协助程序员调试程序
 
-> 设置日志输出格式
->
-> %d：日期
->
-> %m：消息
->
-> %n：换行
+所属类/接口名：当前显示信息为SpringBoot重写后的信息，名称过长时，简化包名书写为首字母，甚至直接删除
 
+# 设置日志输出格式
+%d：日期
+%m：消息
+%n：换行
+```
 
+如
 
 ```yaml
 logging:
@@ -1866,37 +1866,25 @@ logging:
 
 
 
-### 9.3 日志文件
+### 9.3 日志文件设置
 
 
 
-> 设置日志文件&&日志文件详细配置
+#### 设置日志记录到文件&&日志文件详细配置
+
 ```yaml
 logging:
   file:
     name: server.log
   logback:
     rollingpolicy:
-      max-file-size: 3KB
-      file-name-pattern: server.%d{yyyy-MM-dd}.%i.log
+      max-file-size: 3KB  # 单文件最大值
+      file-name-pattern: server.%d{yyyy-MM-dd}.%i.log  # 文件名
 ```
-
-
-
-> 1. 日志记录到文件
-> 2. 日志文件格式设置
-
-
-
-> 1. 日志基础使用规则
-> 2. 编辑日志输出格式
-> 3. 日志文件设置
-
-
 
  
 
-## 三、实用篇之开发实用篇
+# 三、实用篇之开发实用篇
 
 > 能够基于SpringBoot整合任意第三方技术
 
@@ -2438,13 +2426,9 @@ DELETE	http://localhost:9200/books
 
 ## 14. 整合第三方技术
 
+### 14.1 缓存
 
-
-#### 14.1 缓存
-
-##### 缓存作用（数据库成为系统操作的瓶颈）&自定义缓存
-
-
+#### 缓存作用（数据库成为系统操作的瓶颈）&自定义缓存
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305230034516.png)
 
@@ -2457,7 +2441,7 @@ private HashMap<Integer,Book> cache = new HashMap<Integer,Book>();
 
 @Override
 public Book getById(Integer id) {
-    //如果当前缓存中没有本次要查询的数据，则进行查询，否则直接从缓存中获取数据返回
+    // 如果当前缓存中没有本次要查询的数据，则进行查询，否则直接从缓存中获取数据返回
     Book book = cache.get(id);
     if(book == null){
         book = bookDao.selectById(id);
@@ -2492,7 +2476,7 @@ public class MsgServiceImpl implements MsgService {
 
 
 
-##### springboot缓存
+#### springboot缓存（专业的做法）
 
 > SpringBoot提供了缓存技术，方便缓存使用
 >
@@ -2502,7 +2486,7 @@ public class MsgServiceImpl implements MsgService {
 
 
 
-###### 启用缓存@EnableCaching、@Cacheable
+###### 导入坐标，启用缓存@EnableCaching、@Cacheable
 
 ```xml
 <!--cache-->
@@ -2526,7 +2510,7 @@ public class Springboot19CacheApplication {
 }
 ```
 
-
+<br>
 
 ```java
 @Override
@@ -2539,37 +2523,38 @@ public Book getById(Integer id) {
 
 
 
-##### 多种缓存技术
+#### 多种缓存技术
 
-> SpringBoot提供的缓存技术除了提供默认的缓存方案，还可以对其他缓存技术进行整合，统一接口，方便缓存技术的开发与管理
->
-> Generic
->
-> JCache
->
-> <font color=red>Ehcache</font>
->
-> Hazelcast
->
-> Infinispan
->
-> Couchbase
->
-> <font color=red>Redis</font>
->
-> Caffeine
->
-> Simple（默认）
->
-> <font color=red>memcached</font>
+```bash
+# SpringBoot提供的缓存技术除了提供默认的缓存方案Simple
+# 还可以对其他缓存技术进行整合，统一接口，方便缓存技术的开发与管理
+
+- Generic
+
+- JCache
+ 
+- [ Ehcache ]
+
+- Hazelcast
+ 
+- Infinispan
+ 
+- Couchbase
+
+- [ Redis ]
+ 
+- Caffeine
+ 
+- Simple（默认）
+ 
+- [ memcached ]
+```
 
 
 
-##### 缓存使用案例——手机验证码
+#### 缓存使用案例——手机验证码
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220305232200622.png?w=600)
-
-
 
 
 
@@ -2581,6 +2566,7 @@ public class SMSCodeServiceImpl implements SMSCodeService {
     private CodeUtils codeUtils;
 
     @Override
+    // 只往缓存中放数据
     @CachePut(value = "smsCode",key="#tele")
     public String sendCodeToSMS(String tele) {
         String code = codeUtils.generator(tele);
@@ -2602,9 +2588,9 @@ public class SMSCodeServiceImpl implements SMSCodeService {
 ```java
 @Component
 public class CodeUtils {
-
+		// 生成6位验证码
     private String [] patch = {"000000","00000","0000","000","00","0",""};
-
+		
     public String generator(String tele){
         int hash = tele.hashCode();
         int encryption = 20206666;
@@ -2617,7 +2603,8 @@ public class CodeUtils {
         int len = codeStr.length();
         return patch[len] + codeStr;
     }
-
+		
+  	// 取缓存中的数据
     @Cacheable(value = "smsCode",key="#tele")
     public String get(String tele){
         return null;
@@ -2666,7 +2653,9 @@ public class SMSCode {
 
 
 
-##### 缓存供应商变更：Ehcache
+#### 缓存供应商变更 Ehcache
+
+
 
 ```xml
 <dependency>
@@ -2675,7 +2664,7 @@ public class SMSCode {
 </dependency>
 ```
 
-
+Spring 体系外的技术，有自己的配置
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -2700,7 +2689,8 @@ public class SMSCode {
         timeToIdleSeconds="60"
         timeToLiveSeconds="60"
         memoryStoreEvictionPolicy="LRU" />
-
+		
+  	<!-- 注意这里的配置 -->
     <cache
         name="smsCode"
         eternal="false"
@@ -2708,6 +2698,7 @@ public class SMSCode {
         maxElementsInMemory="1000"
         overflowToDisk="false"
         timeToIdleSeconds="10"
+        <!-- 设置缓存过期时间 -->
         timeToLiveSeconds="10"
         memoryStoreEvictionPolicy="LRU" />
 
@@ -2730,13 +2721,7 @@ spring:
 
 
 
-> timeToLiveSeconds="10"
->
-> 设置缓存过期时间
-
-
-
-##### 缓存供应商变更：Redis
+#### 缓存供应商变更 Redis
 
 
 
@@ -2769,9 +2754,9 @@ spring:
 
 
 
-##### 缓存供应商变更:memcached
+#### 缓存供应商变更 memcached
 
-###### 安装&启动
+##### 安装&启动
 
 ```bash
 # windows
@@ -2790,46 +2775,104 @@ $ brew install memcached
 
 
 
+#### 缓存供应商变更 jetcache（阿里）
+
+jetCache对SpringCache进行了封装，在原有功能基础上实现了多级缓存、缓存统计、自动刷新、异步调用、数据报表等功能。
+
+jetCache设定了本地缓存与远程缓存的多级缓存解决方案。
+
+- 本地缓存（local）
+  - LinkedHashMap
+  - Caffeine
+
+- 远程缓存（remote）
+  - Redis
+  - Tair
+
+```bash
+加入jetcache坐标
+配置远程缓存必要属性
+配置本地缓存必要属性
+开启jetcache注解支持
+声明缓存对象
+操作缓存
+```
+
+
+
+<br>
+
+
+
+```xml
+<dependency>
+  <groupId>com.alicp.jetcache</groupId>
+  <artifactId>jetcache-starter-redis</artifactId>
+  <version>2.6.2</version>
+</dependency>
+```
+
+
+
+#### 缓存供应商变更 j2cache
+
+j2cache是一个缓存整合框架，可以提供缓存的整合方案，使各种缓存搭配使用，自身不提供缓存功能
+
+基于 ehcache + redis 进行整合
+
+
+
+### 14.2 任务
+
+```bash
+# 定时任务是企业级应用中的常见操作
+- 年度报表
+- 缓存统计报告
+- … …
+
+# 市面上流行的定时任务技术
+- Quartz
+- Spring Task
+```
+
+
+
+#### SpringBoot整合Quartz
+
+```bash
+# 相关概念
+- 工作（Job）：用于定义具体执行的工作
+- 工作明细（JobDetail）：用于描述定时工作相关的信息
+- 触发器（Trigger）：用于描述触发工作的规则，通常使用cron表达式定义调度规则
+- 调度器（Scheduler）：描述了工作明细与触发器的对应关系
+
+# 步骤
+1.导入SpringBoot整合quartz的坐标
+2.定义具体要执行的任务，继承QuartzJobBean
+3.定义工作明细与触发器，并绑定对应关系
+```
+
+
+
+#### Spring Task
+
+```bash
+1.开启定时任务功能
+2.设置定时执行的任务，并设定执行周期
+3.定时任务相关配置
+```
 
 
 
 
 
+### 14.3 邮件
 
 
 
 
 
-
-
-<hr>
-### 任务
-
-
-
-
-
-### 邮件
-
-
-
-
-
-### 消息
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### 14.4 消息
 
 
 
@@ -2839,15 +2882,21 @@ $ brew install memcached
 
 ### 15.1 监控的意义
 
-> 监控服务状态是否宕机
->
-> 监控服务运行指标（内存、虚拟机、线程、请求等）
->
-> 监控日志
->
-> 管理服务（服务下线）
+```bash
+监控服务状态是否宕机
+
+监控服务运行指标（内存、虚拟机、线程、请求等）
+
+监控日志
+
+管理服务（服务下线）
+```
 
 
+
+监控服务：获取和显示
+
+被监控服务：上报可以被谁监控，以及被监控的数据有多少种
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220306082728330.png?w=600)
 
@@ -2855,7 +2904,7 @@ $ brew install memcached
 
 
 
-#### 15.2 可视化监控平台Admin
+### 15.2 可视化监控平台Admin
 
 > Spring Boot Admin，开源社区项目，用于管理和监控SpringBoot应用程序。 客户端注册到服务端后，通过HTTP请求方式，服务端定期从客户端获取对应的信息，并通过UI界面展示对应信息。
 
@@ -2980,7 +3029,7 @@ management:
 
 
 
-#### 15.4 自定义监控指标
+### 15.4 自定义监控指标
 
 
 
