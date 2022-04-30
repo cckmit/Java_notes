@@ -577,12 +577,12 @@ public interface UserDao extends BaseMapper<User> {
 
 ```bash
 spring:
-	datasource:
-		driver-class-name: com.mysql.cj.jdbc.Driver
-		url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
-		username: root
-		password: root
-		type: com.alibaba.druid.pool.DruidDataSource
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
 ```
 
 
@@ -605,10 +605,10 @@ spring:
 spring:
   datasource:
     druid:
-			driver-class-name: com.mysql.cj.jdbc.Driver
-			url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
-			username: root
-			password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
+      username: root
+      password: root
 ```
 
 
