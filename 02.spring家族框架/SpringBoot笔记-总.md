@@ -39,41 +39,6 @@
 
 
 
-# SpringBoot详解（基于黑马程序员）
-
-
-
-> 定位：
->
-> - 小白
->   - 初步掌握SpringBoot程序的开发流程，能够基于SpringBoot实现基础的SSM框架整合。
-> - 初学者
->   - 掌握各种第三方技术与SpringBoot整合的方案。
->   - 积累基于SpringBoot的实战开发经验。
-> - 开发者
->   - 提升对Spring和SpringBoot原理的理解层次。
->   - 基于原理理解基础上，实现整合任意技术。
-
-
-
-> 技术点：
->
-> - 能够创建SpringBoot工程；
-> - 基于SpringBoot实现ssm整合；
->
-> 
->
-> - 能够掌握SpringBoot应用多环境开发；
-> - 能够基于Linux系统发布SpringBoot应用；
-> - 能够解决线上灵活配置SpringBoot应用的需求；
-> - 能够基于SpringBoot整合任意第三方技术；
->
-> 
->
-> - 掌握SpringBoot内部工作流程；
-> - 理解SpringBoot整合第三方技术的原理；
-> - 实现自定义开发整合第三方技术的组件；
-
 
 
 
@@ -82,15 +47,11 @@
 
 
 
+SpringBoot 是由 Pivotal 团队提供的全新框架，其设计目的是用来<font color=red>简化</font>Spring应用的<font color=red>初始搭建</font>以及<font color=red>开发过程</font>
 
 
 
-
-<hr>
-
-
-
-## 一、基础篇
+# 一、基础篇
 
 
 
@@ -98,9 +59,12 @@
 
 
 
-> SpringBoot是由Pivotal团队提供的全新框架，其设计目的是用来<font color=red>简化</font>Spring应用的<font color=red>初始搭建</font>以及<font color=red>开发过程</font>
+```bash
+```
 
 
+
+对比Spring
 
 > Spring程序缺点
 > - 依赖设置繁琐
