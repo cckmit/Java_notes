@@ -196,8 +196,8 @@ Setting → File Types → Ignored Files and Folders
 
 ```bash
 # 总结
-1. 开发SpringBoot程序要继承spring-boot-starter-parent
-2. spring-boot-starter-parent中定义了若干个依赖管理
+1. 开发SpringBoot程序要继承spring-boot-starter-parent，各版本间存在着诸多坐标版本不同
+2. spring-boot-starter-parent中定义了若干个依赖管理（依赖管理，而非依赖）
 3. 继承parent模块可以避免多个依赖使用相同技术时出现依赖版本冲突
 4. 继承parent的形式也可以采用引入依赖的形式实现效果
 - 方式1：继承spring-boot-starter-parent
@@ -243,31 +243,23 @@ Setting → File Types → Ignored Files and Folders
 
 ### 3.2 starter
 
+SpringBoot中常见项目名称，定义了当前项目使用的所有依赖坐标，以达到减少依赖配置的目的。
+
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302173752751.png?w=600)
 
 
 
-#### starter
+```bash
+# parent 和 stater 主要解决配置问题！！！
 
-- SpringBoot中常见项目名称，定义了当前项目使用的所有依赖坐标，以达到减少依赖配置的目的
+# 实际开发
+使用任意坐标时，仅书写GAV中的G和A，V由SpringBoot提供，除非SpringBoot未提供对应版本V
+如发生坐标错误，再指定Version（要小心版本冲突）
 
-#### parent（parent和stater主要解决配置问题！！！）
-
-- 所有SpringBoot项目要继承的项目，定义了若干个坐标版本号（依赖管理，而非依赖），以达到减少依赖冲突的目的
-- spring-boot-starter-parent各版本间存在着诸多坐标版本不同
-
-#### 实际开发
-
-- 使用任意坐标时，仅书写GAV中的G和A，V由SpringBoot提供，除非SpringBoot未提供对应版本V
-- 如发生坐标错误，再指定Version（要小心版本冲突）
-
-
-
-> 1. 开发SpringBoot程序需要导入坐标时通常导入对应的starter
-> 2. 每个不同的starter根据功能不同，通常包含多个依赖坐标
-> 3. 使用starter可以实现快速配置的效果，达到简化配置的目的
-
-
+1. 开发SpringBoot程序需要导入坐标时通常导入对应的starter
+2. 每个不同的starter根据功能不同，通常包含多个依赖坐标
+3. 使用starter可以实现快速配置的效果，达到简化配置的目的
+```
 
 
 
@@ -284,8 +276,10 @@ public class Springboot01QuickstartApplication {
 
 
 
-- SpringBoot的引导类是Boot工程的执行入口，运行main方法就可以启动项目
-- SpringBoot工程运行后初始化Spring容器，扫描引导类所在包加载bean
+```bash
+SpringBoot的引导类是Boot工程的执行入口，运行main方法就可以启动项目
+SpringBoot工程运行后初始化Spring容器，扫描引导类所在包加载bean
+```
 
 
 
@@ -299,9 +293,9 @@ public class Springboot01QuickstartApplication {
 
 > 使用maven依赖管理变更起步依赖项
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302192727997.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302192727997.png?w=550)
 
-Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应用引擎（GAE）已经全面切换为Jetty
+Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应用引擎（GAE）已经全面切换为Jetty。
 
 > tomcat(默认)：apache出品，粉丝多，应用面广，负载了若干较重的组件
 >
@@ -311,11 +305,12 @@ Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应
 
 
 
-#### 总结
-
-> 1. 内嵌Tomcat服务器是SpringBoot辅助功能之一
-> 2. 内嵌Tomcat工作原理是将Tomcat服务器作为对象运行，并将该对象交给Spring容器管理
-> 3. 变更内嵌服务器思想是去除现有服务器，添加全新的服务器
+```bash
+# 总结
+1. 内嵌Tomcat服务器是SpringBoot辅助功能之一
+2. 内嵌Tomcat工作原理是将Tomcat服务器作为对象运行，并将该对象交给Spring容器管理
+3. 变更内嵌服务器思想是去除现有服务器，添加全新的服务器
+```
 
 
 
@@ -323,42 +318,44 @@ Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应
 
 SpringBoot默认配置文件`application.properties`，通过键值对配置对应属性。
 
-
-
-> SpringBoot内置属性查询：（官方文档中参考文档第一项：Application Properties）
->
-> https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties
->
+[SpringBoot内置属性查询：（官方文档中参考文档第一项：Application Properties）](https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties)
 
 
 
-> SpringBoot提供了3种配置文件格式，可共存，加载顺序为：
->
-> application.properties（传统/默认格式） > application.yml （主流格式）> application.yaml
+```bash
+# SpringBoot提供了3种配置文件格式，可共存，加载顺序为：
+application.properties（传统/默认格式） > application.yml （主流格式）> application.yaml
+
+# 自动提示功能消失解决方案
+Setting → Project Structure → Facets → 选中对应项目/工程 → Customize Spring Boot → 选择配置文件
+```
 
 
-
-> 自动提示功能消失解决方案：Setting → Project Structure → Facets → 选中对应项目/工程 → Customize Spring Boot → 选择配置文件
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302195211634.png)
 
 
 
-#### 4.1 yaml
+### 4.1 yaml（YAML Ain't Markup Language）
 
-YAML（YAML Ain't Markup Language），一种数据序列化格式。
+```bash
+# 介绍
+一种数据序列化格式。
 
-> 优点：容易阅读；容易与脚本语言交互；以数据为核心，重数据轻格式。
->
-> YAML文件扩展名：.yml（主流）和 .yaml
+# 优点
+容易阅读；容易与脚本语言交互；以数据为核心，重数据轻格式。
+
+# YAML文件扩展名
+.yml（主流）和 .yaml
+```
 
 
 
-##### 定义
+#### 定义
 
 > 字面值表示方式
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302195713072.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302195713072.png?w=600)
 
  
 
@@ -368,15 +365,15 @@ YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
 
 
-##### 读取
+#### 读取
 
 > 使用@Value读取单个数据，属性名引用方式：${一级属性名.二级属性名……}
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200300577.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200300577.png?w=550)
 
 
 
-##### 痛点1：读取数据过多
+#### 痛点1：读取数据过多
 
 > 读取数据过多
 
@@ -390,7 +387,7 @@ YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
 
 
-##### 痛点2：
+#### 痛点2：
 
 > 统一定义前缀
 >
@@ -411,10 +408,9 @@ YAML（YAML Ain't Markup Language），一种数据序列化格式。
 
 
 <hr>
+## 4. 整合第三方技术
 
-### 4. 整合第三方技术
-
-#### 4.1 整合Junit
+### 4.1 整合Junit
 
 @SpringBootTest测试类注解，测试类定义上方。作用是设置JUnit加载的SpringBoot启动类。
 
