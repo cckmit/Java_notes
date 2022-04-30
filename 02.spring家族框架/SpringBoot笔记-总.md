@@ -575,14 +575,14 @@ public interface UserDao extends BaseMapper<User> {
 
 > ① 指定数据源类型
 
-```yacas
+```bash
 spring:
-		datasource:
-				driver-class-name: com.mysql.cj.jdbc.Driver
-				url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
-				username: root
-				password: root
-				type: com.alibaba.druid.pool.DruidDataSource
+	datasource:
+		driver-class-name: com.mysql.cj.jdbc.Driver
+		url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
+		username: root
+		password: root
+		type: com.alibaba.druid.pool.DruidDataSource
 ```
 
 
@@ -591,9 +591,9 @@ spring:
 
 ```xml
 <dependency> 
-  <groupId>com.alibaba</groupId> 
-  <artifactId>druid-spring-boot-starter</artifactId> 
-  <version>1.2.6</version>
+  	<groupId>com.alibaba</groupId> 
+  	<artifactId>druid-spring-boot-starter</artifactId> 
+  	<version>1.2.6</version>
 </dependency>
 ```
 
@@ -601,13 +601,14 @@ spring:
 
 > 变更Druid的配置方式
 
-```yacas
+```bash
 spring:
-		datasource:
+  datasource:
     druid:
-				driver-class-name: com.mysql.cj.jdbc.Driver
-				username: root
-				password: root
+			driver-class-name: com.mysql.cj.jdbc.Driver
+			url: jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
+			username: root
+			password: root
 ```
 
 
