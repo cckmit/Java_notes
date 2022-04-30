@@ -19,6 +19,24 @@
 
 
 
+技术点📚
+
+- 能够创建SpringBoot工程；
+- 基于SpringBoot实现ssm整合；
+
+
+
+- 能够掌握SpringBoot应用多环境开发；
+- 能够基于Linux系统发布SpringBoot应用；
+- 能够解决线上灵活配置SpringBoot应用的需求；
+- 能够基于SpringBoot整合任意第三方技术；
+
+
+
+- 掌握SpringBoot内部工作流程；
+- 理解SpringBoot整合第三方技术的原理；
+- 实现自定义开发整合第三方技术的组件；
+
 
 
 # SpringBoot详解（基于黑马程序员）
