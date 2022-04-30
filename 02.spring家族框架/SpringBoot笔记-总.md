@@ -1,3 +1,9 @@
+# 写在前面
+
+
+
+
+
 
 
 # SpringBoot详解（基于黑马程序员）
@@ -175,10 +181,11 @@ public class BookController {
 
 ### 2. 隐藏指定文件/文件夹
 
-> Idea中隐藏指定文件或指定类型文件
-> - Setting → File Types → Ignored Files and Folders
-> - 输入要隐藏的文件名，支持*号通配符
-> - 回车确认添加
+Idea中隐藏指定文件或指定类型文件
+
+- Setting → File Types → Ignored Files and Folders
+- 输入要隐藏的文件名，支持*号通配符
+- 回车确认添加
 
 
 
