@@ -118,7 +118,7 @@ public class BookController {
 
 ④：运行自动生成的Application类
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162921543.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220327162921543.png?w=550)
 
 
 
@@ -160,14 +160,16 @@ public class BookController {
 
 ### 1.3 基于阿里云：https://start.aliyun.com
 
-> - 阿里云提供的坐标版本较低，如果需要使用高版本，进入工程后手工切换SpringBoot版本
-> - 阿里云提供的工程模板与Spring官网提供的工程模板略有不同
+- 阿里云提供的坐标版本较低，如果需要使用高版本，进入工程后手工切换SpringBoot版本
+- 阿里云提供的工程模板与Spring官网提供的工程模板略有不同
+
+
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302131047519.png?w=600)
 
 
 
-### 1.4 手工创建Maven工程修改为SpringBoot工程
+### 1.4 手工创建Maven工程修改为SpringBoot工程（推荐）
 
 > 1. 创建普通Maven工程
 > 2. 继承spring-boot-starter-parent
@@ -192,11 +194,38 @@ Setting → File Types → Ignored Files and Folders
 
 ### 3.1 parent
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326183112429.png?w=600)
+```bash
+# 总结
+1. 开发SpringBoot程序要继承spring-boot-starter-parent
+2. spring-boot-starter-parent中定义了若干个依赖管理
+3. 继承parent模块可以避免多个依赖使用相同技术时出现依赖版本冲突
+4. 继承parent的形式也可以采用引入依赖的形式实现效果
+- 方式1：继承spring-boot-starter-parent
+- 方式2：使用<dependencyManagement>依赖spring-boot-dependencies
+```
 
+```xml
+<!-- 两种方式效果同 -->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.5.4</version>
+    <relativePath/> <!-- lookup parent from repository -->
+</parent>
 
-
-
+<!-- 因为继承只能一次，采用如下方式2同时可继承其它父模块 -->
+<dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+</dependencyManagement>
+```
 
 
 
@@ -208,20 +237,7 @@ Setting → File Types → Ignored Files and Folders
 
 
 
-
-
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220326182257433.png)
-
-
-
-> 仅定义未使用
-
-
-
-> 1. 开发SpringBoot程序要继承spring-boot-starter-parent
-> 2. spring-boot-starter-parent中定义了若干个依赖管理
-> 3. 继承parent模块可以避免多个依赖使用相同技术时出现依赖版本冲突
-> 4. 继承parent的形式也可以采用引入依赖的形式实现效果
 
 
 
