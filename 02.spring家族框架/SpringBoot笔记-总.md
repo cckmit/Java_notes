@@ -2,6 +2,21 @@
 
 
 
+定位📌
+
+```bash
+# 小白
+- 初步掌握SpringBoot程序的开发流程，能够基于SpringBoot实现基础的SSM框架整合。
+
+# 初学者
+- 掌握各种第三方技术与SpringBoot整合的方案。
+- 积累基于SpringBoot的实战开发经验。
+
+# 开发者
+- 提升对Spring和SpringBoot原理的理解层次。
+- 基于原理理解基础上，实现整合任意技术
+```
+
 
 
 
@@ -179,13 +194,13 @@ public class BookController {
 
 
 
-### 2. 隐藏指定文件/文件夹
+### 2. IDEA中隐藏指定文件/文件夹
 
-Idea中隐藏指定文件或指定类型文件
-
-- Setting → File Types → Ignored Files and Folders
-- 输入要隐藏的文件名，支持*号通配符
-- 回车确认添加
+```bash
+Setting → File Types → Ignored Files and Folders
+输入要隐藏的文件名，支持*号通配符
+回车确认添加
+```
 
 
 
