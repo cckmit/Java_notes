@@ -637,36 +637,39 @@ spring:
 
 
 
+```bash
 - 先开发基础CRUD功能，做一层测一层
 - 调通页面，确认异步提交成功后，制作所有功能
 - 添加分页功能与查询功能
+```
 
 
 
-<hr>
-
+<br>
 
 ### 5.1搭建SpringBoot应用
 
+```bash
+勾选SpringMVC与MySQL坐标
 
+修改配置文件为yml格式
 
-> 勾选SpringMVC与MySQL坐标
->
-> 修改配置文件为yml格式
->
-> 设置端口为80方便访问（可选）
+设置端口为80方便访问（可选）
+```
 
 
 
 ### 5.2 实体类开发
 
-> Lombok，一个Java类库，提供了一组注解，简化POJO实体类开发
->
-> lombok版本由SpringBoot提供，无需指定版本。
->
-> 常用注解：@Data
->
-> 为当前实体类在编译期设置对应的get/set方法，toString方法，hashCode方法，equals方法等
+```bash
+Lombok，一个Java类库，提供了一组注解，简化POJO实体类开发
+
+lombok版本由SpringBoot提供，无需指定版本。
+
+常用注解：@Data
+
+为当前实体类在编译期设置对应的get/set方法，toString方法，hashCode方法，equals方法等
+```
 
 
 
@@ -688,11 +691,14 @@ public class Book {
 > - MyBatisPlus
 > - Druid
 
+```bash
+1.导入MyBatisPlus与Druid对应的starter
+2.配置数据源与MyBatisPlus对应的基础配置（id生成策略使用数据库自增策略）
+3.继承BaseMapper并指定泛型
+4.制作测试类测试结果
+```
 
-
-> 导入MyBatisPlus与Druid对应的starter
->
-> **配置数据源与MyBatisPlus对应的基础配置（id生成策略使用数据库自增策略）**
+2
 
 ```java
 spring:
@@ -710,7 +716,7 @@ mybatis-plus:
       id-type: auto
 ```
 
-> **继承BaseMapper并指定泛型**
+3
 
 ```java
 @Mapper
@@ -719,9 +725,7 @@ public interface BookDao extends BaseMapper<Book> {
 }
 ```
 
-
-
-> 制作测试类测试结果
+4
 
 ```java
 @SpringBootTest
