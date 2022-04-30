@@ -859,9 +859,15 @@ void testGetByCondition(){
 
 ### 5.6 业务层开发
 
-> Service层接口定义与数据层接口定义具有较大区别，不要混用
-> - selectByUserNameAndPassword(String username,String password);
-> - login(String username,String password);
+```bash
+# Service层接口定义与数据层接口定义具有较大区别，不要混用
+
+业务层关注的是业务名称
+login(String username,String password);
+
+数据层关注的是数据库操作
+selectByUserNameAndPassword(String username,String password);
+```
 
 
 
@@ -925,16 +931,16 @@ public class BookServiceImpl implements BookService {
 
 
 
-> 测试类定义注意添加@SpringBootTest注解。
+```bash
+测试类定义注意添加@SpringBootTest注解。
+
+1. Service接口名称定义成业务名称，并与Dao接口名称进行区分
+2. 制作测试类测试Service功能是否有效
+```
 
 
 
-> 1. Service接口名称定义成业务名称，并与Dao接口名称进行区分
-> 2. 制作测试类测试Service功能是否有效
-
-
-
-### 5.7 业务层开发——快速开发
+### 5.7 业务层开发——快速开发☞使用ISerivce<T>和ServiceImpl<M,T>
 
 > 快速开发方案
 >
@@ -965,7 +971,7 @@ public interface BookService extends IService<Book> {
 
 
 
-实现类（追加功能）
+实现类
 
 ```java
 @Service
@@ -1011,24 +1017,13 @@ public class BookServiceImpl extends ServiceImpl<BookDao, Book> implements BookS
 
 
 
-测试类定义略。
-
-> 1. 使用通用接口（ISerivce<T>）快速开发Service
-> 2. 使用通用实现类（ServiceImpl<M,T>）快速开发ServiceImpl
-> 3. 可以在通用接口基础上做功能重载或功能追加
-> 4. 注意重载时不要覆盖原始操作，避免原始提供的功能丢失
-
-
-
-
-
 ### 5.8 表现层开发
 
-> 基于Restful进行表现层接口开发
+> - 基于Restful进行表现层接口开发
 >
-> 使用Postman测试表现层接口功能
+> - 使用Postman测试表现层接口功能
 >
-> 功能测试
+> - 功能测试
 
 
 
@@ -1054,10 +1049,14 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 > 1. 基于Restful制作表现层接口
-> 新增：POST
-> 删除：DELETE
-> 修改：PUT
-> 查询：GET
+>
+>   - 新增：POST
+>
+>   - 删除：DELETE
+>
+>   - 修改：PUT
+>
+>   - 查询：GET
 >
 >
 > 2. 接收参数
@@ -1066,13 +1065,22 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 
-### 5.9 表现层消息一致性处理 R
+### 5.9 表现层消息一致性处理 R（统一返回值）
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304093035557.png?w=600)
 
 
 
-> 设计表现层返回结果的模型类，用于后端与前端进行数据格式统一，也称为前后端数据协议
+```bash
+# 设计表现层返回结果的模型类，用于后端与前端进行数据格式统一，也称为前后端数据协议
+1. 设计统一的返回值结果类型便于前端开发读取数据
+2. 返回值结果类型可以根据需求自行设定，没有固定格式
+3. 返回值结果模型类用于后端与前端进行数据格式统一，也称为前后端数据协议
+
+- flag：false
+- Data: null
+- 消息(msg): 要显示信息
+```
 
 
 
@@ -1080,38 +1088,16 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 
-> 1. 设计统一的返回值结果类型便于前端开发读取数据
-> 2. 返回值结果类型可以根据需求自行设定，没有固定格式
-> 3. 返回值结果模型类用于后端与前端进行数据格式统一，也称为前后端数据协议
-
-
-
-> 修改表现层返回结果的模型类，封装出现异常后对应的信息
->
-> - flag：false
-> - Data: null
-> - 消息(msg): 要显示信息
-
-
-
 ### 5.10 前后端协议联调
 
 
 > 前后端分离结构设计中页面归属前端服务器
+>
 > 单体工程中页面放置在resources目录下的static目录中（建议执行clean）
 
 
 
-> 前端发送异步请求，调用后端接口
-
-```js
-//列表
-getAll() {
-    axios.get("/books").then((res)=>{
-    		console.log(res.data);
-    });
-},
-```
+前端发送异步请求，调用后端接口
 
 
 
@@ -1125,14 +1111,36 @@ getAll() {
 //列表
 getAll() {
     axios.get("/books").then((res)=>{
-    		this.dataList = res.data.data;
+    		console.log(res.data);
     });
 },
 ```
 
 
 
-> 将查询数据返回到页面，利用前端数据双向绑定进行数据展示
+
+
+#### 查询
+
+将查询数据返回到页面，利用前端数据双向绑定进行数据展示
+
+```js
+//列表
+getAll() {
+    axios.get("/books").then((res)=>{
+    		this.dataList = res.data.data;
+    });
+},
+```
+
+#### 添加
+
+```bash
+1. 请求方式使用POST调用后台对应操作
+2. 添加操作结束后动态刷新页面加载数据
+3. 根据操作结果不同，显示对应的提示信息
+4. 弹出添加Div时清除表单数据
+```
 
 
 
@@ -1178,10 +1186,15 @@ cancel(){
 
 
 
-> 1. 请求方式使用POST调用后台对应操作
-> 2. 添加操作结束后动态刷新页面加载数据
-> 3. 根据操作结果不同，显示对应的提示信息
-> 4. 弹出添加Div时清除表单数据
+#### 删除
+
+```bash
+1. 请求方式使用Delete调用后台对应操作
+2. 删除操作需要传递当前行数据对应的id值到后台
+3. 删除操作结束后动态刷新页面加载数据
+4. 根据操作结果不同，显示对应的提示信息
+5. 删除操作前弹出提示框避免误操作
+```
 
 
 
@@ -1220,12 +1233,6 @@ handleDelete(row) {
 
 
 
-> 1. 请求方式使用Delete调用后台对应操作
-> 2. 删除操作需要传递当前行数据对应的id值到后台
-> 3. 删除操作结束后动态刷新页面加载数据
-> 4. 根据操作结果不同，显示对应的提示信息
-> 5. 删除操作前弹出提示框避免误操作
-
 
 
 ```js
@@ -1262,6 +1269,16 @@ handleDelete(row) {
 
 
 
+#### 修改
+
+```bash
+1. 请求方式使用PUT调用后台对应操作
+2. 修改操作结束后动态刷新页面加载数据（同新增）
+3. 根据操作结果不同，显示对应的提示信息（同新增）
+```
+
+
+
 ```js
 //修改
 handleEdit() {
@@ -1285,12 +1302,6 @@ cancel(){
     this.$message.info("操作取消");
 },
 ```
-
-
-
->1. 请求方式使用PUT调用后台对应操作
->2. 修改操作结束后动态刷新页面加载数据（同新增）
->3. 根据操作结果不同，显示对应的提示信息（同新增）
 
 
 
@@ -1351,7 +1362,7 @@ public class ProjectExceptionAdvice {
 
 
 <hr>
-
+### 总结一下
 
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304102107465.png)
@@ -1366,16 +1377,13 @@ public class ProjectExceptionAdvice {
 
 
 
-
-
-<hr>
 # 二、实用篇之运维实用篇
 
-> 能够掌握SpringBoot程序多环境开发
+> - 能够掌握SpringBoot程序多环境开发
 >
-> 能够基于Linux系统发布SpringBoot工程
+> - 能够基于Linux系统发布SpringBoot工程
 >
-> 能够解决线上灵活配置SpringBoot工程的需求
+> - 能够解决线上灵活配置SpringBoot工程的需求
 
 
 
@@ -1473,7 +1481,7 @@ taskkill -f -t -im "进程名称"
 
 
 
-#### 6.2 程序运行（Linux版）
+### 6.2 程序运行（Linux版）
 
 > 基于Linux（CenterOS7）
 >
@@ -1498,9 +1506,9 @@ taskkill -f -t -im "进程名称"
 
 
 
-### 7. 配置高级
+## 7. 配置高级
 
-#### 7.1 临时属性设置
+### 7.1 临时属性设置
 
 > 带属性数启动SpringBoot
 >
@@ -1520,7 +1528,7 @@ java –jar springboot.jar –-server.port=80
 
 
 
-#### 7.2 临时属性设置（开发环境）
+### 7.2 临时属性设置（开发环境）
 
 > 带属性启动SpringBoot程序，为程序添加运行属性
 
@@ -1547,7 +1555,7 @@ public static void main(String[] args) {
 
 
 
-#### 7.3 配置文件分类&&自定义配置文件
+### 7.3 配置文件分类&&自定义配置文件
 
 > SpringBoot中4级配置文件
 >
@@ -1621,9 +1629,9 @@ public static void main(String[] args) {
 
 
 
-### 8. 多环境开发
+## 8. 多环境开发
 
-#### 8.1 多环境开发（YAML版）
+### 8.1 多环境开发（YAML版）
 
 
 
