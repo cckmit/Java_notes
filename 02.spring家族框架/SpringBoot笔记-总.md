@@ -355,7 +355,7 @@ Setting → Project Structure → Facets → 选中对应项目/工程 → Custo
 
 > 字面值表示方式
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302195713072.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302195713072.png)
 
  
 
@@ -369,7 +369,7 @@ Setting → Project Structure → Facets → 选中对应项目/工程 → Custo
 
 > 使用@Value读取单个数据，属性名引用方式：${一级属性名.二级属性名……}
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200300577.png?w=550)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220302200300577.png)
 
 
 
@@ -407,43 +407,53 @@ Setting → Project Structure → Facets → 选中对应项目/工程 → Custo
 
 
 
-<hr>
 ## 4. 整合第三方技术
 
 ### 4.1 整合Junit
 
-@SpringBootTest测试类注解，测试类定义上方。作用是设置JUnit加载的SpringBoot启动类。
+@SpringBootTest 测试类注解，测试类定义上方。作用是设置 JUnit 加载的SpringBoot启动类。
+
+```bash
+1. 导入测试对应的starter
+2. 测试类使用@SpringBootTest修饰
+3. 使用自动装配的形式添加要测试的对象
+```
+
+
 
 ```java
 @SpringBootTest
 class Springboot07JunitApplicationTests {
-		@Autowired
-		private BookService bookService;
-  
-		@Test
-		public void testSave(){
-				bookService.save();
-		} 
+  @Autowired
+  private BookService bookService;
+
+  @Test
+  public void testSave(){
+    bookService.save();
+  } 
 }
 ```
 
 
 
-> 1. 导入测试对应的starter
-> 2. 测试类使用@SpringBootTest修饰
-> 3. 使用自动装配的形式添加要测试的对象
-
-
-
-#### 4.2 整合Mybatis
+### 4.2 整合Mybatis
 
 > 核心配置：数据库连接相关信息（连什么？连谁？什么权限）
 >
 > 映射配置：SQL映射（XML/注解）
 
+```bash
+（1）导入MyBatis对应的starter
+（2）设置数据源参数
+（3）定义数据层接口与映射配置
+（4）测试类中注入dao接口，测试功能
+```
 
 
-> （1）导入MyBatis对应的starter
+
+
+
+> 1. 导入MyBatis对应的starter
 
 ```xml
 <dependency>
@@ -466,11 +476,14 @@ spring:
 		password: root
 ```
 
+
+
+```bash
+# 注意📢
 SpringBoot版本低于2.4.3(不含)，Mysql驱动版本大于8.0时，需要在url连接串中配置时区
-
-`jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC`
-
+jdbc:mysql://localhost:3306/ssm_db?serverTimezone=UTC
 或在MySQL数据库端配置时区解决此问题
+```
 
 
 
@@ -506,7 +519,7 @@ class Springboot08MybatisApplicationTests {
 
 
 
-#### 4.3 整合Mybatis-Plus
+### 4.3 整合Mybatis-Plus
 
 > MyBatis-Plus与MyBatis区别
 >
@@ -541,7 +554,7 @@ public interface UserDao extends BaseMapper<User> {
 
 
 
-#### 4.4 整合Druid
+### 4.4 整合Druid
 
 > 指定数据源类型
 
@@ -583,7 +596,7 @@ spring:
 
 
 
-#### 4.5 整合任意第三方技术
+### 4.5 整合任意第三方技术
 
 > 导入对应的starter
 >
@@ -593,7 +606,7 @@ spring:
 
 
 
-### 5. 基于SpringBoot的SSMP整合案例
+## 5. 基于SpringBoot的SSMP整合案例
 
 > 分析：
 >
@@ -617,7 +630,7 @@ spring:
 <hr>
 
 
-#### 5.1搭建SpringBoot应用
+### 5.1搭建SpringBoot应用
 
 
 
@@ -629,7 +642,7 @@ spring:
 
 
 
-#### 5.2 实体类开发
+### 5.2 实体类开发
 
 > Lombok，一个Java类库，提供了一组注解，简化POJO实体类开发
 >
@@ -653,7 +666,7 @@ public class Book {
 
 
 
-#### 5.3 数据层开发
+### 5.3 数据层开发
 
 > 技术实现方案
 > - MyBatisPlus
@@ -733,7 +746,7 @@ mybatis-plus:
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220303151011943.png)
 
-#### 5.4 数据层开发分页功能
+### 5.4 数据层开发分页功能
 
 > 分页操作需要设定分页对象IPage，IPage对象中封装了分页操作中的所有数据（数据、当前页码值、每页数据总量、最大页码值、数据总量）。
 >
@@ -772,7 +785,7 @@ public class MPConfig {
 
 
 
-#### 5.5 数据层开发条件查询功能
+### 5.5 数据层开发条件查询功能
 
 > 使用QueryWrapper对象封装查询条件，推荐使用LambdaQueryWrapper对象，所有查询操作封装成方法调用
 
@@ -822,7 +835,7 @@ void testGetByCondition(){
 
 
 
-#### 5.6 业务层开发
+### 5.6 业务层开发
 
 > Service层接口定义与数据层接口定义具有较大区别，不要混用
 > - selectByUserNameAndPassword(String username,String password);
@@ -899,7 +912,7 @@ public class BookServiceImpl implements BookService {
 
 
 
-#### 5.7 业务层开发——快速开发
+### 5.7 业务层开发——快速开发
 
 > 快速开发方案
 >
@@ -987,7 +1000,7 @@ public class BookServiceImpl extends ServiceImpl<BookDao, Book> implements BookS
 
 
 
-#### 5.8 表现层开发
+### 5.8 表现层开发
 
 > 基于Restful进行表现层接口开发
 >
@@ -1031,7 +1044,7 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 
-#### 5.9 表现层消息一致性处理 R
+### 5.9 表现层消息一致性处理 R
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304093035557.png?w=600)
 
@@ -1059,8 +1072,8 @@ public R getPage(@PathVariable int currentPage, @PathVariable int pageSize, Book
 
 
 
-<hr>
-#### 5.10 前后端协议联调
+### 5.10 前后端协议联调
+
 
 > 前后端分离结构设计中页面归属前端服务器
 > 单体工程中页面放置在resources目录下的static目录中（建议执行clean）
@@ -1259,7 +1272,7 @@ cancel(){
 
 
 
-#### 5.11 业务消息一致性处理
+### 5.11 业务消息一致性处理
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220304095957398.png?w=600)
 
@@ -1294,7 +1307,7 @@ public class ProjectExceptionAdvice {
 
 
 
-#### 5.12 分页功能
+### 5.12 分页功能
 
 > 页面使用el分页组件添加分页功能
 >
@@ -1334,8 +1347,7 @@ public class ProjectExceptionAdvice {
 
 
 <hr>
-
-## 二、实用篇之运维实用篇
+# 二、实用篇之运维实用篇
 
 > 能够掌握SpringBoot程序多环境开发
 >
@@ -1345,9 +1357,9 @@ public class ProjectExceptionAdvice {
 
 
 
-### 6. 打包与运行
+## 6. 打包与运行
 
-#### 6.1 程序打包与运行（Windows版）
+### 6.1 程序打包与运行（Windows版）
 
 ①：对SpringBoot项目打包（执行Maven构建指令package）
 
