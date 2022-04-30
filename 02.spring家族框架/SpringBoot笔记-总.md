@@ -453,7 +453,7 @@ class Springboot07JunitApplicationTests {
 
 
 
-> 1. 导入MyBatis对应的starter
+> （1）导入MyBatis对应的starter
 
 ```xml
 <dependency>
@@ -467,7 +467,7 @@ class Springboot07JunitApplicationTests {
 
 > （2）设置数据源参数
 
-```yaml
+```properties
 spring:
 	datasource:
 		driver-class-name: com.mysql.cj.jdbc.Driver
