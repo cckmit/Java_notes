@@ -47,7 +47,7 @@
 
 
 
-SpringBoot 是由 Pivotal 团队提供的全新框架，其设计目的是用来<font color=red>简化</font>Spring应用的<font color=red>初始搭建</font>以及<font color=red>开发过程</font>
+SpringBoot 是由 Pivotal 团队提供的全新框架，其设计目的是用来<font color=red>简化</font>Spring应用的<font color=red>初始搭建</font>以及<font color=red>开发过程。</font>
 
 
 
@@ -64,7 +64,7 @@ SpringBoot 是由 Pivotal 团队提供的全新框架，其设计目的是用来
 
 
 
-对比Spring
+对比Spring🔗
 
 > Spring程序缺点
 > - 依赖设置繁琐
