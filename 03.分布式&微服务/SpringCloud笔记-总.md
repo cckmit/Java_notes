@@ -257,7 +257,7 @@ SpringCloud是目前国内使用最广泛的微服务框架。官网地址：htt
 
 SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了这些**组件的自动装配**，从而提供了良好的开箱即用体验。
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211130417169.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211130417169.png)
 
 <br>
 
