@@ -222,6 +222,11 @@ Dubbo，Motan等主流rpc框架的设计思想也是面试中宠儿。
 1. Feign，Ribbon，Eureka，Zuul的使用。了解各个组件的作用，会问一些常遇到的问题如Feign的重试机制，Eureka的保护机制，Zuul的路由机制等。
 2. Spring Cloud使用的restful http通信与RPC通信的对比。毕竟…这是一个经久不衰的辩题，可以从耦合性，通信性能，异构系统的互信等角度对比。
 
+```bash
+# 对比
+
+```
+
 
 
 
