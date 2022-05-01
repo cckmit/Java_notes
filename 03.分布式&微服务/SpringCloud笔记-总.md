@@ -476,7 +476,7 @@ eureka:
 
 但为了避免端口冲突，需要修改端口设置：
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211172410982.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211172410982.png)
 
 
 
@@ -486,7 +486,7 @@ eureka:
 
 
 
-修改OrderService的代码，修改访问的url路径，用服务名代替ip、端口：
+修改OrderService代码中访问的url路径，用服务名代替 ip 和端口
 
 ```java
 String url = "http://userservice/user/" + order.getUserId();
@@ -506,13 +506,13 @@ public RestTemplate restTemplate() {
 
 ## 四、Ribbon负载均衡原理
 
-### 负载均衡原理
+### 1 负载均衡原理
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211174139422.png)
 
 
 
-### 负载均衡策略（IRule接口）
+### 2 负载均衡策略（IRule接口）
 
 Ribbon的负载均衡规则是一个叫做`IRule` 的接口来定义的，每一个子接口都是一种规则：
 
@@ -520,11 +520,13 @@ Ribbon的负载均衡规则是一个叫做`IRule` 的接口来定义的，每一
 
 
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211174904487.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211174904487.png)
 
-**通过定义IRule实现可以修改负载均衡规则，有两种方式：**
 
-代码方式：在order-service中的OrderApplication类中，定义一个新的IRule：（全局配置）
+
+#### 通过定义IRule实现可以修改负载均衡规则，有两种方式：
+
+##### 代码方式：在order-service中的OrderApplication类中，定义一个新的IRule：（全局配置）
 
 ```java
 @Bean
@@ -533,7 +535,7 @@ public IRule randomRule() {
 }
 ```
 
-配置文件方式：在order-service的application.yml文件中，添加新的配置也可以修改规则：（针对某个微服务而言）
+##### 配置文件方式：在order-service的application.yml文件中，添加新的配置也可以修改规则：（针对某个微服务而言）
 
 ```yaml
 userservice:
@@ -543,7 +545,7 @@ userservice:
 
 
 
-### 懒加载
+### 3 懒加载
 
 Ribbon默认是采用懒加载，即第一次访问时才会去创建LoadBalanceClient，请求时间会很长。
 
