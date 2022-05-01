@@ -8,7 +8,7 @@
 
 
 
-### 推荐
+## 推荐
 
 黑马程序员：https://www.bilibili.com/video/BV1Kr4y1i7ru?p=168&spm_id_from=pageDriver
 
@@ -34,9 +34,9 @@ MySQL 是一款非常流行的数据库管理系统
 
 
 
-### 面试题
+## 面试题
 
-
+### 黑马
 
 ```bash
 -- 基础篇
@@ -58,9 +58,33 @@ MySQL主从复制的原理是什么?
 数据库的分库分表如何实现?
 ```
 
+### 悟空架构
+
+[原文](http://www.passjava.cn/#/88.Interview/03.Database/MySQL1)
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/r0GNNmUoQput.png)
+
+#### 一、说下 MySQL 的 redo log 和 binlog？
+
+（1）MySQL 分两层：Server 层和引擎层。区别如下：
+
+Server 层：主要做的是 MySQL 功能层面的事情。Server 层也有自己的日志，称为 binlog（归档日志）
+
+引擎层：负责存储相关的具体事宜。redo log 是 InnoDB 引擎特有的日志。
+
+（2）redo log 是物理日志，记录的是“在某个数据页上做了什么修改”；binlog 是逻辑日志，记录的是这个语句的原始逻辑，比如“给 ID=2 这一行的 c 字段加 1 ”。
+
+（3）redo log 是循环写的，空间固定会用完；
+
+（4）binlog 是可以追加写入的。“追加写”是指 binlog 文件写到一定大小后会切换到下一个，并不会覆盖以前的日志。
 
 
-### 课程规划
+
+
+
+
+
+## 课程规划
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220330134008703.png)
 
@@ -79,7 +103,6 @@ MySQL主从复制的原理是什么?
 
 
 <hr>
-
 
 
 
@@ -1584,7 +1607,7 @@ select * from tb_sku where sn = '100000003145001';
 
 #### 1-最左前缀法则（针对联合索引）（索引失效或部分失效）
 
-如果索引了多列（联合索引），要遵守最左前缀法则（查询从索引的最左列开始，并且不跳过索引中的列。）。
+如果索引了多列（联合索引），要遵守最左前缀法则（查询从索引的最左列开始，并且不跳过索引中的列）
 
 如果跳跃某一列，索引将部分失效(后面的字段索引失效)。
 
