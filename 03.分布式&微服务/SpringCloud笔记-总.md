@@ -1,11 +1,8 @@
----
-title: SpringCloud_2黑马
-date: 2022-01-01 19:43:15
-tags:
+# 写在前面
 
----
+## 目录
 
-> 黑马程序员
+
 
 - [常用总结与问题解决](#常用总结与问题解决)
   - [常用总结](#常用总结)
@@ -75,9 +72,7 @@ tags:
 
 
 
-
-
-# 写在前面
+## 参考与推荐
 
 [SpringCloud+RabbitMQ+Docker+Redis+搜索+分布式_黑马20210811](https://www.bilibili.com/video/BV1LQ4y127n4?p=3)
 
@@ -103,31 +98,24 @@ cloud_demo -- 父工程：定义版本    　　
 
 
 
-> 注册中心eureka：
-
+```bash
+# 注册中心Eureka
 服务消费者该如何获取服务提供者的地址信息？
 
 果有多个服务提供者，消费者该如何选择？
 
 消费者如何得知服务提供者的健康状态？
 
-> 负载均衡：
+# 负载均衡
 
+# 配置中心
 
-
-
-> 配置中心：
-
-
-
-
-> feign远程调用：  
-
-
+# feign远程调用
 基于RestTemplate发起的http请求实现远程调用，只要知道对方的ip、端口、接口路径、请求参数即可。
 一个服务既可以是提供者，也可以是消费者。
 
-> Gateway服务网关：
+# Gateway服务网关
+```
 
 
 
@@ -142,7 +130,7 @@ cloud_demo -- 父工程：定义版本    　　
 
 > 微服务并不是等于springcloud技术
 >
-> 消息队列：异步通信大大提高服务的并发：秒杀等高并发场景利用
+> 消息队列：异步通信大大提高服务的并发，秒杀等高并发场景利用
 >
 > 系统监控链路追踪：实时监控每一个服务节点的运行状态、CPU负载、内存的占用等等情况，一旦出现任何的问题，可以直接定位到某一具体的方法栈信息，快速定位异常所在。
 >
@@ -186,7 +174,13 @@ cloud_demo -- 父工程：定义版本    　　
 
 # springcloud实用篇一
 
-> 注册中心、负载均衡器
+```bash
+注册中心
+
+负载均衡器
+```
+
+
 
 <br>
 
@@ -222,17 +216,20 @@ cloud_demo -- 父工程：定义版本    　　
 
 ### SpringCloud
 
-SpringCloud是目前国内使用最广泛的微服务框架。官网地址：https://spring.io/projects/spring-cloud。
+SpringCloud是目前国内使用最广泛的微服务框架。官网地址：https://spring.io/projects/spring-cloud
 
-SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了这些**组件的自动装配**，从而提供了良好的开箱即用体验：
+SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了这些**组件的自动装配**，从而提供了良好的开箱即用体验。
 
 ![image-20211211130417169](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211130417169.png)
-
-
 
 <br>
 
 **SpringCloud与SpringBoot的版本兼容关系如下：**
+
+```bash
+```
+
+
 
 <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211130745877.png" alt="image-20211211130745877" style="zoom: 33%;" />
 
