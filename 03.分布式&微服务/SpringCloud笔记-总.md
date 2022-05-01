@@ -264,11 +264,23 @@ SpringCloud集成了各种微服务功能组件，并基于SpringBoot实现了�
 **SpringCloud与SpringBoot的版本兼容关系如下：**
 
 ```bash
+黑马课程使用的版本是Hoxton.SR10，因此对应的SpringCloud版本是2.3.x版本。
+
 ```
 
 
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211130745877.png" alt="image-20211211130745877" style="zoom: 33%;" />
+| Release Train                                                | Boot Version                          |
+| :----------------------------------------------------------- | :------------------------------------ |
+| [2021.0.x](https://github.com/spring-cloud/spring-cloud-release/wiki/Spring-Cloud-2021.0-Release-Notes) aka Jubilee | 2.6.x                                 |
+| [2020.0.x](https://github.com/spring-cloud/spring-cloud-release/wiki/Spring-Cloud-2020.0-Release-Notes) aka Ilford | 2.4.x, 2.5.x (Starting with 2020.0.3) |
+| [Hoxton](https://github.com/spring-cloud/spring-cloud-release/wiki/Spring-Cloud-Hoxton-Release-Notes) | 2.2.x, 2.3.x (Starting with SR5)      |
+| [Greenwich](https://github.com/spring-projects/spring-cloud/wiki/Spring-Cloud-Greenwich-Release-Notes) | 2.1.x                                 |
+| [Finchley](https://github.com/spring-projects/spring-cloud/wiki/Spring-Cloud-Finchley-Release-Notes) | 2.0.x                                 |
+| [Edgware](https://github.com/spring-projects/spring-cloud/wiki/Spring-Cloud-Edgware-Release-Notes) | 1.5.x                                 |
+| [Dalston](https://github.com/spring-projects/spring-cloud/wiki/Spring-Cloud-Dalston-Release-Notes) | 1.5.x                                 |
+
+
 
 
 
