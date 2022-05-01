@@ -520,7 +520,7 @@ Ribbon的负载均衡规则是一个叫做`IRule` 的接口来定义的，每一
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211174904487.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211174904487.png?w=600)
 
 
 
@@ -545,7 +545,7 @@ userservice:
 
 
 
-### 3 懒加载
+### 3 Ribbon默认懒加载
 
 Ribbon默认是采用懒加载，即第一次访问时才会去创建LoadBalanceClient，请求时间会很长。
 
@@ -563,14 +563,14 @@ ribbon:
 
 <br>
 
-### 总结：Ribbon负载均衡规则、自定义、饥饿加载
+### 4 总结：Ribbon负载均衡规则、自定义、饥饿加载
 
 **Ribbon负载均衡规则**
 
 - 规则接口是IRule
 - 默认实现是ZoneAvoidanceRule，根据zone选择服务列表，然后轮询
 
-**负载均衡自定义方式**
+**负载均衡策略自定义方式**
 
 - 代码方式：配置灵活，但修改时需要重新打包发布
 - 配置方式：直观，方便，无需重新打包发布，但是无法做全局配置
@@ -584,20 +584,20 @@ ribbon:
 
 ## 五、nacos注册中心
 
-### 1、认识和安装
+### 1 认识和安装
 
 Nacos是阿里巴巴的产品，现在是SpringCloud中的一个组件。相比Eureka功能更加丰富，在国内受欢迎程度较高。
 
-![image-20211211182315838](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211182315838.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211182315838.png)
 
 
 
-### 2、快速入门
+### 2 快速入门
 
-在cloud-demo父工程中添加spring-cloud-alilbaba的管理依赖：
+1）在cloud-demo父工程中添加spring-cloud-alilbaba的坐标
 
 ```xml
-<!--nacos的管理依赖-->
+<!--nacos的坐标-->
 <dependency>
   <groupId>com.alibaba.cloud</groupId>
   <artifactId>spring-cloud-alibaba-dependencies</artifactId>
@@ -607,18 +607,20 @@ Nacos是阿里巴巴的产品，现在是SpringCloud中的一个组件。相比E
 </dependency>
 ```
 
-注释掉order-service和user-service中原有的eureka依赖。
-添加nacos的客户端依赖：
+
+2）服务添加nacos的客户端依赖（注释掉order-service和user-service中原有的eureka依赖。）
 
 ```xml
-<!-- nacos客户端依赖包 -->
+<!-- nacos客户端坐标 -->
 <dependency>
   <groupId>com.alibaba.cloud</groupId>
   <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
 </dependency>
 ```
 
-修改user-service&order-service中的application.yml文件，注释eureka地址，添加nacos地址：
+
+
+3）修改 user-service和order-service 中的application.yml文件，注释eureka地址，添加nacos地址
 
 ```yaml
 spring:
@@ -627,21 +629,31 @@ spring:
       server-addr: localhost:8848 # nacos服务地址
 ```
 
-启动并测试：
 
-![image-20211211191456264](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211191456264.png)
 
-### 3、服务分级存储模型
+4）启动并测试
+
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211191456264.png)
+
+
+
+### 3 服务分级存储模型
 
 ![image-20211211194746398](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211194746398.png)
 
-**3.1 服务跨集群调用问题**
 
-> 服务调用尽可能选择本地集群的服务，跨集群调用延迟较高
->
-> 本地集群不可访问时，再去访问其它集群
 
-**3.2 服务集群属性**
+#### 3.1 服务跨集群调用问题
+
+```bash
+服务调用尽可能选择本地集群的服务，跨集群调用延迟较高
+
+本地集群不可访问时，再去访问其它集群
+```
+
+
+
+#### 3.2 服务集群属性
 
 修改application.yml，添加如下内容：
 
@@ -649,11 +661,11 @@ spring:
 
 
 
-在Nacos控制台可以看到集群变化：（我们修改user-service集群属性配置，达到下面的效果：）
+在Nacos控制台可以看到集群变化：（我们修改user-service集群属性配置，达到下面的效果）
 
-![image-20211211231239040](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231239040.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231239040.png)
 
-**3.3 总结：**
+#### 3.3 总结：
 
 - Nacos服务分级存储模型
   - 一级是服务，例如userservice
@@ -667,11 +679,11 @@ spring:
 
 
 
-**3.4 根据集群负载均衡**
+#### 3.4 根据集群负载均衡
 
-> 我们希望优先选择HZ集群（8001和8002）
->
-> 进行如下设置：
+我们希望优先选择HZ集群（8001和8002），进行如下设置：
+
+
 
 ![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231610325.png)
 
@@ -689,19 +701,17 @@ spring:
 
 跨集群访问的警告信息：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211232440450.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211232440450.png?w=600)
 
 
 
- **3.5 根据权重负载均衡**
+####  3.5 根据权重负载均衡
 
-实际部署中会出现的场景：服务器设备性能有差异，部分实例所在机器性能较好，另一些较差，我们希望性能好的机器承担更多的用户请求
+实际部署中会出现的场景：服务器设备性能有差异，部分实例所在机器性能较好，另一些较差，我们希望性能好的机器承担更多的用户请求。
 
-Nacos提供了权重配置来控制访问频率，权重越大则访问频率越高
+Nacos提供了权重配置来控制访问频率，权重越大则访问频率越高。
 
-
-
-**实践：**
+<br>
 
 在Nacos控制台可以设置实例的权重值，首先选中实例后面的编辑按钮
 
@@ -709,41 +719,50 @@ Nacos提供了权重配置来控制访问频率，权重越大则访问频率越
 
 将权重设置为0.1，测试可以发现8081被访问到的频率大大降低
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211232935847.png" alt="image-20211211232935847" style="zoom: 33%;" />
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211232935847.png">
 
 
 
-<br>
-
-**实例的权重控制**
+```bash
+实例的权重控制
 
 - Nacos控制台可以设置实例的权重值，0~1之间
 - 同集群内的多个实例，权重越高被访问的频率越高
 - 权重设置为<font color=red>0</font>则完全不会被访问
+```
 
 
 
+### 4 环境隔离namespace
+
+```bash
+# 总结Nacos环境隔离
+- 1 每个namespace都有唯一id
+- 2 服务设置namespace时要写id而不是名称
+- 3 不同namespace下的服务互相不可见
+```
 
 
-### 4、环境隔离namespace
 
-
-
-#### 如何修改一个服务的命名空间：
+#### 4.1如何修改一个服务的命名空间
 
 **1）在Nacos控制台可以创建namespace，用来隔离不同环境**
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211233943719.png" alt="image-20211211233943719" style="zoom:33%;" />
+命名空间 -> 新建命名空间
 
-**2）然后填写一个新的命名空间信息：**
+
+
+**2）然后填写一个新的命名空间信息**
 
 <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234013400.png" alt="image-20211211234013400" style="zoom:33%;" />
 
-**3）保存后会在控制台看到这个命名空间的id：**
+**3）保存后会在控制台看到这个命名空间的id**
 
 <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234038201.png" alt="image-20211211234038201" style="zoom:33%;" />
 
-**4）修改order-service的application.yml，添加namespace：**
+
+
+**4）修改order-service的application.yml，添加namespace**
 
 ```yaml
 spring:
@@ -764,29 +783,29 @@ spring:
 
 **5）重启order-service后，再来查看控制台：**
 
-![image-20211211234615252](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234615252.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234615252.png)
 
 **6）此时访问order-service，因为namespace不同，会导致找不到userservice，控制台会报错：**
 
-![image-20211211234632036](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234632036.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234632036.png)
 
 
 
-#### 总结Nacos环境隔离
+#### 4.2 临时实例和非临时实例（好好理解）
 
-- 1）每个namespace都有唯一id
-- 2）服务设置namespace时要写id而不是名称
-- 3）不同namespace下的服务互相不可见
+```bash
+服务注册到Nacos时，可以选择注册为临时或非临时实例
+
+# 通过下面的配置来设置
+临时实例宕机时，会从nacos的服务列表中剔除，而非临时实例则不会
+
+# 区别
+临时实例采用心跳检测，非临时实例nacos主动询问
+```
 
 
 
-#### 临时实例和非临时实例
 
-**好好理解**
-
-> 服务注册到Nacos时，可以选择注册为临时或非临时实例，通过下面的配置来设置：
->
-> 临时实例宕机时，会从nacos的服务列表中剔除，而非临时实例则不会
 
 ```yaml
 spring:
@@ -798,47 +817,75 @@ spring:
 
 
 
-![image-20211211235219524](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211235219524.png)
+![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211235219524.png)
 
 
 
-**Nacos与eureka的共同点**
+### 5 Nacos与Eureka
 
-> 都支持服务注册和服务拉取
->
-> 都支持服务提供者心跳方式做健康检测
+```bash
+# 共同点
+都支持服务注册和服务拉取
 
-**Nacos与Eureka的区别**
+都支持服务提供者心跳方式做健康检测
 
-> Nacos支持服务端主动检测提供者状态：临时实例采用心跳模式，非临时实例采用主动检测模式
->
-> 临时实例心跳不正常会被剔除，非临时实例则不会被剔除
->
-> Nacos支持服务列表变更的消息推送模式，服务列表更新更及时
->
-> Nacos集群默认采用AP方式（强调可用性），当集群中存在非临时实例时，采用CP模式；Eureka采用AP方式
+# 不同点
+Nacos支持服务端主动检测提供者状态：临时实例采用心跳模式，非临时实例采用主动检测模式
+
+临时实例心跳不正常会被剔除，非临时实例则不会被剔除
+
+Nacos支持服务列表变更的消息推送模式，服务列表更新更及时
+
+Nacos集群默认采用AP方式（强调可用性），当集群中存在非临时实例时，采用CP模式；Eureka采用AP方式 [ 重点 ]
+```
+
+
 
 
 
 # springcloud实用篇二
 
-## 一、Nacos配置管理
+## 六、Nacos配置管理
 
-### 1、统一配置管理
+```bash
+# 将配置交给Nacos管理的步骤
+
+- 在Nacos中添加配置文件
+- 在微服务中引入nacos的config依赖
+- 在微服务中添加bootstrap.yml，配置nacos地址、当前环境、服务名称、文件后缀名。这些决定了程序启动时去nacos读取哪个文件
+
+# Nacos配置更改后，微服务可以实现热更新，2种方式
+- 通过@Value注解注入，结合@RefreshScope来刷新
+- 通过@ConfigurationProperties注入，自动刷新
+
+# 注意事项
+- 不是所有的配置都适合放到配置中心，维护起来比较麻烦
+- 建议将一些关键参数，需要运行时调整的参数放到nacos配置中心，一般都是自定义配置
+
+
+```
 
 
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212093955308.png" alt="image-20211212093955308" style="zoom:33%;" />
+
+
+### 1 统一配置管理
+
+
+
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211212093955308.png" alt="image-20211212093955308" style="zoom:33%;" />
 
 #### Nacos实现配置管理
 
-在Nacos中添加配置信息：
+在Nacos中添加配置信息
 
 ![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212094350600.png)
 
-在弹出表单中填写配置信息：
+在弹出表单中填写配置信息
 
-<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211212094447628.png" alt="" style="zoom:33%;" />
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211212094447628.png">
+
+
 
 #### 微服务配置拉取
 
@@ -846,7 +893,7 @@ spring:
 
 
 
-（1）引入Nacos的配置管理客户端依赖：
+（1）引入Nacos的配置管理客户端依赖
 
 ```xml
 <!--nacos的配置管理依赖-->
@@ -856,7 +903,7 @@ spring:
 </dependency>
 ```
 
-（2）在userservice中的resource目录添加一个`bootstrap.yml`文件，这个文件是引导文件，优先级高于application.yml：
+（2）在userservice中的resource目录添加一个`bootstrap.yml`文件，这个文件是引导文件，优先级高于application.yml
 
 ```yaml
 spring:
@@ -871,7 +918,7 @@ spring:
         file-extension: yaml # 文件后缀名
 ```
 
-（3）我们在user-service中将pattern.dateformat这个属性注入到UserController中做测试：
+（3）我们在user-service中将 pattern.dateformat 这个属性注入到UserController中做测试
 
 ```java
 @RestController
@@ -892,17 +939,7 @@ public class UserController {
 
 
 
-**将配置交给Nacos管理的步骤**
-
-- 在Nacos中添加配置文件
-
-- 在微服务中引入nacos的config依赖
-
-- 在微服务中添加bootstrap.yml，配置nacos地址、当前环境、服务名称、文件后缀名。这些决定了程序启动时去nacos读取哪个文件
-
-
-
-### 2、配置热更新
+### 2 配置热更新
 
 Nacos中的配置文件变更后，微服务无需重启就可以感知。不过需要通过下面两种配置实现：
 
@@ -934,19 +971,9 @@ public class PatternProperties {
 }
 ```
 
-> Nacos配置更改后，微服务可以实现热更新，方式：
->
-> - 通过@Value注解注入，结合@RefreshScope来刷新
-> - 通过@ConfigurationProperties注入，自动刷新
->
-> 注意事项：
->
-> - 不是所有的配置都适合放到配置中心，维护起来比较麻烦
-> - 建议将一些关键参数，需要运行时调整的参数放到nacos配置中心，一般都是自定义配置
 
 
-
-### 3、多环境配置共享
+### 3 多环境配置共享
 
 
 
@@ -1004,21 +1031,25 @@ public class PatternProperties {
 
 
 
-### 4、搭建Nacos集群
+### 4 搭建Nacos集群
 
-
-
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212132653512.png" alt="image-20211212132653512" style="zoom:33%;" />
-
-
-
-#### 搭建集群的基本步骤
+```bash
+# 搭建步骤
 
 - 搭建数据库，初始化数据库表结构
 - 下载nacos安装包
 - 配置nacos
 - 启动nacos集群
 - nginx反向代理
+```
+
+
+
+
+
+<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212132653512.png" alt="image-20211212132653512" style="zoom:33%;" />
+
+
 
 
 
@@ -1235,17 +1266,24 @@ INSERT INTO roles (username, role) VALUES ('nacos', 'ROLE_ADMIN');
 
 
 
-**2）下载nacos**
+**2）下载nacos（可以选择任意版本下载。本例中采用1.4.1版本。）**
 
-https://github.com/alibaba/nacos/tags，可以选择任意版本下载。本例中采用1.4.1版本。
+https://github.com/alibaba/nacos/tags
+
+
 
 **3）配置nacos**
 
-解压 （bin：启动脚本  conf：配置文件）
+```bash
+1.解压 
+- bin：启动脚本  
+- conf：配置文件
 
-进入nacos的conf目录，修改配置文件cluster.conf.example，重命名为 `cluster.conf`：
+2.进入nacos的conf目录，修改配置文件cluster.conf.example，重命名为 `cluster.conf`
+然后添加内容
+```
 
-然后添加内容：
+
 
 ```
 127.0.0.1:8845
@@ -1253,7 +1291,7 @@ https://github.com/alibaba/nacos/tags，可以选择任意版本下载。本例�
 127.0.0.1.8847
 ```
 
-然后修改application.properties文件，添加数据库配置
+3. 然后修改application.properties文件，添加数据库配置
 
 ```properties
 spring.datasource.platform=mysql
@@ -1310,7 +1348,7 @@ nginx安装包解压
 ```conf
 upstream nacos-cluster {
     server 127.0.0.1:8845;
-	  server 127.0.0.1:8846;
+    server 127.0.0.1:8846;
 	  server 127.0.0.1:8847;
 }
 
@@ -1326,7 +1364,7 @@ server {
 
 
 
-## 二、Feign远程调用（HTTP客户端Feign）
+## 七、Feign远程调用（HTTP客户端Feign）
 
 ```java
 // vaule和name 其实是一个属性
@@ -1346,7 +1384,7 @@ public interface IBaseDataFeignClient extends IBaseDataFeignController {
 
 
 
-### 1、Feign替代RestTemplate
+### 1 Feign替代RestTemplate
 
 #### 1.1 RestTemplate方式调用存在的问题
 
@@ -1355,21 +1393,24 @@ String url = "http://userservice/user/" + order.getUserId();
 User user = restTemplate.getForObject(url, User.class);
 ```
 
-代码可读性差，编程体验不统一；参数复杂URL难以维护
+代码可读性差，编程体验不统一；参数复杂URL难以维护。
 
 
 
 #### 1.2 Feign的介绍
 
-官方地址：https://github.com/OpenFeign/feign
-
-<br>
+官网：https://github.com/OpenFeign/feign
 
 Feign是一个声明式的http客户端，其作用就是帮助我们优雅的实现http请求的发送，解决上面提到的问题。
 
-> 理解声明式：如spring的声明式事务，对谁加事务规则定义好，spring来实现事务。
->
-> feign接口定义：发http请求的信息写出来就可以
+```bash
+# 声明式
+理解声明式：如spring的声明式事务，对谁加事务规则定义好，spring来实现事务。
+
+feign接口定义：发http请求的信息写出来就可以
+```
+
+
 
 <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213101049566.png" alt="image-20211213101049566" style="zoom:33%;" />
 
@@ -1377,7 +1418,7 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 #### 1.3 定义和使用Feign客户端
 
-引入依赖
+1）引入依赖
 
 ```xml
 <!--feign客户端依赖-->
@@ -1387,33 +1428,33 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 </dependency>
 ```
 
-在order-service的启动类添加注解开启Feign的功能：`@EnableFeignClients`
+
+
+2）在order-service的启动类添加注解开启Feign的功能：`@EnableFeignClients`
 
 <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213110316047.png" alt="image-20211213110316047" style="zoom: 33%;" />
 
-编写Feign客户端
+3）编写Feign客户端
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211213111042682.png)
 
 
 
-### 2、自定义配置
+### 2 自定义配置Feign日志的2种方式
 
-#### 配置Feign日志有两种方式：
-
-**方式一：配置文件方式**
+#### 方式1：配置文件
 
 ![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213225807846.png)
 
 <br>
 
-**方式二：java代码方式，需要先声明一个Bean**
+#### 方式2：java代码方式，需要先声明一个Bean
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213225944483.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211213225944483.png)
 
 
 
-### 3、Figen使用优化（性能调优）
+### 3 Figen使用优化（性能调优）
 
 **Feign底层的客户端实现：**
 
@@ -1432,7 +1473,7 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 
 #### 连接池配置（以HttpClient为例）
 
-引入feign-httpClient依赖
+1）引入feign-httpClient依赖
 
 ```xml
 <!--引入HttpClient依赖-->
@@ -1442,7 +1483,7 @@ Feign是一个声明式的http客户端，其作用就是帮助我们优雅的�
 </dependency>
 ```
 
-配置文件开启httpClient功能，设置连接池参数
+2）配置文件开启httpClient功能，设置连接池参数
 
 ```yaml
 feign:
@@ -1470,19 +1511,19 @@ feign:
 
 
 
-### 4、最佳实践（我做过的内容）
+### 4 Feign最佳实践（我做过的内容）
 
-#### Feign的最佳实践
+```bash
+所谓继承：让controller和FeignClient继承同一接口
 
-> 所谓继承：让controller和FeignClient继承同一接口
->
-> 所谓抽取：将FeignClient、POJO、Feign的默认配置都定义到一个项目中，供所有消费者使用
+所谓抽取：将FeignClient、POJO、Feign的默认配置都定义到一个项目中，供所有消费者使用
+```
 
 
 
-<br>
+#### 方式一（继承）
 
-方式一（继承）：给消费者的FeignClient和提供者的controller定义统一的父接口作为标准。
+给消费者的FeignClient和提供者的controller定义统一的父接口作为标准。
 
 
 
@@ -1490,7 +1531,9 @@ feign:
 
 
 
-方式二（抽取）：将FeignClient抽取为独立模块，并且把接口有关的POJO、默认的Feign配置都放到这个模块中，提供给所有消费者使用
+#### 方式二（抽取）
+
+将FeignClient抽取为独立模块，并且把接口有关的POJO、默认的Feign配置都放到这个模块中，提供给所有消费者使用
 
 ![image-20211213232535909](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213232535909.png)
 
@@ -1498,7 +1541,8 @@ feign:
 
 #### 实现Feign最佳实践
 
-**实现最佳实践方式二的步骤如下：**
+```bash
+# 实现最佳实践方式二的步骤如下：
 
 （1）首先创建一个module，命名为feign-api，然后引入feign的starter依赖
 
@@ -1509,8 +1553,9 @@ feign:
 （4）修改order-service中的所有与上述三个组件有关的import部分，改成导入feign-api中的包
 
 （5）重启测试
+```
 
-<br>
+
 
 **当定义的FeignClient不在SpringBootApplication的扫描包范围时，这些FeignClient无法使用。有两种方式解决：**
 
@@ -1518,27 +1563,30 @@ feign:
 
 
 
-## 三、Gateway服务网关
+## 八、Gateway服务网关
 
-### 1、为什么需要网关
+```bash
+# 在SpringCloud中网关的实现包括两种：zuul和gateway
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213234142351.png)
-
-**在SpringCloud中网关的实现包括两种：zuul和gateway**
-
+Zuul是基于Servlet的实现，属于阻塞式编程。
+而 SpringCloudGateway 则是基于Spring5中提供的WebFlux，属于 [ 响应式编程 ]的实现，具备更好的性能。
 
 
-> Zuul是基于Servlet的实现，属于阻塞式编程。
->
-> 而**SpringCloudGateway**则是基于Spring5中提供的WebFlux，属于**响应式编程**的实现，具备更好的性能。
+```
 
 
 
-### 2、gateway快速入门
 
-#### 搭建服务网关
 
-1）创建新的module，引入SpringCloudGateway的依赖和nacos的服务发现依赖：
+### 1 为什么需要网关
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211213234142351.png)
+
+
+
+### 2 gateway快速入门（搭建服务网关）
+
+1）创建新的module，引入 SpringCloudGateway 的依赖和nacos的服务发现依赖：
 
 ```xml
 <!--nacos服务注册发现依赖-->
@@ -1578,7 +1626,9 @@ spring:
 
 
 
-<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211214000039112.png" alt="image-20211214000039112" style="zoom: 43%;" />
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211214000039112.png)
+
+
 
 <br>
 
@@ -1597,35 +1647,35 @@ spring:
 
 
 
-### 3、断言工厂
+### 3 断言工厂
 
 **predicates：路由断言，判断请求是否符合要求，符合则转发到路由目的地**
 
-> 我们在配置文件中写的断言规则只是字符串，这些字符串会被Predicate Factory读取并处理，转变为路由判断的条件
->
-> 例如Path=/user/**是按照路径匹配，这个规则是由
->
-> org.springframework.cloud.gateway.handler.predicate.PathRoutePredicateFactory类来处理的
->
-> 像这样的断言工厂在SpringCloudGateway还有十几个
+```bash
+# 断言
+我们在配置文件中写的断言规则只是字符串，这些字符串会被Predicate Factory读取并处理，转变为路由判断的条件
+
+例如Path=/user/**是按照路径匹配，这个规则是由org.springframework.cloud.gateway.handler.predicate.
+PathRoutePredicateFactory类来处理的
+
+像这样的断言工厂在SpringCloudGateway还有十几个
+
+# PredicateFactory的作用是什么？
+- 读取用户定义的断言条件，对请求做出判断
+
+# Path=/user/**是什么含义？
+- 路径是以/user开头的就认为是符合的	
+```
 
 
 
-**Spring提供了11种基本的Predicate工厂：要用哪个去官方查一查文档，看怎么写**
+**Spring提供了11种基本的Predicate工厂，要用哪个去官方查一查文档，看怎么写**
 
 https://docs.spring.io/spring-cloud-gateway/docs/3.1.1-SNAPSHOT/reference/html/#gateway-request-predicates-factories
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211214001242768.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211214001242768.png?w=600)
 
-> PredicateFactory的作用是什么？
->
-> - 读取用户定义的断言条件，对请求做出判断
->
-> Path=/user/**是什么含义？
->
-> - 路径是以/user开头的就认为是符合的	
 
-<br>
 
 这一块参考官网进行配置就可以：
 
@@ -1642,17 +1692,38 @@ spring:
 
 
 
-### 4、全局过滤器
+### 4 全局过滤器
 
-#### 路由过滤器 GatewayFilter
+```bash
+# 过滤器的作用是什么？
+- 对路由的请求或响应做加工处理，比如添加请求头
+- 配置在路由下的过滤器只对当前路由的请求生效
+
+# default Filters的作用是什么？
+- 对所有路由都生效的过滤器
+
+# 全局过滤器的作用是什么？
+对所有路由都生效的过滤器，并且可以自定义处理逻辑
+
+# 实现全局过滤器的步骤？
+- 实现GlobalFilter接口
+- 添加@Order注解或实现Ordered接口
+- 编写处理逻辑
+```
+
+
+
+
+
+#### 4.1 路由过滤器 GatewayFilter
 
 **GatewayFilter是网关中提供的一种过滤器，可以对进入网关的请求和微服务返回的响应做处理：**
 
 ![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214002520861.png)
 
-<br>
 
-#### 过滤器工厂 GatewayFilterFactory
+
+#### 4.2 过滤器工厂 GatewayFilterFactory
 
 **Spring提供了31种不同的路由过滤器工厂。例如：**
 
@@ -1660,7 +1731,9 @@ spring:
 
 
 
-#### 案例：给所有进入userservice的请求添加一个请求头：Truth=itcast is freaking awesome!
+#### 4.3 案例：请求添加请求头
+
+给所有进入userservice的请求添加一个请求头：Truth=itcast is freaking awesome!
 
 实现方式：在gateway中修改application.yml文件，给userservice的路由添加过滤器：
 
@@ -1674,19 +1747,9 @@ spring:
 
 
 
-> **过滤器的作用是什么？**
->
-> - 对路由的请求或响应做加工处理，比如添加请求头
->
-> - 配置在路由下的过滤器只对当前路由的请求生效
->
-> **default Filters的作用是什么？**
->
-> - 对所有路由都生效的过滤器
 
 
-
-#### 全局过滤器 GlobalFilter（实现 `GlobalFilter`接口）
+#### 4.4 全局过滤器 GlobalFilter（实现 `GlobalFilter`接口）
 
 > 全局过滤器的作用也是处理一切进入网关的请求和微服务响应，与GatewayFilter的作用一样。
 >
@@ -1700,7 +1763,7 @@ spring:
 
 
 
-#### 案例：定义全局过滤器，拦截并判断用户身份
+#### 4.5 案例：定义全局过滤器，拦截并判断用户身份
 
 > 需求：定义全局过滤器，拦截请求，判断请求的参数是否满足下面条件：
 >
@@ -1762,23 +1825,13 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 
 
 
-> **全局过滤器的作用是什么？**
->
-> **对所有路由都生效的过滤器，并且可以自定义处理逻辑**
->
-> **实现全局过滤器的步骤？**
->
-> - 实现GlobalFilter接口
-> - 添加@Order注解或实现Ordered接口
-> - 编写处理逻辑
 
 
-
-#### 过滤器执行顺序
+#### 4.6 过滤器执行顺序
 
 请求进入网关会碰到三类过滤器：当前路由的过滤器、DefaultFilter、GlobalFilter
 
-**请求路由后，会将当前路由过滤器和DefaultFilter、GlobalFilter，合并到一个过滤器链（集合）中（设计模式之适配器模式），排序后依次执行每个过滤器**
+**请求路由后，会将当前路由过滤器和DefaultFilter、GlobalFilter合并到一个过滤器链（集合）中（设计模式之适配器模式），排序后依次执行每个过滤器**
 
 ![image-20211214010849607](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214010849607.png)
 
@@ -1808,9 +1861,11 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 
 
 
-### 5、跨域问题处理
+### 5 跨域问题处理
 
-跨域：域名不一致就是跨域，主要包括：
+
+
+跨域：域名或端口不一致就是跨域
 
 - 域名不同： www.taobao.com 和 www.taobao.org 和 www.jd.com 和 miaosha.jd.com
 
@@ -1826,7 +1881,21 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 
 网关处理跨域采用的同样是CORS方案，并且只需要简单配置即可实现：
 
-![image-20211214012404184](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214012404184.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211214012404184.png)
+
+
+
+```bash
+# CORS跨域要配置的参数包括哪几个？
+
+- 允许哪些域名跨域？
+- 允许哪些请求头？
+- 允许哪些请求方式？
+- 是否允许使用cookie？
+- 有效期是多久？
+```
+
+
 
 
 
@@ -2094,16 +2163,6 @@ crux:
     auth-url: http://192.168.50.210:8020
 
 ```
-
-
-
-**CORS跨域要配置的参数包括哪几个？**
-
-- 允许哪些域名跨域？
-- 允许哪些请求头？
-- 允许哪些请求方式？
-- 是否允许使用cookie？
-- 有效期是多久？
 
 
 
