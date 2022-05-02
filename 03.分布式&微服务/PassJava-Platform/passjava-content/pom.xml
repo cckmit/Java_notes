@@ -10,7 +10,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.example</groupId>
     <artifactId>passjava-content</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <description>内容微服务</description>
 
     <properties>

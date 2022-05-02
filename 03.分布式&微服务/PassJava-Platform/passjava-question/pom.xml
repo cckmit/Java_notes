@@ -15,7 +15,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.example</groupId>
     <artifactId>passjava-question</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <description>题目微服务</description>
 
     <properties>

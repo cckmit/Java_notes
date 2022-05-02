@@ -21,6 +21,7 @@
         <module>renren-generator</module>
         <module>passjava-common</module>
         <module>passjava-gateway</module>
+        <module>passjava-thirdparty</module>
 
     </modules>
 

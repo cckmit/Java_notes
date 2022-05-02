@@ -1,5 +1,6 @@
 package org.example.question;
 
+import com.aliyun.oss.OSSClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.example.question.entity.TypeEntity;
 import org.example.question.service.TypeService;
@@ -7,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -39,6 +44,17 @@ public class MyTest {
         System.out.println("查询成功");
     }
 
+    @Resource
+    OSSClient ossClient;
 
+    @Test
+    void testUploadByAlicloudOss() throws FileNotFoundException {
+        String bucketName = "passjava-test";
+        String localFile = "/Users/cat/一寸照片.jpg";
+        String fileKeyName = "coding_java.png";
+        InputStream inputStream = new FileInputStream(localFile);
+        ossClient.putObject(bucketName, fileKeyName, inputStream);
+        ossClient.shutdown();
+    }
 
 }
