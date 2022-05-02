@@ -58,6 +58,16 @@ Spring Cloud Feign 在Netflix Feign的基础上扩展了对SpringMVC注解的支
 
 
 # Spring Cloud 整合 Nacos配置中心
+application.properties文件中定义两个配置
+示例控制器中定义私有变量nickname和age，@value代表从配置中取值
+
+总结：从配置文件中获取配置。
+
+这种方式的缺点是什么呢？如果要修改配置参数，则需要重新启动服务。如果服务很多，则需要重启所有服务，非常不方便。
+
+有没有什么办法不停服务修改配置而且使其生效呢？
+
+答案：有的，用Spring Cloud Alibaba的Nacos 组件就可以完成。
 
 # Spring Cloud 整合Gateway网关
 
