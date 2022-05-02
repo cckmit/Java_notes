@@ -48,10 +48,11 @@ public class QuestionController {
      */
     @RequestMapping("/info/{id}")
     //@RequiresPermissions("question:question:info")
-    public R info(@PathVariable("id") Long id){
+    public R info(@PathVariable("id") Long id) throws Exception {
 		QuestionEntity question = questionService.getById(id);
+        throw new Exception("test");
 
-        return R.ok().put("question", question);
+        //return R.ok().put("question", question);
     }
 
     /**
