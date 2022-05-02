@@ -70,6 +70,18 @@ application.properties文件中定义两个配置
 答案：有的，用Spring Cloud Alibaba的Nacos 组件就可以完成。
 
 # Spring Cloud 整合Gateway网关
+网关:流量的入口
+网关常用功能:路由转发,权限校验,限流控制
+Spring Cloud Gateway是Spring Cloud官方推出的第二代网关框架
+Spring Cloud Gateway取代了netflix的Zuul网关
+
+请求先访问到API网关
+API网关通过注册中心实时感知微服务的状态和路由地址,准确地将请求路由到各个服务
+
+请求到达网关后,先经过断言Predicate,是否符合某个路由规则
+如果符合,则按路由规则路由到指定地址
+请求和响应都可以通过过滤器Filter进行过滤
+
 
 # 整合OSS对象存储
 
