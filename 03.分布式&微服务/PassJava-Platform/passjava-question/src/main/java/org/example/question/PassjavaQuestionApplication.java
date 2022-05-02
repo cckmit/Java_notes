@@ -9,7 +9,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 //@EnableCaching
 //@EnableFeignClients(basePackages = "com.jackson0714.passjava.question.feign")
-//@EnableDiscoveryClient
+@EnableDiscoveryClient
 @MapperScan("org.example.question.dao")
 @SpringBootApplication
 public class PassjavaQuestionApplication {
