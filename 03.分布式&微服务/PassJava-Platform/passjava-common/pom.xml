@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>passjava-common</artifactId>
+    <description>工具类模块，其他服务引用该模块</description>
 
     <dependencies>
         <!--mybatis-plus DAO层工具 https://mp.baomidou.com/-->
