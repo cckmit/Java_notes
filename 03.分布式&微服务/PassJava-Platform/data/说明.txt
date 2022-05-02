@@ -8,3 +8,44 @@ sms学习微服务
 ums用户微服务
 
 # 搭建管理后台
+
+# 自动生成前后端代码
+
+
+# 整合MyBatis-Plus实现CRUD
+
+# 生成五大微服务的CRUD代码
+
+# SpringCloud Alibaba 组件简介
+
+# 整合Spring Cloud Alibaba Nacos组件
+
+# Spring Cloud 整合 OpenFeign实现声明式远程调用
+
+# Spring Cloud 整合 Nacos配置中心
+
+# Spring Cloud 整合Gateway网关
+
+# 整合OSS对象存储
+
+# SpringCloud整合统一异常处理
+
+# 别只会搜日志了，求你懂点检索原理吧
+
+# ES 高级实战
+
+# ES 终于可以搜到“悟空哥”了！
+
+# 微服务架构中的链路追踪
+
+# 48 张图 | 手把手教你微服务的性能监控、压测和调优
+
+# 缓存实战
+
+
+
+
+
+
+
+
