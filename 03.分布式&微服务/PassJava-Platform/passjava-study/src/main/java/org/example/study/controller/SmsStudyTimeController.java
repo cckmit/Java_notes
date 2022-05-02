@@ -81,4 +81,15 @@ public class SmsStudyTimeController {
         return R.ok();
     }
 
+    // 返回某个用户学习题目的总时长
+    @RequestMapping("/member/list/test")
+    public R memberStudyTimeTest() {
+        SmsStudyTimeEntity studyTimeEntity = new SmsStudyTimeEntity();
+        studyTimeEntity.setTotalTime(998); // 学习时长：100分钟
+        studyTimeEntity.setQuesType(2L); // 题目类型：1 （javaBasic）
+
+        return R.ok().put("studyTime", Arrays.asList(studyTimeEntity));
+    }
+
+
 }

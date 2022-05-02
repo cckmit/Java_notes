@@ -3,6 +3,7 @@ package org.example.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.example.member.feign.StudyTimeFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.example.member.service.UmsMemberService;
 import org.example.common.utils.PageUtils;
 import org.example.common.utils.R;
 
+import javax.annotation.Resource;
 
 
 /**
@@ -29,6 +31,22 @@ import org.example.common.utils.R;
 public class UmsMemberController {
     @Autowired
     private UmsMemberService umsMemberService;
+
+    @Autowired
+    private StudyTimeFeignService studyTimeFeignService;
+
+
+    @RequestMapping("/studytime/list/test/{id}")
+    public R getMemberStudyTimeListTest(@PathVariable("id") Long id) {
+        //mock数据库查到的会员信息
+        UmsMemberEntity memberEntity = new UmsMemberEntity();
+        memberEntity.setId(id); // 学习时长：100分钟
+        memberEntity.setNickname("悟空聊架构");
+
+        //远程调用拿到该用户的学习时长（学习时长是mock数据）
+        R memberStudyTimeList = studyTimeFeignService.memberStudyTimeTest();
+        return R.ok().put("member", memberEntity).put("studytime", memberStudyTimeList);
+    }
 
     /**
      * 列表

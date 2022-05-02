@@ -51,6 +51,11 @@ Spring Cloud Alibaba的优势
 # SpringCloud整合Nacos注册中心
 
 # Spring Cloud 整合 OpenFeign实现声明式远程调用
+Feign声明式的HTTP客户端，让远程调用更简单。
+提供了HTTP请求的模板，编写简单的接口和插入注解，就可以定义好HTTP请求的参数、格式、地址等信息
+整合了Ribbon（负载均衡组件）和Hystix（服务熔断组件），不需要显示使用这两个组件
+Spring Cloud Feign 在Netflix Feign的基础上扩展了对SpringMVC注解的支持
+
 
 # Spring Cloud 整合 Nacos配置中心
 
