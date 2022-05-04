@@ -343,13 +343,13 @@ redis-cli [options] [commonds]
 
 
 
-#### 图形化桌面客户端
+#### 图形化桌面客户端 Github大神编写
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311135943224.png)
 
 
 
-Redis默认有16个仓库，编号从0至15.  通过配置文件可以设置仓库数量，但是不超过16，并且不能自定义仓库名称。
+Redis默认有16个仓库，编号从0至15。通过配置文件可以设置仓库数量，但是不超过16，并且不能自定义仓库名称。
 
 如果是基于redis-cli连接Redis服务，可以通过select命令来选择数据库：
 
@@ -364,21 +364,17 @@ select 0
 
 
 
-
-
-
-
-
-
 ## 2. Redis常用命令
 
 
 
-#### Redis数据结构介绍
+### Redis数据结构介绍
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311140514450.png)
 
 
+
+Redis为了方便我们学习，将操作不同数据类型的命令也做了分组，在官网（ https://redis.io/commands ）可以查看到不同的命令
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311140842569.png)
 
@@ -388,44 +384,238 @@ select 0
 
 
 
-#### Redis通用命令
+### Redis通用命令
 
-> 通用指令是部分数据类型的，都可以使用的指令，常见的有：
-> - KEYS：查看符合模板的所有key
-> - DEL：删除一个指定的key
-> - EXISTS：判断key是否存在
-> - EXPIRE：给一个key设置有效期，有效期到期时该key会被自动删除
-> - TTL：查看一个KEY的剩余有效期
->
-> 通过help [command] 可以查看一个命令的具体用法，例如：
+所有数据类型都可以使用的指令，常见的有：
+
+- KEYS：查看符合模板的所有key
+- DEL：删除一个指定的key
+- EXISTS：判断key是否存在
+- EXPIRE：给一个key设置有效期，有效期到期时该key会被自动删除
+- TTL：查看一个KEY的剩余有效期
+
+通过help [command] 可以查看一个命令的具体用法，例如：
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311141206482.png)
 
 
 
-#### String类型
+### String类型
+
+Redis中最简单的存储类型。
+
+不过根据字符串的格式不同，又可以分为3类：
+
+- string：普通字符串
+- int：整数类型，可以做自增、自减操作
+- float：浮点类型，可以做自增、自减操作
+
+不管是哪种格式，底层都是字节数组形式存储，只不过是编码方式不同。字符串类型的最大空间不能超过512m。
+
+
+
+| 命令        | 说明                                                         | 注    |
+| ----------- | ------------------------------------------------------------ | ----- |
+| SET         | 添加或者修改已经存在的一个String类型的键值对                 | 1     |
+| GET         | 根据key获取String类型的value                                 | 1     |
+| MSET        | 批量添加多个String类型的键值对                               | 1     |
+| MGET        | 根据多个key获取多个String类型的value                         | 1     |
+| INCR        | 让一个整型的key自增1                                         | 2     |
+| INCRBY      | 让一个整型的key自增并指定步长，例如：incrby num 2 让num值自增2 | 2     |
+| INCRBYFLOAT | 让一个浮点类型的数字自增并指定步长                           | 2     |
+| SETNX       | 添加一个String类型的键值对，前提是这个key不存在，否则不执行  | 3重要 |
+| SETEX       | 添加一个String类型的键值对，并且指定有效期                   | 3     |
+
+#### key的层级格式
+
+例如，需要存储用户、商品信息到redis，有一个用户id是1，有一个商品id恰好也是1
+
+##### key
+
+Redis的key允许有多个单词形成层级结构，多个单词之间用':'隔开，格式如下：
+
+```bash
+# 项目名:业务名:类型:id
+
+user相关的key：heima:user:1
+product相关的key：heima:product:1
+```
+
+##### value
+
+如果Value是一个Java对象，例如一个User对象，则可以将对象序列化为JSON字符串后存储
+
+| **KEY**         | **VALUE**                                 |
+| --------------- | ----------------------------------------- |
+| heima:user:1    | {"id":1, "name": "Jack", "age": 21}       |
+| heima:product:1 | {"id":1, "name": "小米11", "price": 4999} |
+
+ 
+
+### Hash类型
+
+Hash类型，也叫散列，其value是一个无序字典，类似于Java中的HashMap结构。
+
+String结构是将对象序列化为JSON字符串后存储，当需要修改对象某个字段时很不方便。
+
+Hash结构可以将对象中的每个字段独立存储，可以针对单个字段做CRUD
+
+| **KEY**      | value | value |
+| ------------ | ----- | ----- |
+|              | field | value |
+| heima:user:1 | name  | Jack  |
+|              | age   | 21    |
+| heima:user:2 | name  | Rose  |
+|              | age   | 18    |
+
+常见命令： 
+
+| 命令                 | 说明                               | 注   |
+| -------------------- | ---------------------------------- | ---- |
+| HSET key field value | 添加或者修改hash类型key的field的值 |      |
+| HGET key field       | 获取一个hash类型key的field的值     |      |
+| HMSET                | 批量添加多个hash类型key的field的值 |      |
+|                      |                                    |      |
+|                      |                                    |      |
+|                      |                                    |      |
+|                      |                                    |      |
+|                      |                                    |      |
+|                      |                                    |      |
 
 
 
 
 
+### List类型（存储有序数据）
+
+Redis中的List类型与Java中的LinkedList类似，可以看做是一个双向链表结构。既可以支持正向检索和也可以支持反向检索。
+
+特征也与LinkedList类似：
+
+- 有序
+- 元素可以重复
+- 插入和删除快
+- 查询速度一般
+
+**常用来存储一个有序数据，例如：朋友圈点赞列表，评论列表等。**
+
+ 
+
+| 命令                   | 说明                                                         | 注   |
+| ---------------------- | ------------------------------------------------------------ | ---- |
+| LPUSH key  element ... | 向列表左侧插入一个或多个元素                                 |      |
+| LPOP key               | 移除并返回列表左侧的第一个元素，没有则返回nil                |      |
+| RPUSH key  element ... | 向列表右侧插入一个或多个元素                                 |      |
+| RPOP key               | 移除并返回列表右侧的第一个元素                               |      |
+| LRANGE key star end    | 返回一段角标范围内的所有元素                                 |      |
+| BLPOP和BRPOP           | 与LPOP和RPOP类似，只不过在没有元素时等待指定时间，而不是直接返回nil |      |
+
+
+
+![image-20220504223741051](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220504223741051.png)
+
+
+
+```bash
+# 如何利用List结构模拟一个栈?
+入口和出口在同一边
+
+# 如何利用List结构模拟一个队列?
+入口和出口在不同边
+
+# 如何利用List结构模拟一个阻塞队列?
+- 入口和出口在不同边
+- 出队时采用BLPOP或BRPOP
+```
 
 
 
 
 
+### Set类型
+
+Redis的Set结构与Java中的HashSet类似，可以看做是一个value为null的HashMap。
+
+因为也是一个hash表，因此具备与HashSet类似的特征：
+
+- 无序
+- 元素不可重复
+- 查找快
+- 支持交集、并集、差集等功能
 
 
 
-#### Hash类型
+常见命令：
 
-#### List类型
+| 命令                 | 说明                        | 注   |
+| -------------------- | --------------------------- | ---- |
+| SADD key member...   | 向set中添加一个或多个元素   | 1    |
+| SREM key member...   | 移除set中的指定元素         | 1    |
+| SCARD key            | 返回set中元素的个数         | 1    |
+| SISMEMBER key member | 判断一个元素是否存在于set中 | 1    |
+| SMEMBERS             | 获取set中的所有元素         | 1    |
+| SINTER key1 key2 ... | 求key1与key2的交集          | 2    |
+| SDIFF key1 key2 ...  | 差集                        | 2    |
+| SUNION key1 key2 ... | 并集                        | 2    |
 
-#### Set类型
-
-#### SortedSet类型
 
 
+练习
+
+```bash
+# 将下列数据用Redis的Set集合来存储：
+张三的好友有：李四、王五、赵六
+李四的好友有：王五、麻子、二狗
+
+# 利用Set的命令实现下列功能： 
+计算张三的好友有几人
+计算张三和李四有哪些共同好友
+查询哪些人是张三的好友却不是李四的好友
+查询张三和李四的好友总共有哪些人
+判断李四是否是张三的好友
+判断张三是否是李四的好友
+将李四从张三的好友列表中移除
+```
+
+
+
+
+
+### SortedSet类型（排行榜）
+
+Redis的SortedSet是一个可排序的set集合，与Java中的TreeSet有些类似，但底层数据结构却差别很大。
+
+SortedSet中的每一个元素都带有一个score属性，可以基于score属性对元素排序，底层的实现是一个跳表（SkipList）加 hash表。
+
+SortedSet具备下列特性：
+
+- 可排序
+- 元素不重复
+- 查询速度快
+
+因为SortedSet的可排序特性，经常被用来实现排行榜这样的功能。
+
+
+
+常见命令
+
+
+
+练习
+
+```bash
+将班级的下列学生得分存入Redis的SortedSet中：
+Jack 85, Lucy 89, Rose 82, Tom 95, Jerry 78, Amy 92, Miles 76
+并实现下列功能：
+
+删除Tom同学
+获取Amy同学的分数
+获取Rose同学的排名
+查询80分以下有几个学生
+给Amy同学加2分
+查出成绩前3名的同学
+查出成绩80分以下的所有同学
+```
 
 
 
@@ -435,7 +625,7 @@ select 0
 
 ## 3. Redis客户端
 
-> 
+在Redis官网中提供了各种语言的客户端，地址：https://redis.io/clients
 
 
 
@@ -445,14 +635,19 @@ select 0
 
 
 
-#### Jedis
+### 3.1 Jedis
 
-> 引入依赖；
-> 创建Jedis对象，建立连接；
-> 使用Jedis，方法名与Redis命令一致；
-> 释放资源；
+Jedis的官网地址： https://github.com/redis/jedis，我们先来个快速入门
 
+```bash
+# 使用
+引入依赖；
+创建Jedis对象，建立连接；
+使用Jedis，方法名与Redis命令一致；
+释放资源；
+```
 
+1
 
 ```xml
 <dependency>
@@ -462,26 +657,13 @@ select 0
 </dependency>
 ```
 
+2
 
+3
+
+4
 
 ```java
-package com.zjl;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import redis.clients.jedis.Jedis;
-
-/**
- * @author cat
- * @description
- * @date 2022/3/11 下午3:22
- */
 //@RunWith(SpringJUnit4ClassRunner.class)
 //@SpringBootTest(classes=SpringApplicationTest.class)
 public class SpringApplicationTest {
@@ -520,18 +702,11 @@ public class SpringApplicationTest {
 }
 ```
 
+#### Jedis连接池
 
-
-> Jedis本身是线程不安全的，并且频繁的创建和销毁连接会有性能损耗，因此我们推荐大家使用Jedis连接池代替Jedis的直连方式。
+> Jedis本身是线程不安全的，并且频繁的创建和销毁连接会有性能损耗，因此我们**推荐大家使用Jedis连接池代替Jedis的直连方式**。
 
 ```java
-package com.zjl;
-
-import org.springframework.stereotype.Component;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-
 @Component
 public class JedisConnectionFactory {
 
@@ -544,7 +719,7 @@ public class JedisConnectionFactory {
         // 最大空闲连接
         jedisPoolConfig.setMaxIdle(8);
         // 最小空闲连接
-        jedisPoolConfig.setMinIdle(0);
+        jedisPoolConfig.setMinIdle(4);
         // 设置最长等待时间， ms
         jedisPoolConfig.setMaxWaitMillis(200);
         jedisPool = new JedisPool(jedisPoolConfig, "39.101.189.62", 6379,
@@ -561,15 +736,21 @@ public class JedisConnectionFactory {
 
 
 
-#### SpringDataRedis
+### 3.2 SpringDataRedis 2.6.0
 
-> SpringData是Spring中数据操作的模块，包含对各种数据库的集成，其中对Redis的集成模块就叫做SpringDataRedis，官网地址：https://spring.io/projects/spring-data-redis
+#### 说明
+
+SpringData是Spring中数据操作的模块，包含对各种数据库的集成
+
+其中对Redis的集成模块就叫做SpringDataRedis，官网地址：https://spring.io/projects/spring-data-redis
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311165524445.png)
 
 
 
-> SpringDataRedis中提供了RedisTemplate工具类，其中封装了各种对Redis的操作。并且将不同数据类型的操作API封装到了不同的类型中：
+SpringDataRedis中提供了RedisTemplate工具类，其中封装了各种对Redis的操作。
+
+并且将不同数据类型的操作API封装到了不同的类型中：
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311165737684.png)
 
@@ -592,42 +773,37 @@ public class JedisConnectionFactory {
 
 
 
-```xml
-<parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.5.7</version>
-</parent>
-<modelVersion>4.0.0</modelVersion>
+#### 使用
 
+```bash
+SpringDataRedis的使用步骤：
+
+- 引入spring-boot-starter-data-redis依赖
+- 在application.yml配置Redis信息
+- 注入RedisTemplate使用
+```
+
+
+
+1 引入依赖
+
+```xml
 <artifactId>Redis_02_SpringDataRedis</artifactId>
 
-<dependencies>
     <!--Redis依赖-->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
     <!--连接池依赖-->
+  	<!--底层基于实现连接池技术-->
     <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-pool2</artifactId>
     </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-test</artifactId>
-        <scope>test</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <scope>test</scope>
-    </dependency>
-</dependencies>
 ```
 
-
+2 配置
 
 ```yaml
 spring:
@@ -645,7 +821,9 @@ spring:
 
 
 
+3 注入RedisTemplate
 
+4 编写测试
 
 ```java
 @RunWith(SpringRunner.class)
@@ -657,9 +835,9 @@ public class RedisTest {
 
     @Test
     public void testString() {
-        // 插入一条string类型数据
+        // 插入一条string类型数据
         redisTemplate.opsForValue().set("name", "李四");
-        // 读取一条string类型数据
+        // 读取一条string类型数据
         Object name = redisTemplate.opsForValue().get("name");
         System.out.println("name = " + name);
     }
@@ -668,27 +846,28 @@ public class RedisTest {
 
 
 
-> SpringDataRedis的使用步骤：
->
-> - 引入spring-boot-starter-data-redis依赖
-> - 在application.yml配置Redis信息
-> - 注入RedisTemplate
+#### 序列化方式
 
+RedisTemplate可以接收任意Object作为值写入Redis，只不过**写入前会把Object序列化为字节形式**，**默认是采用**
 
-
-##### 序列化方式
-
-> RedisTemplate可以接收任意Object作为值写入Redis，只不过写入前会把Object序列化为字节形式，默认是采用JDK序列化，得到的结果是这样的：
+**JDK序列化**，得到的结果是这样的：
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311233856781.png)
 
-> 缺点：可读性差；内存占用较大。
+> 缺点：
+>
+> - 可读性差
+>
+> - 内存占用较大
 
 
 
-###### 使用JSON序列化器
+##### 使用JSON序列化器
 
 我们可以自定义RedisTemplate的序列化方式，代码如下：
+
+- key和 hashKey采用 string序列化
+- value和 hashValue采用 JSON序列化
 
 ```java
 @Configuration
@@ -717,7 +896,7 @@ public class JsonSerializable {
 
 
 
-
+结果：
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220312095453601.png)
 
@@ -729,9 +908,11 @@ public class JsonSerializable {
 
 
 
-###### String序列化器
+##### String序列化器
 
-> 为了节省内存空间，我们并不会使用JSON序列化器来处理value，而是统一使用String序列化器，要求只能存储String类型的key和value。当需要存储Java对象时，手动完成对象的序列化和反序列化。
+为了节省内存空间，我们并不会使用JSON序列化器来处理value。
+
+而是统一使用String序列化器，要求只能存储String类型的key和value。当需要存储Java对象时，手动完成对象的序列化和反序列化。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220312181152783.png)
 
@@ -744,7 +925,7 @@ public class StringRedisTemplateTest {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-    // Json工具
+    // SpringMVC 的Json处理工具
     private static final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -769,14 +950,17 @@ public class StringRedisTemplateTest {
 
 
 
-> RedisTemplate的两种序列化实践方案：
-> 方案一：
-> 自定义RedisTemplate
-> 修改RedisTemplate的序列化器为GenericJackson2JsonRedisSerializer
-> 方案二：
-> 使用StringRedisTemplate
-> 写入Redis时，手动把对象序列化为JSON
-> 读取Redis时，手动把读取到的JSON反序列化为对象
+```bash
+# RedisTemplate的两种序列化实践方案：
+方案一：
+自定义RedisTemplate
+修改RedisTemplate的序列化器为GenericJackson2JsonRedisSerializer
+
+方案二：
+使用StringRedisTemplate
+写入Redis时，手动把对象序列化为JSON
+读取Redis时，手动把读取到的JSON反序列化为对象
+```
 
 
 
@@ -786,7 +970,7 @@ public class StringRedisTemplateTest {
 
 
 
-### 4. Redis使用场景
+## 4. Redis使用场景（企业实战）
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220312194539984.png)
 
@@ -800,9 +984,9 @@ public class StringRedisTemplateTest {
 
 
 
-#### 4.1 短信登陆
+### 4.1 短信登陆（共享session）
 
-##### 导入黑马点评项目
+#### （1）导入黑马点评项目
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220312194846174.png)
 
@@ -826,13 +1010,13 @@ public class StringRedisTemplateTest {
 
 
 
-##### 基于Session实现登陆
+#### （2）基于Session实现登陆
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220313090352953.png)
 
 
 
-###### 发送短信验证码
+##### 发送短信验证码
 
 ```java
 @PostMapping("code")
@@ -1058,13 +1242,13 @@ public Result me(){
 
 
 
-##### 集群的Session共享问题
+#### （3）集群的Session共享问题
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220313151624030.png)
 
 
 
-##### 基于Redis实现共享session登陆
+#### （4）基于Redis实现共享session登陆
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220313153813753.png)
 
@@ -1239,7 +1423,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
 <hr>
 
-#### 4.2 商品查询缓存
+### 4.2 商品查询缓存（缓存使用技巧、缓存雪崩和穿透问题）
 
 > 借助商户查询业务，分析缓存使用的技巧，还有常见问题的解决方案。
 
@@ -1703,7 +1887,7 @@ public <R, ID> R queryWithLogicalExpire(
 
 
 
-#### 4.3 优惠券秒杀
+### 4.3 优惠券秒杀（含金量高）（计数器、lua脚本、分布式锁、3种消息队列）
 
 ##### 全局唯一ID
 
@@ -1887,21 +2071,13 @@ public Result seckillVoucher(Long voucherId) {
 
 
 
-#### 4.4 达人探店
+### 4.4 达人探店（基于list的点赞列表、基于sortedset的点赞排行榜）
 
 
 
 
 
-#### 4.5 好友关注
-
-
-
-
-
-
-
-#### 4.6 附近的商户
+### 4.5 好友关注（基于set集合的关注、取关、共同关注、消息推送）
 
 
 
@@ -1909,13 +2085,11 @@ public Result seckillVoucher(Long voucherId) {
 
 
 
-#### 4.7 用户签到
+### 4.6 附近的商户（GeoHash）
 
+### 4.7 用户签到（BitMap数据统计功能）
 
-
-
-
-#### 4.8 UV统计
+### 4.8 UV统计（HyperLogLog统计功能）
 
 
 
