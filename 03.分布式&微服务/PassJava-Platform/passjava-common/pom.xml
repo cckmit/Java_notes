@@ -67,6 +67,12 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
         </dependency>
+        <!-- 链路追踪组件 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-sleuth</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -94,6 +100,8 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!--因为我们使用的链路追踪组件 Sleuth 是 Spring Cloud 的组件，所以我们需要引入 Spring Cloud 依赖。-->
             <!--  Spring Cloud 依赖  -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>

@@ -22,6 +22,7 @@
         <module>passjava-common</module>
         <module>passjava-gateway</module>
         <module>passjava-thirdparty</module>
+        <module>passjava-search</module>
 
     </modules>
 

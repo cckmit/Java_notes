@@ -54,6 +54,7 @@ public class A16 {
     }
 
 
+    // @Transactional可以加在方法上、类上、接口上。都能实现增强。
     static class T1 {
         @Transactional
         public void foo() {
