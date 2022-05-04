@@ -8,11 +8,34 @@
 
 
 
+```bash
+175P
+
+# 知识全面
+
+# 与时俱进
+# 贴合企业开发 
+黑马点评网
+学到了直接拿到公司里面用 
+
+# 理论结合实际
+理论背熟，没写代码，心里没底，不够自信。一行一行手写代码，要自信。 
+
+# 由浅入深
+常用操作烂熟于心
+高级篇偏向运维
+原理篇深入底层
+
+## 通俗易懂
+```
 
 
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220504210855793.png)
 
-## 实用篇
+
+
+# 实用篇
 
 
 
@@ -22,31 +45,89 @@
 
 
 
+```bash
+# 初识Redis
+- 认识NoSQL
+- 认识Redis
+- 安装Redis
+
+# Redis常见命令
+- 5种常见数据结构
+- 通用命令
+- 不同数据结构的操作命令
+
+# Redis的Javae客户端
+- Jedis客户端
+- SpringDataRedis客户端
+```
 
 
-### 1. Redis入门
+
+ 
+
+## 1.  初识Redis
+
+键值型数据库，key-value
+
+### 1.1 认识NoSQL
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220504212803028.png)
 
 
 
-> 8种不同的数据结构，2种消息队列，4个运维操作，Script脚本和事务操作。
->
-> 包含各个版本的新特性。
->
-> 
+```bash
+# 结构化&非结构化
+# 关联的&无关联的
+# SQL查询&非SQL（语法格式不统一） 
+# 事务ACID&BASE
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220504212937043.png)
+
+
+
+<br> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220504213715188.png)
+
+
+
+### 1.2 认识Redis
+
+Redis诞生于2009年全称是Remote Dictionary Server，远程词典服务器，是一个基于内存的键值型NoSQL数据库。
+
+特征：
+
+- 键值（key-value）型，value支持多种不同数据结构，功能丰富
+- 单线程，每个命令具备原子性
+  - 6.0只是处理网络请求多线程，核心命令执行依然单线程
+
+- 低延迟，速度快（基于内存、IO多路复用、良好的编码）
+  - 内存存储数据相比磁盘（核心）
+  - IO多路复用提高了吞吐能力
+  - C语言写的
+- 支持数据持久化
+  - 解决安全性问题
+- 支持主从集群、分片集群
+  - 从结点备份主节点的数据
+  - 数据拆分到不同的结点，水平扩展
+- 支持多语言客户端
+
+
+
+```bash
+8种不同的数据结构，2种消息队列，4个运维操作，Script脚本和事务操作。
+
+包含各个版本的新特性。
+```
+
+
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220309224712500.png)
 
 
 
-
-
-
-
-
-
-
-
-#### 安装
+### 1.3 Linux安装
 
 > Redis是基于C语言编写的，因此首先需要安装Redis所需要的gcc依赖：
 
@@ -70,31 +151,33 @@ tar -xzf redis-6.2.6.tar.gz
 make && make install
 ```
 
+<br>
+
+```bash
+默认的安装路径是在 `/usr/local/bin`目录下，该目录已经默认配置环境变量，因此可以在任意目录下运行这些命令。
+
+- redis-cli：是redis提供的命令行客户端
+- redis-server：是redis的服务端启动脚本
+- redis-sentinel：是redis的哨兵启动脚本  
+```
 
 
-> 默认的安装路径是在 `/usr/local/bin`目录下，该目录已经默认配置环境变量，因此可以在任意目录下运行这些命令。
->
-> - redis-cli：是redis提供的命令行客户端
-> - redis-server：是redis的服务端启动脚本
-> - redis-sentinel：是redis的哨兵启动脚本
 
 
 
+### 1.4 三种启动方式
 
-
-#### 3种启动方式
-
-##### 默认启动（不推荐）
+#### 默认启动（不推荐）
 
 > 安装完成后，在任意目录输入`redis-server`命令即可启动Redis。这种启动属于`前台启动`，会阻塞整个会话窗口，窗口关闭或者按下`CTRL + C`则Redis停止。不推荐使用。
 
-```sh
+```shell
 redis-server
 ```
 
 
 
-##### 指定配置启动
+#### 指定配置启动
 
 > 如果要让Redis以`后台`方式启动，则必须修改Redis配置文件，就在我们之前解压的redis安装包下（`/usr/local/src/redis-6.2.6`），名字叫redis.conf：
 
@@ -159,7 +242,7 @@ redis-cli -u 123321 shutdown
 
 
 
-##### 开机自启
+#### 开机自启
 
 > 我们也可以通过配置来实现开机自启。
 
@@ -228,17 +311,13 @@ systemctl enable redis
 
 
 
-
-
-
-
-#### 客户端
+### 1.5 客户端
 
 > 安装完成Redis，我们就可以操作Redis，实现数据的CRUD了。这需要用到Redis客户端，包括：
 
 
 
-##### 命令行客户端
+#### 命令行客户端 redis-cli
 
 
 
@@ -264,7 +343,7 @@ redis-cli [options] [commonds]
 
 
 
-##### 图形化桌面客户端
+#### 图形化桌面客户端
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220311135943224.png)
 
@@ -281,6 +360,7 @@ select 0
 
 
 
+#### 编程客户端
 
 
 
@@ -290,8 +370,7 @@ select 0
 
 
 
-
-### 2. Redis常用命令
+## 2. Redis常用命令
 
 
 
@@ -354,7 +433,7 @@ select 0
 
 
 
-### 3. Redis客户端
+## 3. Redis客户端
 
 > 
 
@@ -1854,7 +1933,7 @@ public Result seckillVoucher(Long voucherId) {
 
 <hr>
 
-## 高级篇
+# 高级篇
 
 
 
@@ -1862,7 +1941,7 @@ public Result seckillVoucher(Long voucherId) {
 
 
 
-## 原理篇
+# 原理篇
 
 
 
