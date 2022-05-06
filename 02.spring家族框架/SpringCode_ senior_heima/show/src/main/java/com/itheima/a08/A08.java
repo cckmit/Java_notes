@@ -2,6 +2,7 @@ package com.itheima.a08;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /*
     singleton, prototype, request, session, application
@@ -16,7 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class A08 {
     public static void main(String[] args) {
-        SpringApplication.run(A08.class, args);
+        ConfigurableApplicationContext run = SpringApplication.run(A08.class, args);
         /*
             学到了什么
                 a. 有几种 scope

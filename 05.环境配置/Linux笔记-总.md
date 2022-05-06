@@ -28,7 +28,7 @@ $ tar -czvf dist.tar.gz dist
 $ tar -xzvf dist.tar.gz
 
 
-# 正在运行的java应用
+# 正在运行的java应用（进程）
 $ ps -aux | grep java
 
 
@@ -48,7 +48,10 @@ cat *.sql > merge.sql
 
 mv 
 
-
+# linux下常用的故障排查命令行
+生产环境服务器变慢，诊断思路和性能评估谈谈
+整机：top——看CPU和内存
+内存：free
 ```
 
 

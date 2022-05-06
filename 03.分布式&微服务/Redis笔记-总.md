@@ -988,23 +988,33 @@ public class StringRedisTemplateTest {
 
 #### （1）导入黑马点评项目
 
+项目架构
+
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220312194846174.png)
 
+```bash
+# 导入SQL文件：hmdp.sql
+tb_user：用户表
+tb_user_info：用户详情表
+tb_shop：商户信息表
+tb_shop_type：商户类型表
+tb_blog：用户日记表（达人探店日记）
+tb_follow：用户关注表
+tb_voucher：优惠券表
+tb_voucher_order：优惠券的订单表
+
+# 后端项目 hm-dianping
+https://gitee.com/huyi612/hm-dianping
+在浏览器访问：http://localhost:8081/shop-type/list ，如果可以看到数据则证明运行没有问题
+
+# 前端项目
+nginx-1.18.0
+直接下载并解压到任意位置，把nginx的html目录下的 hmdp文件拷贝到你自己的nginx的html目录下即可。
+总之：把html文件和nginx.conf替换掉就行了。
+注意，如果brew方式安装，conf配置文件需要修改。
+```
 
 
-> 导入SQL文件：hmdp.sql
-
-> 启动项目后，在浏览器访问：http://localhost:8081/shop-type/list ，如果可以看到数据则证明运行没有问题
-
-
-
-> mac前端项目怎么导入:
->
-> 直接下载并解压到任意位置，把nginx的html目录下的 hmdp文件拷贝到你自己的nginx的html目录下即可。
->
-> 总之：把html文件和nginx.conf替换掉就行了。
->
-> 注意，如果brew方式安装，conf配置文件需要修改。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220313085826324.png)
 
@@ -1040,6 +1050,7 @@ public Result sendCode(String phone, HttpSession session) {
 
     // 4.保存验证码到 session
     session.setAttribute("code", code);
+  	// 4.保存验证码到 redis
     //stringRedisTemplate.opsForValue().set(LOGIN_CODE_KEY + phone, code, LOGIN_CODE_TTL, TimeUnit.MINUTES);
 
     // 5.发送验证码
@@ -1053,9 +1064,7 @@ public Result sendCode(String phone, HttpSession session) {
 
 
 
-
-
-###### 短信验证码登陆
+##### 短信验证码登陆
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220313150806987.png)
 
@@ -1064,7 +1073,7 @@ public Result sendCode(String phone, HttpSession session) {
 ```java
 /**
  * 登录功能
- * @param loginForm 登录参数，包含手机号、验证码；或者手机号、密码
+ * @param loginForm 登录参数：包含手机号、验证码；或者手机号、密码
  */
 @PostMapping("/login")
 public Result login(@RequestBody LoginFormDTO loginForm, HttpSession session){
@@ -1134,9 +1143,7 @@ private User createUserWithPhone(String phone) {
 
 
 
-###### 登录验证功能
-
-
+##### 登录验证功能
 
 > 设置一个拦截器
 
@@ -1153,12 +1160,7 @@ import javax.servlet.http.HttpSession;
 public class LoginInterceptor2 implements HandlerInterceptor {
     /**
      * @description 前置拦截
-     * @author Lemonade
-     * @param: request
-     * @param: response
-     * @param: handler
      * @updateTime 2022/3/13 上午9:45
-     * @return: boolean
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -1277,20 +1279,21 @@ stringRedisTemplate.opsForValue().set(LOGIN_CODE_KEY + phone, code, LOGIN_CODE_T
 
 
 
+```bash
+# Redis代替session需要考虑的问题：
+
+选择合适的数据结构
+选择合适的key
+选择合适的存储粒度（并未存储用户完整信息，而是部分信息UserDTO）
+```
 
 
-> Redis代替session需要考虑的问题：
-> 选择合适的数据结构
-> 选择合适的key
-> 选择合适的存储粒度（并未存储用户完整信息，而是部分信息UserDTO）
 
-
-
-###### 登陆拦截器的优化（刷新 + 拦截）
+##### 登陆拦截器的优化（刷新 + 拦截）
 
 > 原有拦截器基础上加一个新的拦截器：因为目前来说，如果用户一直访问的都是不需要拦截的请求，那么30分钟后用户的状态还是消失了。
 
-> 新拦截器做刷新Token的动作。原拦截器才是实现拦截功能。
+> 新拦截器做刷新Token的动作，也即token续期。原拦截器才是实现拦截功能。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220313203331552.png)
 
@@ -1889,7 +1892,7 @@ public <R, ID> R queryWithLogicalExpire(
 
 ### 4.3 优惠券秒杀（含金量高）（计数器、lua脚本、分布式锁、3种消息队列）
 
-##### 全局唯一ID
+#### 全局唯一ID
 
 > 全局ID生成器，是一种在分布式系统下用来生成全局唯一ID的工具，一般要满足下列特性：
 
@@ -1957,7 +1960,7 @@ public class RedisIdWorker {
 
 
 
-##### 实现优惠券秒杀下单
+#### 实现优惠券秒杀下单
 
 > 每个店铺都可以发布优惠券，分为平价券和特价券。平价券可以任意购买，而特价券需要秒杀抢购：
 >
@@ -2033,29 +2036,13 @@ public Result seckillVoucher(Long voucherId) {
 
 
 
-##### 超卖问题
+#### 超卖问题
 
 
 
 
 
-##### 一人一单
-
-
-
-
-
-
-
-##### 分布式锁
-
-> 单个JVM内部的多个线程间的互斥，无法保证集群环境下多个JVM进程间互斥。要解决这个问题，必须使用分布式锁。
-
-
-
-
-
-##### Redis优化秒杀
+#### 一人一单
 
 
 
@@ -2063,7 +2050,143 @@ public Result seckillVoucher(Long voucherId) {
 
 
 
-##### Redis消息队列实现异步秒杀
+#### 分布式锁
+
+集群模式下，Synchronized 锁失效了 。Synchronized只能保证单个JVM内部的多个线程之间的互斥，而没有办法让集群环境下的多个JVM进程之间互斥。
+
+要解决这个问题，必须使用分布式锁。
+
+```bash
+Synchronized其实就是利用JVM内部的锁监视器来控制线程，JVM内部只有一个锁监视器，所以只有一个线程获取锁，实现线程的互斥。
+但是有多个JVM的时候，就有多个锁监视器，就有多个线程获取到锁。
+我们必须让多个JVM使用同一个锁监视器，外部的。
+```
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220505191138588.png)
+
+
+
+分布式锁：满足分布式系统或集群模式下**多进程可见**并且**互斥**的锁。
+
+<br>
+
+分布式锁的核心是实现多进程之间互斥，而满足这一点的方式有很多，常见的有三种：
+
+|        | **MySQL**                 | **Redis**                | **Zookeeper**                    |
+| ------ | ------------------------- | ------------------------ | -------------------------------- |
+| 互斥   | 利用mysql本身的互斥锁机制 | 利用setnx这样的互斥命令  | 利用节点的唯一性和有序性实现互斥 |
+| 高可用 | 好                        | 好                       | 好                               |
+| 高性能 | 一般                      | 好                       | 一般                             |
+| 安全性 | 断开连接，自动释放锁      | 利用锁超时时间，到期释放 | 临时节点，断开连接自动释放       |
+
+
+
+##### 基于Redis的分布式锁
+
+```bash
+# 实现分布式锁时需要实现的两个基本方法：
+## 获取锁
+互斥：确保只能有一个线程获取锁
+添加锁，利用setnx的互斥特性
+setnx lock thread1
+
+## 释放锁
+手动释放，删除即可
+del key
+
+超时释放：获取锁时添加一个超时时间（避免服务宕机引起的死锁）
+expire lock 10
+
+保证原子性操作 
+set lock thread1 ex 10 nx
+
+非阻塞：尝试一次，成功返回true，失败返回false
+```
+
+<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220505193028173.png" style="zoom:50%;" />
+
+
+
+基于Redis实现分布式锁初级版本
+
+需求：定义一个类，实现下面接口，利用Redis实现分布式锁功能。
+
+
+
+
+
+```bash
+P61
+释放锁时产生阻塞（Jvm垃圾回收full gc），如果阻塞时间足够长，就会触发超时释放锁，
+这时其它线程就可以获取锁，开始执行业务，
+这时如果线程1阻塞完成，恢复执行，开始释放锁，就把线程2 的锁给释放掉了（因为阻塞前已经判断过了，所以可以释放）
+这就发生了误删
+
+判断锁标识和释放是2个动作，之间产生阻塞，
+所以，必须保证2个动作的原子性
+```
+
+<br>
+
+```bash
+# redis事务
+可以保证原子性，但是无法保证一致性
+
+推荐使用Redis的Lua脚本
+Redis提供了Lua脚本功能，在一个脚本中编写多条Redis命令，确保多条命令执行时的原子性。Lua是一种编程语言，它的基本语法大家可以参考网站：https://www.runoob.com/lua/lua-tutorial.html
+
+```
+
+
+
+```bash
+# 释放锁的业务流程是这样的：
+获取锁中的线程标示
+判断是否与指定的标示（当前线程标示）一致
+如果一致则释放锁（删除）
+如果不一致则什么都不做
+如果用Lua脚本来表示则是这样的：
+
+
+```
+
+需求：基于Lua脚本实现分布式锁的释放锁逻辑
+
+提示：RedisTemplate调用Lua脚本的API如下：
+
+
+
+
+
+Redisson
+
+Redisson是一个在Redis的基础上实现的Java驻内存数据网格（In-Memory Data Grid）。
+
+它不仅提供了一系列的分布式的Java常用对象，还提供了许多分布式服务，其中就包含了各种分布式锁的实现。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220505203832316.png)
+
+
+
+官网地址： https://redisson.orgGitHub
+
+地址： https://github.com/redisson/redisson
+
+
+
+
+
+#### Redis优化秒杀
+
+
+
+
+
+
+
+#### Redis消息队列实现异步秒杀
 
 
 
