@@ -80,6 +80,11 @@ public class Lc53 {
         return res;
     }
 
+    /**
+     * 解法3
+     * @param nums
+     * @return
+     */
     public static int maxSubArray3(int[] nums) {
         int res = Integer.MIN_VALUE;
 
