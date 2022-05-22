@@ -2549,6 +2549,17 @@ public interface Data<E>{}
 
 ## 泛型通配符? 和上下限
 
+```java
+// 我们使用泛型的上限进行限定
+public static void go(ArrayList<? extends Car> cars){
+
+}
+```
+
+
+
+
+
 ? 可以在 使用泛型 的时候代表一切类型。
 
 E T K V 是在定义泛型的时候使用的。
