@@ -1,5 +1,7 @@
 package array;
 
+import java.util.Arrays;
+
 /**
  * @author cat
  * @description
@@ -22,6 +24,18 @@ public class ArrayTest {
         // 匿名数组
         int[] a;
         a = new int[] {17, 19, 23, 29};
+
+        // 两个变量引用同一个数组
+        int[] luckNumbers = smallPrimes;
+
+        // 拷贝到新数组
+        // 参数2：新数组的长度，这个方法通常用来增加数组的大小
+        int[] copiedLuckyNumbers = Arrays.copyOf(luckNumbers, 2 * luckNumbers.length);
+
+        double f = Math.random() * 7;
+        System.out.println(f);
+        System.out.println((int) (f));
+
 
     }
 
