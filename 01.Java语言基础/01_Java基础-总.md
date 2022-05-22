@@ -2269,55 +2269,47 @@ HashMap源码中的重要常量
 
 
 
-### Map实现类之二：LinkedHashMap
+### Map实现类之二：LinkedHashMap 
 
-LinkedHashMap 是 HashMap 的子类
+- extends HashMap
 
-在HashMap存储结构的基础上，使用了**一对双向链表**来**记录添加元素的顺序**
+- 在HashMap存储结构的基础上，使用了**一对双向链表**来**记录添加元素的顺序**
 
-与LinkedHashSet类似，LinkedHashMap 可以维护 Map 的迭代顺序：迭代顺序与 Key-Value 对的插入顺序一致
-
-
+- 与LinkedHashSet类似，LinkedHashMap 可以维护 Map 的迭代顺序：迭代顺序与 Key-Value 对的插入顺序一致
 
 
 
 ### Map实现类之三：TreeMap
 
-TreeMap存储 Key-Value 对时，需要根据 key-value 对进行排序。TreeMap 可以保证所有的 Key-Value 对处于**有序**状态。
-
-TreeSet底层使用**红黑树**结构存储数据
-
-TreeMap判断**两个key相等的标准**：两个key通过compareTo()方法或者compare()方法返回0。
+- TreeMap存储 Key-Value 对时，需要根据 key-value 对进行排序。TreeMap 可以保证所有的 Key-Value 对处于**有序**状态。
+- TreeSet底层使用**红黑树**结构存储数据
+- TreeMap判断**两个key相等的标准**：两个key通过compareTo()方法或者compare()方法返回0。
 
 
 
-
-
-
-
-### Map实现类之四：Hashtable
+### Map实现类之四：Hashtable（古老、线程安全）
 
  Hashtable是个古老的 Map 实现类，JDK1.0就提供了。不同于HashMap，Hashtable是线程安全的。
 
 
 
-### Map实现类之五：Properties
+### Map实现类之五：Properties（用于处理属性文件）
 
-Properties 类是 Hashtable 的子类，该对象用于处理属性文件
+- extends Hashtable
 
-由于属性文件里的 key、value 都是字符串类型，所以 Properties 里的 key 和 value 都是字符串类型
+- 由于属性文件里的 key、value 都是字符串类型，所以 Properties 里的 key 和 value 都是字符串类型
 
-存取数据时，建议使用 setProperty(String key,String value) 方法和 getProperty(String key) 方法
+- 存取数据时，建议使用 setProperty(String key,String value) 方法和 getProperty(String key) 方法
 
 
 
-<br>
 
-## 6 Collections工具类
+
+## 6 Collections工具类（操作 Set、List 和 Map 等集合）
 
 Collections 是一个操作 Set、List 和 Map 等集合的工具类
 
-Collections 中提供了一系列静态的方法对集合元素进行排序、查询和修改等操作，还提供了对集合对象设置不可变、对集合对象实现同步控制等方法
+Collections 中提供了一系列静态的方法对集合元素进行排序、查询和修改等操作，还提供了对集合对象设置不可变、对集合对象实现同步控制等方法。
 
 ### 排序（均为static方法）
 
@@ -2360,7 +2352,6 @@ Collections 类中提供了多个 synchronizedXxx() 方法，该方法可使将�
 
 
 <hr>
-
 #### Set系列集合
 
 ##### HashSet元素无序的底层原理：哈希表
@@ -2467,17 +2458,18 @@ Map结合Lambda遍历的API
 
 # 九、泛型
 
-#### 概述
+## 概述
 
-- 泛型：是 JDK5 中引入的特性，可以在编译阶段约束操作的数据类型，并进行检查。
+- 泛型是 JDK5 中引入的特性，可以在编译阶段约束操作的数据类型，并进行检查。
 
-- 泛型的格式：<数据类型>; 注意：泛型只能支持**引用**数据类型。
+- 泛型的格式：<数据类型>
+  - 注意：泛型只能支持**引用**数据类型。
 
 - 集合体系的全部接口和实现类都是支持泛型的使用的。
 
-<br>
 
-#### 好处
+
+## 好处
 
 - **统一数据类型**。
 
@@ -2485,7 +2477,7 @@ Map结合Lambda遍历的API
 
 
 
-#### 可以定义的地方
+## 可以定义的地方
 
 - 类后面——>泛型类
 
@@ -2495,9 +2487,9 @@ Map结合Lambda遍历的API
 
 
 
-<br>
 
-#### 自定义泛型类
+
+### 自定义泛型类
 
 定义类时同时定义了泛型的类就是泛型类。格式：
 
@@ -2523,7 +2515,7 @@ public class MyArrayList<T> {  }
 
 
 
-#### 自定义泛型方法
+### 自定义泛型方法
 
 定义方法时同时定义了泛型的方法就是泛型方法。
 
@@ -2538,7 +2530,7 @@ public <T> void show(T t) {  }
 
 
 
-#### 自定义泛型接口
+### 自定义泛型接口
 
 使用了泛型定义的接口就是泛型接口。
 
@@ -2555,11 +2547,7 @@ public interface Data<E>{}
 
 
 
-
-
-
-
-#### 泛型通配符?、上下限
+## 泛型通配符? 和上下限
 
 ? 可以在 使用泛型 的时候代表一切类型。
 
@@ -2660,7 +2648,7 @@ class Car{
 
 
 
-# 十、IO流
+# 十、IO流 stream
 
 
 
@@ -2672,22 +2660,22 @@ java.io包下提供了各种“流”类和接口，用以获取不同种类的�
 
 分类：
 
-按操作数据单位不同分为：字节流(8 bit)，字符流(16 bit)
+- 按操作数据单位不同分为：字节流(8 bit)，字符流(16 bit)
 
-按数据流的流向不同分为：输入流，输出流
+- 按数据流的流向不同分为：输入流，输出流
 
-按流的角色的不同分为：节点流，处理流
-
-| 抽象基类 | 字节流       | 字符流 |
-| -------- | ------------ | ------ |
-| 输入流   | InputStream  | Reader |
-| 输出流   | OutputStream | Writer |
+- 按流的角色的不同分为：节点流，处理流
 
 
 
 Java的IO流共涉及 40 多个类，实际上非常规则，都是从如下4个抽象基类派生的。
 
 由这四个类派生出来的子类名称都是以其父类名作为子类名后缀。
+
+| 抽象基类 | 字节流       | 字符流 |
+| -------- | ------------ | ------ |
+| 输入流   | InputStream  | Reader |
+| 输出流   | OutputStream | Writer |
 
 <br>
 
