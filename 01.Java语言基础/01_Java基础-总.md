@@ -2554,6 +2554,10 @@ public interface Data<E>{}
 public static void go(ArrayList<? extends Car> cars){
 
 }
+
+
+// ? extends genericity_limit.Car: ?必须是Car或者其子类   泛型上限
+// ? super genericity_limit.Car ： ?必须是Car或者其父类   泛型下限
 ```
 
 
