@@ -1820,13 +1820,13 @@ Thread常用方法：
 
 - String对象的字符内容是存储在一个 字符数组 **value[]** 中的。
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220412105855093.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220412105855093.png?w=550)
 
 
 
 <br>
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220412110454415.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220412110454415.png?w=550)
 
 ```bash
 # 特性
@@ -1863,15 +1863,11 @@ public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)：提�
 
 
 
-### 3 StringBuffer
+### 3 StringBuffer 可变的字符序列
 
-java.lang.StringBuffer代表**可变的字符序列**，JDK1.0中声明，可以对字符串内容进行增删，此时不会产生新的对象。
+- JDK1.0中声明，可以对字符串内容进行增删，此时不会产生新的对象。
 
-很多方法与String相同。
-
-作为参数传递时，方法内部可以改变值。 
-
-
+- 很多方法与String相同。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220412111806833.png)
 
@@ -1900,9 +1896,7 @@ StringBuffer类不同于String，其对象必须使用构造器生成。有三�
 
 ### 4 StringBuilder
 
-StringBuilder 和 StringBuffer 非常类似，均代表可变的字符序列，而且提供相关功能的方法也一样
-
-
+StringBuilder 和 StringBuffer 非常类似，均代表可变的字符序列，而且提供相关功能的方法也一样。
 
 
 
@@ -1928,7 +1922,7 @@ StringBuilder(JDK 5.0)：可变字符序列、效率高、线程不安全
 
 # 七、枚举类与注解
 
-## 1 枚举类
+## 1 枚举类 enum
 
 类的对象只有有限个，确定的。举例如下：
 
@@ -2031,7 +2025,7 @@ Collection 接口是 List、Set 和 Queue 接口的父接口，该接口里定�
 
 
 
-## 2 Iterator迭代器接口
+## 2 Iterator迭代器接口 （遍历）
 
 Iterator对象称为迭代器(设计模式的一种)，主要用于遍历 Collection 集合中的元素。
 
@@ -2046,12 +2040,11 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 
 <hr>
-
 ## 3 （一）List接口
 
 ### 概述
 
-鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组
+鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组。
 
 List集合类中**元素有序、且可重复**，集合中的每个元素都有其对应的顺序索引。
 
@@ -2071,9 +2064,9 @@ JDK API中List接口的实现类常用的有：ArrayList、LinkedList和Vector�
 
 ### List实现类之一：ArrayList（数组）
 
-ArrayList 是 List 接口的典型实现类、主要实现类
+ArrayList 是 List 接口的典型实现类、主要实现类。本质上，ArrayList是对象引用的一个”变长”数组。
 
-本质上，ArrayList是对象引用的一个”变长”数组
+
 
 ArrayList的JDK1.8之前与之后的实现区别？
 
@@ -2088,7 +2081,7 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 ### List实现类之二：LinkedList（双向链表）（插入和删除）
 
-对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高
+对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高。
 
 **双向链表**，内部没有声明数组，而是定义了 Node 类型的first和last，用于记录首末元素。同时，定义内部类Node，作为LinkedList中保存数据的基本结构。Node除了保存数据，还定义了两个变量：
 
@@ -2116,7 +2109,7 @@ Vector 是一个古老的集合，JDK1.0就有了。大多数操作与ArrayList�
 
 ## 4 （二）set接口
 
-Set接口是Collection的子接口，set接口没有提供额外的方法
+Set接口是Collection的子接口，set接口没有提供额外的方法。
 
 
 
@@ -2196,17 +2189,15 @@ HashSet 集合判断两个元素相等的标准：两个对象通过 hashCode() 
 
 Map与Collection并列存在。用于保存具有**映射关系**的数据: key-value
 
-Map 中的 key 和 value 都可以是任何引用类型的数据
+<br>
 
-Map 中的 key 用Set来存放，**不允许重复**，即同一个 Map 对象所对应的类，须重写hashCode()和equals()方法
+Map 中的 key 和 value 都可以是任何引用类型的数据。常用String类作为Map的“键”。
 
-常用String类作为Map的“键”
+Map 中的 key 用Set来存放，**不允许重复**，即同一个 Map 对象所对应的类，须重写hashCode()和equals()方法。
 
-key 和 value 之间存在单向一对一关系，即通过指定的 key 总能找到唯一的、确定的 value
+key 和 value 之间存在单向一对一关系，即通过指定的 key 总能找到唯一的、确定的 value。
 
- Map接口的常用实现类：HashMap、TreeMap、LinkedHashMap和Properties。其中，HashMap是 Map 接口使用频率最高的实现类
-
-
+Map接口的常用实现类：HashMap（使用频率最高）、TreeMap、LinkedHashMap和Properties。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416100809318.png)
 
@@ -2230,32 +2221,26 @@ key 和 value 之间存在单向一对一关系，即通过指定的 key 总能�
 | Collection values()                 | 返回所有value构成的Collection集合          |      |
 | Set entrySet()                      | 返回所有key-value对构成的Set集合           |      |
 
-<br>
+
 
 <hr>
 
 
-### Map实现类之一：HashMap
+### Map实现类之一：HashMap（使用频率最高）
 
-HashMap是 Map 接口**使用频率最高**的实现类。
+- 允许使用null键和null值，与HashSet一样，不保证映射的顺序。
+- 所有的 key 和 value
+  - 所有的key构成的集合是Set：无序的、不可重复的。所以，key所在的类要重写：equals()和hashCode()
+  - 所有的value构成的集合是Collection:无序的、可以重复的。所以，value所在的类要重写：equals()
 
-允许使用null键和null值，与HashSet一样，不保证映射的顺序。
-
-所有的key构成的集合是Set:无序的、不可重复的。所以，key所在的类要重写：equals()和hashCode()
-
-所有的value构成的集合是Collection:无序的、可以重复的。所以，value所在的类要重写：equals()
-
-一个key-value构成一个entry
-
-所有的entry构成的集合是Set:无序的、不可重复的
-
-HashMap **判断两个** **key** **相等的标准**是：两个 key 通过 equals() 方法返回 true，hashCode 值也相等。
-
-HashMap **判断两个** **value相等的标准**是：两个 value 通过 equals() 方法返回 true。
+- 一个key-value构成一个entry，所有的entry构成的集合是Set（无序的、不可重复的）。
+- 判断 key 或 value相等
+  - HashMap **判断两个** **key** **相等的标准**是：两个 key 通过 equals() 方法返回 true，hashCode 值也相等。
+  - HashMap **判断两个** **value相等的标准**是：两个 value 通过 equals() 方法返回 true。
 
 <br>
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416101639515.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416101639515.png?w=600)
 
 <br>
 
@@ -2267,20 +2252,20 @@ HashMap **判断两个** **value相等的标准**是：两个 value 通过 equal
 
 HashMap源码中的重要常量
 
-- DEFAULT_INITIAL_CAPACITY : HashMap的默认容量，16
-- MAXIMUM_CAPACITY ： HashMap的最大支持容量，2^30
-- DEFAULT_LOAD_FACTOR：HashMap的默认加载因子
-- TREEIFY_THRESHOLD：Bucket中链表长度大于该默认值，转化为红黑树
-- UNTREEIFY_THRESHOLD：Bucket中红黑树存储的Node小于该默认值，转化为链表
-- MIN_TREEIFY_CAPACITY：桶中的Node被树化时最小的hash表容量。（当桶中Node的数量大到需要变红黑树时，若hash表容量小于MIN_TREEIFY_CAPACITY时，此时应执行resize扩容操作这个MIN_TREEIFY_CAPACITY的值至少是TREEIFY_THRESHOLD的4倍。）
-- table：存储元素的数组，总是2的n次幂
-- entrySet：存储具体元素的集
-- size：HashMap中存储的键值对的数量
-- modCount：HashMap扩容和结构改变的次数。
-- threshold：扩容的临界值，=容量*填充因子
-- loadFactor：填充因子
-
-
+| 常量                     | 说明                                                         |      |
+| ------------------------ | ------------------------------------------------------------ | ---- |
+| DEFAULT_INITIAL_CAPACITY | HashMap的默认容量，16                                        |      |
+| MAXIMUM_CAPACITY         | HashMap的最大支持容量，2^30                                  |      |
+| DEFAULT_LOAD_FACTOR      | HashMap的默认加载因子                                        |      |
+| TREEIFY_THRESHOLD        | Bucket中链表长度大于该默认值，转化为红黑树                   |      |
+| UNTREEIFY_THRESHOLD      | Bucket中红黑树存储的Node小于该默认值，转化为链表             |      |
+| MIN_TREEIFY_CAPACITY     | 桶中的Node被树化时最小的hash表容量。（当桶中Node的数量大到需要变红黑树时，若hash表容量小于MIN_TREEIFY_CAPACITY时，此时应执行resize扩容操作这个MIN_TREEIFY_CAPACITY的值至少是TREEIFY_THRESHOLD的4倍。） |      |
+| table                    | 存储元素的数组，总是2的n次幂                                 |      |
+| entrySet                 | 存储具体元素的集                                             |      |
+| size                     | HashMap中存储的键值对的数量                                  |      |
+| modCount                 | HashMap扩容和结构改变的次数                                  |      |
+| threshold                | 扩容的临界值，= 容量 * 填充因子                              |      |
+| loadFactor               | 填充因子                                                     |      |
 
 
 
