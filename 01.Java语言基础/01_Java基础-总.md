@@ -2092,7 +2092,7 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png?w=550)
 
 
 
