@@ -2092,7 +2092,7 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png?w=600)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png)
 
 
 
@@ -2104,7 +2104,7 @@ Vector 是一个古老的集合，JDK1.0就有了。大多数操作与ArrayList�
 
 ### 面试题
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220415224438975.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220415224438975.png?w=550)
 
 
 
