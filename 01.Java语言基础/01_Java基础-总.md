@@ -2005,7 +2005,7 @@ class Season{
 
 
 
-Collection 接口是 List、Set 和 Queue 接口的父接口，该接口里定义的方法既可用于操作 Set 集合，也可用于操作 List 和 Queue 集合。
+Collection 接口是 List、Set 和 Queue 接口的父接口，该接口里定义的方法可用于操作 Set 集合、List集合 和 Queue 集合。
 
 
 
@@ -2025,7 +2025,7 @@ Collection 接口是 List、Set 和 Queue 接口的父接口，该接口里定�
 
 
 
-## 2 Iterator迭代器接口 （遍历）
+## 2 Iterator迭代器接口 （用于遍历）
 
 Iterator对象称为迭代器(设计模式的一种)，主要用于遍历 Collection 集合中的元素。
 
@@ -2039,7 +2039,6 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 
 
-<hr>
 ## 3 （一）List接口
 
 ### 概述
@@ -2058,7 +2057,7 @@ JDK API中List接口的实现类常用的有：ArrayList、LinkedList和Vector�
 
 
 
- List除了从Collection集合继承的方法外，List 集合里添加了一些根据索引来操作集合元素的方法。
+ List除了从Collection接口继承的方法外，List 集合里添加了一些根据索引来操作集合元素的方法。
 
 <hr>
 
@@ -2068,14 +2067,14 @@ ArrayList 是 List 接口的典型实现类、主要实现类。本质上，Arra
 
 
 
-ArrayList的JDK1.8之前与之后的实现区别？
+ArrayList 在 JDK1.8之前与之后的实现区别？
 
 - JDK1.7：ArrayList像饿汉式，直接创建一个初始容量为10的数组
 - JDK1.8：ArrayList像懒汉式，一开始创建一个长度为 0 的数组，当添加第一个元素时再创建一个始容量为 10 的数组
 
 
 
-Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，也不是Vector 实例。 Arrays.asList(…) 返回值是一个固定长度的 List 集合
+Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，也不是Vector 实例。 Arrays.asList(…) 返回值是一个固定长度的 List 集合。
 
 
 
@@ -2083,7 +2082,9 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高。
 
-**双向链表**，内部没有声明数组，而是定义了 Node 类型的first和last，用于记录首末元素。同时，定义内部类Node，作为LinkedList中保存数据的基本结构。Node除了保存数据，还定义了两个变量：
+**双向链表**，内部没有声明数组，而是定义了 Node 类型的first和last，用于记录首末元素。
+
+同时，定义内部类Node，作为LinkedList中保存数据的基本结构。Node除了保存数据，还定义了两个变量：
 
 - prev变量记录前一个元素的位置
 
@@ -2091,7 +2092,7 @@ Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，�
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png?w=550)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png?w=600)
 
 
 
@@ -2547,7 +2548,7 @@ public interface Data<E>{}
 
 
 
-## 泛型通配符? 和上下限
+## 泛型通配符? 和上下限（面试题）
 
 ```java
 // 我们使用泛型的上限进行限定
