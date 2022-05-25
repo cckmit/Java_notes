@@ -583,6 +583,112 @@ JAR文件
 
 
 
+```java
+import java.time.*;
+
+/**
+ * This program tests the Employee class.
+ * @version 1.13 2018-04-10
+ * @author Cay Horstmann
+ */
+public class EmployeeTest
+{
+   public static void main(String[] args)
+   {
+      // fill the staff array with three Employee objects
+      Employee2[] staff = new Employee2[3];
+
+      staff[0] = new Employee2("Carl Cracker", 75000, 1987, 12, 15);
+      staff[1] = new Employee2("Harry Hacker", 50000, 1989, 10, 1);
+      staff[2] = new Employee2("Tony Tester", 40000, 1990, 3, 15);
+
+      // raise everyone's salary by 5%
+      for (Employee2 e : staff)
+         e.raiseSalary(5);
+
+      // print out information about all Employee objects
+      for (Employee2 e : staff)
+         System.out.println("name=" + e.getName() + ",salary=" + e.getSalary() + ",hireDay=" 
+            + e.getHireDay());
+   }
+}
+
+class Employee2
+{
+   private String name;
+   private double salary;
+   private LocalDate hireDay;
+
+   public Employee2(String n, double s, int year, int month, int day)
+   {
+      name = n;
+      salary = s;
+      hireDay = LocalDate.of(year, month, day);
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   public double getSalary()
+   {
+      return salary;
+   }
+
+   public LocalDate getHireDay()
+   {
+      return hireDay;
+   }
+
+   public void raiseSalary(double byPercent)
+   {
+      double raise = salary * byPercent / 100;
+      salary += raise;
+   }
+}
+
+```
+
+
+
+- 使用null 引用
+  - 如果对null值应用一个方法，会产生一个NullPointException异常。
+
+- 隐式参数与显式参数
+  - raiseSalary 方法有两个参数：第一个称为隐式参数，是出现在方法名前的Employee2类型的参数。第二个是显式参数，列在方法声明中。
+
+```java
+   public void raiseSalary(double byPercent)
+   {
+      double raise = salary * byPercent / 100;
+      salary += raise;
+   }
+```
+
+可以改写如下：
+
+```java
+   public void raiseSalary(double byPercent)
+   {
+      double raise = this.salary * byPercent / 100;
+      this.salary += raise;
+   }
+```
+
+
+
+- 基于类的访问权限
+  - 一个方法可以访问所属类的所有对象的私有数据。
+
+- 私有方法
+  - 只要方法是私有的，类的设计者就可以确信它不会在别处使用，所以可以随时将其删去。
+
+- final实例字段
+  - 必须在构造对象时初始化。即确保每一个构造器执行之后这个字段的值已经设置，并且之后不能再修改这个字段。
+
+
+
 ### 对象的创建和使用
 
 JVM部分内容
@@ -604,13 +710,13 @@ JVM部分内容
 
 方法是类或对象行为特征的抽象，用来完成某个功能操作。在某些语言中也称为函数或过程。
 
-将功能封装为方法的目的是，可以实现代码重用，简化代码
+将功能封装为方法的目的是，可以**实现代码重用，简化代码**。
 
 #### 内存解析
 
 #### 方法的重载（overload）
 
-在同一个类中，允许存在一个以上的同名方法，只要它们的参数个数或者参数类型不同即可。
+在同一个类中，允许存在一个以上的同名方法，只要它们的**参数个数或者参数类型不同即可**。
 
 与返回值类型无关，只看参数列表，且参数列表必须不同。(参数个数或参数类型)。调用时，根据方法参数列表的不同来区别。
 
@@ -631,17 +737,27 @@ public static void test(int a ,String…books);
 
 在一个方法的形参位置，最多只能声明一个可变个数形参。方法的参数部分有可变形参，需要放在形参声明的最后。
 
-#### 方法参数的值传递机制
+#### 方法参数的 [ 值 ]传递机制
 
 
 
 Java里方法的参数传递方式只有一种：值传递。 即将实际参数值的副本（复制品）传入方法内，而参数本身不受影响。
 
-形参是基本数据类型：将实参基本数据类型变量的“数据值”传递给形参
+- 形参是基本数据类型：将实参基本数据类型变量的“数据值”传递给形参
 
-形参是引用数据类型：将实参引用数据类型变量的“地址值”传递给形参
+- 形参是引用数据类型：将实参引用数据类型变量的“地址值”传递给形参
 
 
+
+Java 中对方法参数能做什么和不能做什么？
+
+- 不能修改基本数据类型的参数
+  - 试图将一个数值参数的值增加三倍，不会成功
+- 能改变对象参数的状态
+  - 成功将一个员工的工资增加三倍
+- 不能让一个对象参数引用一个新的对象
+  - swap方法交换失败
+  - 方法结束时参数变量x和y被丢弃了，原来的变量a和b仍然引用调用之前所引用的对象。
 
 
 
@@ -677,17 +793,78 @@ Java里方法的参数传递方式只有一种：值传递。 即将实际参数
 
 ### 类成员三：构造器（构造方法）
 
-作用：创建对象；给对象进行初始化。
+```java
+public Employee2(String n, double s, int year, int month, int day)
+{
+  name = n;
+  salary = s;
+  hireDay = LocalDate.of(year, month, day);
+}
+```
 
-注意：
+#### 作用
 
-Java语言中，每个类都至少有一个构造器
+创建对象，给对象进行初始化（定义对象的初始状态）。
 
-一旦显式定义了构造器，则系统**不再**提供默认构造器
+#### Java提供了多种编写构造器的机制
 
-一个类可以创建多个**重载**的构造器
+##### （1）重载
 
-父类的构造器不可被子类继承
+多个方法有相同的名字、不同的参数便出现了重载。
+
+编译器挑选具体调用哪个方法。
+
+##### （2）默认字段初始化
+
+如果构造器中没有显式地为字段设置初值，那么就会被自动地赋为默认值：数值为`0`、布尔值为 `false`、对象引用为 `null`。
+
+##### （3）无参的构造器
+
+仅当类没有任何其它构造器的时候，你才会得到一个默认的无参构造器。
+
+建议提供其它构造器的时候，提供一个无参数的构造器。
+
+##### （4）显式字段初始化
+
+直接为字段赋值
+
+##### （5）关于参数名的建议
+
+参数变量会屏蔽同名的实例字段。但是可以使用this.x访问实例字段。
+
+```java
+   public Employee(String name, double salary) {
+      this.name = name;
+      this.salary = salary;
+   }
+```
+
+##### （6）调用另一个构造器
+
+关键字this指示一个方法的隐式参数。
+
+不过，这个关键字还有另外一个含义。即调用同一个类的另一个构造器。
+
+##### （7）初始化块
+
+初始化数据字段的方法：
+
+- 构造器中设置值
+- 声明中赋值
+- 初始化块
+  - 一个类的声明中，可以包含任意多个代码块。
+  - 只要构造这个类的对象，这些块就会被执行。
+
+#### 注意
+
+- Java语言中，每个类都至少有一个构造器
+
+- 一旦显式定义了构造器，则系统**不再**提供默认构造器
+
+- 一个类可以创建多个**重载**的构造器
+
+- 父类的构造器不可被子类继承
+
 
 
 
@@ -724,8 +901,6 @@ static代码块通常用于初始化static的属性
 
 
 
-
-
 ### 四种访问权限修饰符
 
 
@@ -750,11 +925,11 @@ static代码块通常用于初始化static的属性
 
 <br>
 
-Java中通过将数据声明为私有的(private)，再提供公共的（public）方法: **getXxx()和setXxx()** 实现对该属性的操作，以实现下述目的：
+Java中通过将数据声明为私有的(private)，再提供公共的（public）方法**getXxx()和setXxx()** 实现对该属性的操作，以实现下述目的：
 
-- 隐藏一个类中不需要对外提供的实现细节；
+- 隐藏一个类中不需要对外提供的实现细节。改变内部实现不会影响其它代码。
 
-- 使用者只能通过事先定制好的方法来访问数据，可以方便地加入控制逻辑，限制对属性的不合理操作；
+- 使用者只能通过事先定制好的方法来访问数据，可以方便地加入控制逻辑，限制对属性的不合理操作。可以完成错误检查。
 
 
 
@@ -802,6 +977,24 @@ import 语句告诉编译器去哪寻找类。
 
 ## 6 面向对象特征2：继承（inheritance）
 
+```bash
+# Java 核心技术卷1 第五章 继承
+
+1 类、超类和子类
+2 Object：所有类的超类
+3 泛型数组列表
+4 对象包装器和自动装箱
+5 参数数量可变的方法
+6 枚举类
+7 反射
+8 继承的设计技巧
+
+基本的基本思想是，可以基于已有的类创建新的类。
+反射是指在程序运行期间更多地了解类及其属性的能力。
+```
+
+
+
 ### 概念
 
 继承的关键字是 **extends** ，即子类不是父类的子集，而是对父类的扩展。
@@ -816,19 +1009,31 @@ import 语句告诉编译器去哪寻找类。
 
 - 子类不能直接访问父类中私有的即 private 的成员变量和方法。
 
-- Java**只支持单继承和多层继承**，不允许多重继承。
+- Java**只支持单继承和多层继承**，不允许多重继承。但提供了一些类似多重继承的功能。
 
   - 一个子类只能有一个父类
 
-  - 一个父类可以派生出多个子类
+  - 一个父类可以派生出多个子类（继承层次）
 
 
 
 
 ## 7 super（调用父类中的指定操作）
 
+```java
+   public double getSalary()
+   {
+      double baseSalary = super.getSalary();
+      return baseSalary + bonus;
+   }
+```
+
+
+
+
+
 - 用于访问父类中定义的属性
-- 用于调用父类中定义的成员方法
+- 用于调用父类中定义的成员方法（如上）
 - 用于在子类构造器中调用父类的构造器
 
 
@@ -1082,17 +1287,106 @@ false
 
 
 
+```java
+public class StaticTest
+{
+   public static void main(String[] args)
+   {
+      // fill the staff array with three Employee objects
+      //var staff = new Employee[3];
+      Employee[] staff = new Employee[3];
+
+      staff[0] = new Employee("Tom", 40000);
+      staff[1] = new Employee("Dick", 60000);
+      staff[2] = new Employee("Harry", 65000);
+
+      // print out information about all Employee objects
+      for (Employee e : staff)
+      {
+         e.setId();
+         System.out.println("name=" + e.getName() + ",id=" + e.getId() + ",salary="
+            + e.getSalary());
+      }
+
+      int n = Employee.getNextId(); // calls static method
+      System.out.println("Next available id=" + n);
+   }
+}
+
+class Employee
+{
+   private static int nextId = 1;
+
+   private String name;
+   private double salary;
+   private int id;
+
+   public Employee(String n, double s)
+   {
+      name = n;
+      salary = s;
+      id = 0;
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   public double getSalary()
+   {
+      return salary;
+   }
+
+   public int getId()
+   {
+      return id;
+   }
+
+   public void setId()
+   {
+      id = nextId; // set id to next available id
+      nextId++;
+   }
+
+   public static int getNextId()
+   {
+      return nextId; // returns static field
+   }
+
+   public static void main(String[] args) // unit test
+   {
+      Employee4 e = new Employee4("Harry", 50000);
+      System.out.println(e.getName() + " " + e.getSalary());
+   }
+}
+
+```
+
+
+
+结果
+
+```java
+name=Tom,id=1,salary=40000.0
+name=Dick,id=2,salary=60000.0
+name=Harry,id=3,salary=65000.0
+Next available id=4
+```
+
+
+
+
+
 ### 使用范围
 
 可以修饰**成员变量**和**成员方法**。
 
 
 
-
-
 ### 成员变量可以分为2类
 
-静态成员变量（有static修饰，**属于类，内存中加载一次**）: 常表示如在线人数信息、等**需要被共享的信息，可以被共享访问**。
+静态成员变量（有static修饰，**属于类，内存中加载一次**）: 常表示如在线人数信息等**需要被共享的信息，可以被共享访问**。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413122148800.png)
 
@@ -1121,11 +1415,17 @@ false
 
 #### static修饰成员变量的内存原理
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413122449532.png)
+如果将一个字段定义为static，每个类只有一个这样的字段。
+
+而对于非静态的字段，每个对象都有自己的一个副本。
 
 
 
-#### 修饰成员方法的基本用法和内存原理
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220413122449532.png?w=550)
+
+
+
+#### static修饰成员方法的基本用法和内存原理
 
 静态成员方法（有static修饰，属于类），建议用类名访问，也可以用对象访问。
 
@@ -1386,6 +1686,32 @@ public abstract void talk();
 又因为Java虚拟机在执行main()方法时不必创建对象，所以该方法必须是static的，
 
 该方法接收一个String类型的数组参数，该数组中保存执行Java命令时传递给所运行的类的参数。 
+
+
+
+## 17 文档注释 Javadoc
+
+注释的插入
+
+类注释
+
+方法注释
+
+字段注释
+
+包注释
+
+注释抽取
+
+## 18 类设计技巧
+
+- 一定要保证数据私有
+- 一定要对数据进行初始化
+- 不要在类中使用过多的基本类型
+- 不是所有的字段都需要单独的字段访问器和字段更改器
+- 分解有过多职责的类
+- 类名和方法名要能够体现它们的职责
+- 优先使用不可变的类
 
 
 
@@ -3136,7 +3462,17 @@ Java中所有的类都是Object类的子类。
 
 ## Java10新特性
 
-需要注意的是 Java 9 和 Java 10 都不是 LTS (Long-Term-Support) 版本。和过去的 Java 大版本升级不同，这两个只有半年左右的开发和维护期。而未来的 **Java 11**，也就是 18.9 LTS，才是 Java 8 之后第一个 LTS 版本。
+需要注意的是： Java 9 和 Java 10 都不是 LTS (Long-Term-Support) 版本。和过去的 Java 大版本升级不同，这两个只有半年左右的开发和维护期。
+
+而未来的 **Java 11**，也就是 18.9 LTS，才是 Java 8 之后第一个 LTS 版本。
+
+<br>
+
+如果可以从变量的初始值推导出它们的类型，那么可以用var关键字声明局部变量，而无须指定类型。
+
+```java
+var harry = new Employee2("Carl Cracker", 75000, 1987, 12, 15);
+```
 
 
 
