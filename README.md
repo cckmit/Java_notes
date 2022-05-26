@@ -73,7 +73,8 @@
 ### 笔记
 
 - 00_Typora使用
-- 
+- 01_Java基础-总
+- 02_
 
 
 
@@ -93,7 +94,7 @@
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517-20220428201029236.png?w=550)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416173559517-20220428201029236.png)
 
 
 
@@ -153,7 +154,11 @@ leetcode官网
 
 ## 八、数据库
 
-> MySQL、Jdbc
+Jdbc
+
+
+
+MySQL
 
 
 
@@ -199,8 +204,8 @@ leetcode官网
 
 
 - 《Java核心技术 卷①》
-  - 对象与类（进行中）
-  - 继承
+  - 对象与类
+  - 继承（进行中）
   - 接口
   - 异常、断言和日志
   - 泛型
