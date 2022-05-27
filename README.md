@@ -213,6 +213,8 @@ MySQL
 
 
 
+- 《深入理解Java虚拟机》
+
 
 
 # 优秀文章记录
@@ -233,9 +235,11 @@ MySQL
 
 
 
+[Linux 安装mysql8详细教程](https://blog.csdn.net/u010565545/article/details/104961184)
 
 
 
+[Linux安装Jdk 8](https://www.cnblogs.com/tdxm/p/16038014.html)
 
 
 

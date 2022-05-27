@@ -333,6 +333,12 @@ https://blog.csdn.net/u010565545/article/details/104961184
 --basedir=/usr/local/mysql/ 指定安装目录
 --datadir=/usr/local/mysql/data/ 指定初始化数据目录
 
+
+[root@VM-24-10-centos bin]# ./mysqld --defaults-file=/etc/my.cnf --basedir=/usr/local/mysql8 --datadir=/usr/local/mysql8/data --user=mysql --initialize
+2022-05-26T13:49:24.723412Z 0 [System] [MY-013169] [Server] /usr/local/mysql8/bin/mysqld (mysqld 8.0.19) initializing of server in progress as process 16832
+2022-05-26T13:49:27.457640Z 5 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: Mr(#<<x:q9YI
+
+
 ### 查看mysql.log初始密码，复制出来：5uK>wC;IXk(y
 [root@192 bin]# cat /usr/local/mysql8/mysql.log
 ### (5) 启动mysql，查看是否启动。并更改root 密码
