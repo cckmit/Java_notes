@@ -4,11 +4,50 @@
 
 公众号
 
+
+
+labuladong Github仓库：https://github.com/labuladong/fucking-algorithm
+
+labuladong 在线网站：https://labuladong.gitee.io/algo/
+
+
+
+
+
 <hr>
 
 
+```bash
+基础数据结构 Basic data structure
+- 数组/链表
+- 队列/栈
+- 数据结构设计
 
-# 零、写在前面（开篇&阅读指南）
+进阶数据结构 Advanced data structure
+- 二叉树
+- 二叉搜索树
+- 图论
+
+暴力搜索算法 Violence search algorithm
+- DFS
+- BFS
+
+动态规划 Dynamic programming
+- 动态规划核心原理
+- 经典动态规划
+- 背包问题
+- 用动态规划玩游戏
+
+其它经典算法 Other classical algorithms
+- 数学算法
+- 面试必知必会
+```
+
+
+
+
+
+# 写在前面（开篇&阅读指南）
 
 1. 本文章是 labuladong 刷题三件套 中的第⼀件：《labuladong 的算法秘籍》。刷题三件套共包含《labuladong 的算法秘籍》和
 
@@ -491,7 +530,7 @@ int maxDepth(TreeNode root) {
 
 
 
-# 二、学剑篇、基础数据结构
+# 二、学剑篇、基础数据结构 Basic data structure
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220420131704889.png)
 
@@ -769,7 +808,7 @@ class NumMatrix {
 
 
 
-# 二、仗剑篇、进阶数据结构
+# 二、仗剑篇、进阶数据结构 Advanced data structure
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220420133014740.png)
 
@@ -869,7 +908,7 @@ return res;
 
 
 
-# 三、霸剑篇、暴力搜索算法
+# 三、霸剑篇、暴力搜索算法 Violence search algorithm
 
 
 
@@ -887,7 +926,7 @@ return res;
 
 
 
-# 四、悟剑篇、动态规划
+# 四、悟剑篇、动态规划 Dynamic programming
 
 ## 动态规划核心原理
 ## 经典动态规划
@@ -898,7 +937,7 @@ return res;
 
 
 
-# 五、朴剑篇、其他经典算法
+# 五、朴剑篇、其他经典算法 Other classical algorithms
 
 ## 数学算法
 ## 面试必知必会
