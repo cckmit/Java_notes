@@ -578,7 +578,7 @@ int maxDepth(TreeNode root) {
 
 让你计算数组区间内元素的和，这是⼀道标准 的前缀和问题：
 
-<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211224133248042.png" border="1" alt="image-20211224133248042" style="zoom:50% ;" />
+
 
 题⽬要求你实现这样⼀个类：
 ```java
@@ -661,13 +661,13 @@ for (int i = 1; i < count.length; i++){
 // 利⽤ count 这个前缀和数组进⾏分数段查询
 ```
 
-接下来，我们看⼀看前缀和思路在实际算法题中可以如何运⽤。 
+
 
 #### 304：⼆维矩阵中的前缀和
 
 这是⼒扣第 304 题「304. ⼆维区域和检索 - 矩阵不可变」，其实和上⼀题类似，上⼀题是让你计算⼦数组的 元素之和，这道题让你计算⼆维矩阵中⼦矩阵的元素之和：
 
-![image-20211225023739206](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211225023739206.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211225023739206.png)
 
 ```java
 class NumMatrix {
