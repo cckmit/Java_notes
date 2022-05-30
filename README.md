@@ -161,9 +161,12 @@ Jdbc
 
 MySQL
 
+### 推荐
 
+- [手写几万行的Mybatis，把原理搞的透透的！（小傅哥）](https://www.bilibili.com/video/BV1nY4y1B7eT?from=search&seid=13067334712884217946&spm_id_from=333.337.0.0)
+  - [仓库](https://github.com/fuzhengwei/small-mybatis)
 
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/68747470733a2f2f627567737461636b2e636e2f696d616765732f61727469636c652f737072696e672f6d7962617469732d3232303332302d30322e706e67.png)
 
 
 

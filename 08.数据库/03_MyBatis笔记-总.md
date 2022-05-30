@@ -1,10 +1,6 @@
 
 
-# 写在前面
-
-
-
-
+# 0 写在前面
 
 
 
@@ -65,16 +61,7 @@
 
 
 
-
-
-
-
-
-
-
-<hr>
-
-# 简介与搭建
+# 1 简介与搭建
 
 ## 历史
 
@@ -348,7 +335,7 @@ System.out.println("result:" + result);
 
 
 
-# 核心配置文件详解
+# 2 核心配置文件详解
 
 核心配置文件中的标签必须按照固定的顺序(有的标签可以不写，但顺序一定不能乱)
 
@@ -448,7 +435,7 @@ plugins、environments、databaseIdProvider、mappers
 
 
 
-# MyBatis的增删改查
+# 3 MyBatis的增删改查
 
 ## 基础
 
@@ -1128,7 +1115,7 @@ List<Emp> getDeptAndEmpByStepTwo(@Param("did") Integer did);
 
 
 
-# MyBatis获取参数值的两种方式 $ 和 #（重点）
+# 4 MyBatis获取参数值的两种方式 $ 和 #（重点）
 
 MyBatis获取参数值的两种方式：${} 和 #{}  
 
@@ -1292,7 +1279,7 @@ public void checkLoginByParam() {
 
 <hr>
 
-# 动态SQL
+# 5 动态SQL
 
 Mybatis框架的动态SQL技术是一种**根据特定条件动态拼装SQL语句**的功能，它存在的意义是为了解决拼接SQL语句字符串时的痛点问题。
 
@@ -1581,7 +1568,19 @@ sql片段，可以记录一段公共sql片段，在使用的地方通过 `includ
 
 
 
-# MyBatis的缓存
+# 6 MyBatis的缓存机制
+
+转载于 博客园 [吴振照](https://gitee.com/link?target=https%3A%2F%2Fhome.cnblogs.com%2Fu%2Fwuzhenzhao%2F) 的博客：[https://www.cnblogs.com/wuzhenzhao/p/11103043.html](https://gitee.com/link?target=https%3A%2F%2Fwww.cnblogs.com%2Fwuzhenzhao%2Fp%2F11103043.html)
+
+## 前言
+
+缓存是一般的ORM 框架都会提供的功能，目的就是提升查询的效率和减少数据库的压力。跟Hibernate 一样，MyBatis 也有一级缓存和二级缓存，并且预留了集成第三方缓存的接口。
+
+缓存体系结构：
+
+
+
+
 
 ## MyBatis的一级缓存
 
@@ -1779,7 +1778,7 @@ sql片段，可以记录一段公共sql片段，在使用的地方通过 `includ
 
 
 
-# MyBatis的逆向工程
+# 7 MyBatis的逆向工程
 
 - 正向工程：先创建Java实体类，由框架负责根据实体类生成数据库表。Hibernate是支持正向工程的
 - 逆向工程：先创建数据库表，由框架负责根据数据库表，反向生成如下资源：
@@ -2011,7 +2010,7 @@ mapper.updateByPrimaryKeySelective(new Emp(2,"admin2",22,null,"456@qq.com",3));
 
 
 
-# 分页插件
+# 8 分页插件
 
 ## 分页插件使用步骤
 
@@ -2159,7 +2158,7 @@ prePage=0, nextPage=2, isFirstPage=true, isLastPage=false, hasPreviousPage=false
 
 
 
-# 写在后面
+# 9 写在后面
 
 
 
