@@ -1,21 +1,12 @@
 
 
-[网页版](https://labuladong.gitee.io/algo/)
-
-公众号
+# 写在前面（开篇&阅读指南）
 
 
 
-labuladong Github仓库：https://github.com/labuladong/fucking-algorithm
+## 推荐 labuladong
 
-labuladong 在线网站：https://labuladong.gitee.io/algo/
-
-
-
-
-
-<hr>
-
+- labuladong 的算法秘籍
 
 ```bash
 基础数据结构 Basic data structure
@@ -43,37 +34,50 @@ labuladong 在线网站：https://labuladong.gitee.io/algo/
 - 面试必知必会
 ```
 
+- 《labuladong 的算法小抄》
 
+```bash
+核心套路篇
+- BFS算法套路框架
+- 双指针套路技巧框架
+- 我写了首诗，保你闭着眼睛都能写出二分搜索算法
+- 滑动窗口算法
 
+动态规划系列
 
+数据结构系列
 
-# 写在前面（开篇&阅读指南）
+算法思维系列
 
-1. 本文章是 labuladong 刷题三件套 中的第⼀件：《labuladong 的算法秘籍》。刷题三件套共包含《labuladong 的算法秘籍》和
+高频面试系列
 
-   《labuladong 的刷题笔记》这两本 PDF 以及 labuladong 的 辅助刷题插件。
+```
 
- [GitHub 算法仓库](https://github.com/labuladong/fucking-algorithm) ⽬前已经快 100k star 。
+- [labuladong 网页](https://labuladong.gitee.io/algo/)
 
-2. **这本《算法秘籍》是⾸先建议阅读的，读完之后可以阅读《刷题笔记》**。
+- labuladong 公众号
+- [labuladong Github仓库（100k star）⭐️ ](https://github.com/labuladong/fucking-algorithm)
 
-你可以把《算法秘籍》理解成教 材，《刷题笔记》理解成⼀本练习册，当然应该先看教材，再通过练习册巩固复习。
+<br>
 
-这本《算法秘籍》会详尽解析各种算法的原理和应⽤，⽽《刷题笔记》的灵感来源于「单词速记卡」的形 式，其中只列出每到题⽬简明扼要的思路和参考解法。
+说明
 
-你可以在碎⽚化的时间翻看《刷题笔记》，像背单词⼀样背算法。⾄于这本《算法秘籍》，由于内容⽐较硬 核，所以建议拿出整块的时间仔细阅读和思考，并亲⼿做题实践。 
+- labuladong 刷题三件套
+  - 《labuladong 的算法秘籍 PDF》（首先阅读，作为教材）
+    - 会详尽解析各种算法的原理和应⽤
+    - 由于内容⽐较硬核，所以建议拿出整块的时间仔细阅读和思考，并亲⼿做题实践。
+  - 《labuladong 的刷题笔记 PDF》（再阅读，作为练习册巩固复习）
+    - 灵感来源于「单词速记卡」的形 式，其中只列出每到题⽬简明扼要的思路和参考解法。
+    - 可以在碎⽚化的时间翻看《刷题笔记》，像背单词⼀样背算法。
+  -  labuladong 的 辅助刷题插件
+    - 完美融合了上述两本 PDF 的内容，能够在⼒扣题⽬⻚⾯显示《算法秘籍》 中对应的详细题解和《刷题笔记》中的简明思路（也⽀持英⽂版 LeetCode），是建议每个读者都安装的
 
-3. **⽽ labuladong 的刷题辅助插件，完美融合了上述两本 PDF 的内容**，能够在⼒扣题⽬⻚⾯显示《算法秘籍》 中对应的详细题解和《刷
-
-   题笔记》中的简明思路（也⽀持英⽂版 LeetCode），是建议每个读者都安装的：
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220420115302306.png)
 
 
 
-
-
-4. 目录结构
+- 目录结构
 
 如果是⾦庸武侠⼩说的读者，应该熟悉《神雕侠侣》中杨过发现剑冢的情节，孤独剑魔⼀⽣练剑分为⼏个阶段：
 
@@ -87,11 +91,7 @@ labuladong 在线网站：https://labuladong.gitee.io/algo/
 
 
 
-
-
 **这本算法秘籍从这种算法的原理⼊⼿，可以帮你⾛到第三阶段，同时希望你能够爱上算法，持续修炼，达到 第四层境界。**
-
-
 
 主要分为 **基础数据结构、进阶数据结构、暴⼒穷举算法、动态规划、其他经典算法**⼏部分。
 
