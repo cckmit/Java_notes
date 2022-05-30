@@ -6,7 +6,7 @@
 
 ## 推荐 labuladong
 
-- labuladong 的算法秘籍
+- labuladong 的算法秘籍 PDF
 
 ```bash
 基础数据结构 Basic data structure
