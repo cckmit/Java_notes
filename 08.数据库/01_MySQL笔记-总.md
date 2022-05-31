@@ -10,13 +10,19 @@
 
 ## 推荐
 
-黑马程序员：https://www.bilibili.com/video/BV1Kr4y1i7ru?p=168&spm_id_from=pageDriver
+### 文章
 
-尚硅谷（宋红康）：https://www.bilibili.com/video/BV1iq4y1u7vj/?spm_id_from=autoNext
-
-黑马程序员（MyCat）：https://www.bilibili.com/video/BV17f4y1D7pm?p=98
+### 视频
 
 
+
+[黑马程序员220218](https://www.bilibili.com/video/BV1Kr4y1i7ru?p=168&spm_id_from=pageDriver)
+
+[尚硅谷宋红康MySQL数据库教程天花板211117](https://www.bilibili.com/video/BV1iq4y1u7vj/?spm_id_from=autoNext)
+
+[黑马程序员200918（MyCat性能最好的开源数据库中间件）](https://www.bilibili.com/video/BV17f4y1D7pm?p=98)
+
+### 书籍
 
 
 
@@ -1313,13 +1319,17 @@ xxx.sdi：存储表结构信息
 
 
 
-## 8. 索引index
+## 8. 索引index ⭐️
 
-### 索引概述
+### 索引概述、优缺点
 
 索引`index`是帮助MySQL高效获取数据的数据结构（有序）。在数据之外，数据库系统还维护着满足特定查找算法的数据结构，这
 
 些数据结构以某种方式引用（指向）数据， 这样就可以在这些数据结构上实现高级查找算法，这种数据结构就是索引。
+
+
+
+最典型的例子就是查新华字典，通过查找目录快速定位到查找的字。
 
 > B + Tree
 >
@@ -1467,6 +1477,82 @@ Hash索引特点：
 | 唯一索引 | 避免同一个表中某数据列中的值重复                     | 可以有多个               | unique   |
 | 常规索引 | 快速定位特定数据                                     | 可以有多个               |          |
 | 全文索引 | 全文索引查找的是文本中的关键词，而不是比较索引中的值 | 可以有多个               | fulltext |
+
+#### （1）主键索引
+
+我们建表的时候，例如下面这个建表语句
+
+```sql
+CREATE TABLE `t_blog_sort` (
+  `uid` varchar(32) NOT NULL COMMENT '唯一uid',
+  `sort_name` varchar(255) DEFAULT NULL COMMENT '分类内容',
+  `content` varchar(255) DEFAULT NULL COMMENT '分类简介',
+  `create_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '更新时间',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态',
+  `sort` int(11) DEFAULT '0' COMMENT '排序字段，越大越靠前',
+  `click_count` int(11) DEFAULT '0' COMMENT '点击数',
+  PRIMARY KEY (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='博客分类表';
+```
+
+这里面有使用到 PRIMARY KEY (`uid`)，这就是主键索引
+
+#### （2）唯一索引
+
+唯一索引 类似于普通索引，索引列的值必须唯一
+
+唯一索引和主键索引的区别就是，唯一索引允许出现空值，而主键索引不能为空
+
+```sql
+create unique index index_name on table(column)
+```
+
+或者创建表时指定
+
+```sql
+unique index_name column
+```
+
+#### （3） 普通索引
+
+当我们需要建立索引的字段，既不是主键索引，也不是唯一索引
+
+那么就可以创建一个普通索引
+
+```sql
+create index  index_name on table(column)
+```
+
+或者创建表时指定
+
+```sql
+create table(..., index index_name column)
+```
+
+#### （4）全文索引
+
+lunce、solr和ElasticSearch就是做全文检索的，里面涉及到了**倒排索引**的概念，**mysql很少使用**全文索引。
+
+要用来查找文本中的关键字，不是直接与索引中的值相比较，像是一个搜索引擎，配合 match against 使用，现在只有char，varchar，text上可以创建索引，在数据量比较大时，先将数据放在一个没有全文索引的表里，然后在利用create index创建全文索引，比先生成全文索引在插入数据快很多。
+
+#### （5）组合索引
+
+目前，在业务不是特别复杂的时候，可能使用一个列作为索引，或者直接采用主键索引即可，但是如果业务变得复杂的时候，就需要用到组合索引，通过对多个列建立索引。
+
+组合索引的用处，假设我现在表有个多个字段：id、name、age、gender，然后我经常使用以下的查询条件
+
+```sql
+select * from user where name = 'xx' and age = xx
+```
+
+这个时候，我们就可以通过组合 name 和 age 来建立一个组合索引，加快查询效率，建立成组合索引后，我的索引将包含两个key值
+
+在多个字段上创建索引，遵循**最左匹配**原则
+
+```sql
+alter table t add index index_name(a,b,c);
+```
 
 
 
@@ -1707,11 +1793,42 @@ explain select 字段列表 from 表名 where 条件;
 
 
 
-### 索引使用（如何正确使用）
+### 索引使用（如何正确使用、使用与否）
+
+#### 使用索引
+
+MySQL每次只使用一个索引，与其说 数据库查询只能用一个索引，倒不如说，和全表扫描比起来，去分析两个索引 B+树更耗费时间，所以where A=a and B=b 这种查询使用（A，B）的组合索引最佳，B+树根据（A，B）来排序。
+
+- 主键，unique字段
+- 和其他表做连接的字段需要加索引
+- 在where 里使用 >, >=, = , <, <=, is null 和 between等字段。
+- 使用不以通配符开始的like，where A like ‘China%’
+- 聚合函数里面的 MIN()， MAX()的字段
+- order by 和 group by字段
+
+
+
+#### 何时不使用索引
+
+- 表记录太少
+- 数据重复且分布平均的字段（只有很少数据的列）；
+- 经常插入、删除、修改的表要减少索引
+- text，image 等类型不应该建立索引，这些列的数据量大（加入text的前10个字符唯一，也可以对text前10个字符建立索引）
+- MySQL能估计出全表扫描比使用索引更快的时候，不使用索引
+
+
+
+#### 索引何时失效
+
+- 组合索引为使用最左前缀，例如组合索引（A，B），where B = b 不会使用索引
+- like未使用最左前缀，where A like "%China"
+- 搜索一个索引而在另一个索引上做 order by， where A = a order by B，只会使用A上的索引，因为查询只使用一个索引。
+- or会使索引失效。如果查询字段相同，也可以使用索引。例如 where A = a1 or A = a2（生效），where A=a or B = b （失效）
+- 在索引列上的操作，函数upper()等，or、！ = （<>）,not in 等
+
+
 
 #### 验证索引效率（索引对查询效率提升极大）
-
-
 
 ```sql
 -- 在未建立索引之前，执行如下SQL语句，查看SQL的耗时。-------------------21s
@@ -1729,7 +1846,7 @@ select * from tb_sku where sn = '100000003145001';
 
 > 想到面试题：sql优化之正确使用索引
 
-#### 1-最左前缀法则（针对联合索引）（索引失效或部分失效）
+#### 1 最左前缀法则（针对联合索引）（索引失效或部分失效）
 
 如果索引了多列（联合索引），要遵守最左前缀法则（查询从索引的最左列开始，并且不跳过索引中的列）
 
