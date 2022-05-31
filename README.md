@@ -18,6 +18,20 @@
 
 
 
+## 推荐
+
+[bugstack 虫洞栈（小傅哥）](https://bugstack.cn/)
+
+[陌溪的学习笔记](https://gitee.com/moxi159753/LearningNotes)
+
+
+
+[芋道源码_知识星球](http://svip.iocoder.cn/index/index.html)
+
+
+
+
+
 # 笔记总结
 
 ## 一、Java基础
@@ -167,6 +181,14 @@ MySQL
   - [仓库](https://github.com/fuzhengwei/small-mybatis)
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/68747470733a2f2f627567737461636b2e636e2f696d616765732f61727469636c652f737072696e672f6d7962617469732d3232303332302d30322e706e67.png)
+
+像我们之前完成[手写 Spring](https://mp.weixin.qq.com/s/g7YdIe_FSrk-WE8nQRO3TA)一样，拆解功能、简化流程、渐进实现，让读者能够更容易的学习到最有价值的知识。
+
+<br>
+
+在手写的过程中学习 Mybatis 从解析、绑定、反射、缓存，到回话和事务操作，以及如何与 Spring 进行关联注册 Bean 对象，完成整合部分功能逻辑。通过这些内容的拆解实现，读者伙伴就可以非常清楚的知道这些核心功能都是如何实现的了，以后再阅读 Mybatis 源码也就知道从哪开始到哪结束了。
+
+
 
 
 
