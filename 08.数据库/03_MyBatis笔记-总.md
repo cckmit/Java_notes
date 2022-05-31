@@ -558,13 +558,13 @@ plugins、environments、databaseIdProvider、mappers
 
 如下部分，可见 [《MyBatis 文档 —— Mapper XML 文件》](http://www.mybatis.org/mybatis-3/zh/sqlmap-xml.html) ：
 
-- <cache /> 标签，给定命名空间的缓存配置。
-  - <cache-ref /> 标签，其他命名空间缓存配置的引用。
-- <resultMap /> 标签，是最复杂也是最强大的元素，用来描述如何从数据库结果集中来加载对象。
-- ~~<parameterMap /> 标签，已废弃！老式风格的参数映射。内联参数是首选,这个元素可能在将来被移除，这里不会记录。~~
-- <sql /> 标签，可被其他语句引用的可重用语句块。
-  - <include /> 标签，引用 <sql /> 标签的语句。
-- <selectKey /> 标签，不支持自增的主键生成策略标签。
+- `<cache />` 标签，给定命名空间的缓存配置。
+  - `<cache-ref />` 标签，其他命名空间缓存配置的引用。
+- `<resultMap />` 标签，是最复杂也是最强大的元素，用来描述如何从数据库结果集中来加载对象。
+- `~~<parameterMap />` 标签，已废弃！老式风格的参数映射。内联参数是首选,这个元素可能在将来被移除，这里不会记录。~~
+- `<sql />` 标签，可被其他语句引用的可重用语句块。
+  - `<include /> `标签，引用 <sql /> 标签的语句。
+- `<selectKey />` 标签，不支持自增的主键生成策略标签。
 
 如下部分，可见 [《MyBatis 文档 —— 动态 SQL》](http://www.mybatis.org/mybatis-3/zh/dynamic-sql.html) ：
 
