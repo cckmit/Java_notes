@@ -1756,17 +1756,77 @@ sql片段：可以记录一段公共sql片段，在使用的地方通过 `includ
 
 缓存是一般的ORM 框架都会提供的功能，目的就是提升查询的效率和减少数据库的压力。跟Hibernate 一样，MyBatis 也有一级缓存和二级缓存，并且预留了集成第三方缓存的接口。
 
+<br>
+
 缓存体系结构：
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220531190312489.png)
 
 
 
+MyBatis 跟缓存相关的类都在cache 包里面，其中有一个Cache 接口，只有一个默认的实现类 PerpetualCache，它是用HashMap 实现的。我们可以通过 以下类找到这个缓存的庐山真面目
 
-## MyBatis的一级缓存
+```bash
+DefaultSqlSession
 
-一级缓存是**SqlSession**级别的，通过同一个SqlSession查询的数据会被缓存，下次查询相同的数据，就会从缓存中直接获取，不会从数据库重新访问  
+　　-> BaseExecutor
+
+　　　　-> PerpetualCache localCache
+
+　　　　　　->private Map<Object, Object> cache = new HashMap<>();
+```
+
+除此之外，还有很多的装饰器，通过这些装饰器可以额外实现很多的功能：回收策略、日志记录、定时刷新等等。
+
+但是无论怎么装饰，经过多少层装饰，最后使用的还是基本的实现类（默认PerpetualCache）。可以通过 CachingExecutor 类 Debug 去查看。
+
+
+
+所有的缓存实现类总体上可分为三类：基本缓存、淘汰算法缓存、装饰器缓存。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1383365-20190628172253737-1751427739.png)
+
+
+
+## MyBatis的一级缓存（本地缓存）
+
+- 一级缓存也叫本地缓存，MyBatis 的一级缓存是在会话（SqlSession）层面进行缓存的。
+  - 通过同一个SqlSession查询的数据会被缓存，下次查询相同的数据，就会从缓存中直接获取，不会从数据库重新访问  
+
+- MyBatis 的一级缓存是默认开启的，不需要任何的配置。
+
+首先我们必须去弄清楚一个问题，在MyBatis 执行的流程里面，涉及到这么多的对象，那么缓存PerpetualCache 应该放在哪个对象里面去维护？如果要在同一个会话里面共享一级缓存，这个对象肯定是在SqlSession 里面创建的，作为SqlSession 的一个属性。
+
+DefaultSqlSession 里面只有两个属性，Configuration 是全局的，所以缓存只可能放在Executor 里面维护——SimpleExecutor/ReuseExecutor/BatchExecutor 的父类BaseExecutor 的构造函数中持有了PerpetualCache。在同一个会话里面，多次执行相同的SQL 语句，会直接从内存取到缓存的结果，不会再发送SQL 到数据库。但是不同的会话里面，即使执行的SQL 一模一样（通过一个Mapper 的同一个方法的相同参数调用），也不能使用到一级缓存。
 
 <br>
+
+每当我们使用MyBatis开启一次和数据库的会话，MyBatis会创建出一个SqlSession对象表示一次数据库会话。
+
+在对数据库的一次会话中，我们有可能会反复地执行完全相同的查询语句，如果不采取一些措施的话，每一次查询都会查询一次数据库,而我们在极短的时间内做了完全相同的查询，那么它们的结果极有可能完全相同，由于查询一次数据库的代价很大，这有可能造成很大的资源浪费。
+
+为了解决这一问题，减少资源的浪费，MyBatis会在表示会话的SqlSession对象中建立一个简单的缓存，将每次查询到的结果结果缓存起来，当下次查询的时候，如果判断先前有个完全一样的查询，会直接从缓存中直接将结果取出，返回给用户，不需要再进行一次数据库查询了。
+
+如下图所示，MyBatis会在一次会话的表示----一个SqlSession对象中创建一个本地缓存(local cache)，对于每一次查询，都会尝试根据查询的条件去本地缓存中查找是否在缓存中，如果在缓存中，就直接从缓存中取出，然后返回给用户；否则，从数据库读取数据，将查询结果存入缓存并返回给用户。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220531204625468.png)
+
+一级缓存的生命周期有多长？
+
+1. MyBatis在开启一个数据库会话时，会 创建一个新的SqlSession对象，SqlSession对象中会有一个新的Executor对象，Executor对象中持有一个新的PerpetualCache对象；当会话结束时，SqlSession对象及其内部的Executor对象还有PerpetualCache对象也一并释放掉。
+2. 如果SqlSession调用了close()方法，会释放掉一级缓存PerpetualCache对象，一级缓存将不可用；
+3. 如果SqlSession调用了clearCache()，会清空PerpetualCache对象中的数据，但是该对象仍可使用；
+4. SqlSession中执行了任何一个update操作(update()、delete()、insert()) ，都会清空PerpetualCache对象的数据，但是该对象可以继续使用；
+
+SqlSession 一级缓存的工作流程：
+
+1. 对于某个查询，根据statementId,params,rowBounds来构建一个key值，根据这个key值去缓存Cache中取出对应的key值存储的缓存结果
+2. 判断从Cache中根据特定的key值取的数据数据是否为空，即是否命中；
+3. 如果命中，则直接将缓存结果返回；
+4. 如果没命中：
+5. 1. 去数据库中查询数据，得到查询结果；
+   2. 将key和查询到的结果分别作为key,value对存储到Cache中；
+   3. 将查询结果返回；
 
 使一级缓存失效的四种情况：  
 

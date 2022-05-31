@@ -48,6 +48,11 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class DefaultSqlSession implements SqlSession {
 
+  // DefaultSqlSession 里面只有两个属性
+  // Configuration 是全局的，所以缓存只可能放在Executor 里面维护
+  // SimpleExecutor/ReuseExecutor/BatchExecutor 的父类BaseExecutor 的构造函数中持有了PerpetualCache。
+  // 在同一个会话里面，多次执行相同的SQL 语句，会直接从内存取到缓存的结果，不会再发送SQL 到数据库。
+  // 但是不同的会话里面，即使执行的SQL 一模一样（通过一个Mapper 的同一个方法的相同参数调用），也不能使用到一级缓存。
   private final Configuration configuration;
   private final Executor executor;
 
