@@ -6,15 +6,23 @@
 
 ## 推荐
 
+### 文章
+
+[一定一定一定认真看MyBatis 官方文档](https://mybatis.org/mybatis-3/zh/index.html)
+
+[Github仓库](https://github.com/mybatis/mybatis-3)
+
+
+
+### 视频
+
 [尚硅谷杨博超20220223](https://www.bilibili.com/video/BV1VP4y1c7j7?from=search&seid=12656264273391643854&spm_id_from=333.337.0.0)
-
-
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220409160011565.png)
 
 
 
-
+### 书籍
 
 
 
@@ -76,10 +84,6 @@
 2. MyBatis 避免了几乎所有的 JDBC 代码和手动设置参数以及获取结果集
 3. MyBatis可以使用简单的XML或注解用于配置和原始映射，将接口和Java的POJO（Plain Old Java Objects，普通的Java对象）映射成数据库中的记录
 4. MyBatis 是一个 半自动的ORM（Object Relation Mapping）框架
-
-
-
-## [下载]()
 
 
 
@@ -250,11 +254,9 @@ Mapper 接口里的方法，**是不能重载的**，因为是**全限名 + 方�
 
 #### Mapper 接口绑定有几种实现方式,分别是怎么实现的?
 
-第一种，通过 **XML** 里面写 SQL 来绑定。在这种情况下，要指定 XML 映射文件里面的 `"namespace"` 必须为接口的全路径名。
-
-第二种，通过**注解**绑定，就是在接口的方法上面加上 `@Select`、`@Update`、`@Insert`、`@Delete` 注解，里面包含 SQL 语句来绑定。
-
-第三种，是第二种的特例，也是通过**注解**绑定，在接口的方法上面加上 `@SelectProvider`、`@UpdateProvider`、`@InsertProvider`、`@DeleteProvider` 注解，通过 Java 代码，生成对应的动态 SQL 。
+- （1）通过 **XML** 里面写 SQL 来绑定。在这种情况下，要指定 XML 映射文件里面的 `"namespace"` 必须为接口的全路径名。
+- （2）通过**注解**绑定，就是在接口的方法上面加上 `@Select`、`@Update`、`@Insert`、`@Delete` 注解，里面包含 SQL 语句来绑定。
+- （3）是第二种的特例，也是通过**注解**绑定，在接口的方法上面加上 `@SelectProvider`、`@UpdateProvider`、`@InsertProvider`、`@DeleteProvider` 注解，通过 Java 代码，生成对应的动态 SQL 。
 
 <br>
 
@@ -291,8 +293,8 @@ Mapper 接口里的方法，**是不能重载的**，因为是**全限名 + 方�
 
 **MyBatis中可以面向接口操作数据，要保证两个一致：**
 
-- mapper接口的全类名和映射文件的命名空间（namespace）保持一致
-- mapper接口中方法的方法名和映射文件中编写SQL的标签的 `id` 属性保持一致
+- mapper接口的**全类名**和映射文件的**命名空间（namespace）**保持一致
+- mapper接口中方法的**方法名**和映射文件中SQL的标签的 `id` 属性保持一致
 
 
 
@@ -311,12 +313,49 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 
 
+#### Mybatis 的 XML Mapper文件中，不同的 XML 映射文件，id 是否可以重复？
+
+要看是否配置了namespace。毕竟`"namespace"` 不是必须的，只是最佳实践而已。`namespace + id` 是作为 `Map<String, MappedStatement>` 的 key 使用的。
+
+- 不同的 XML Mapper 文件，如果配置了 `"namespace"` ，那么 id 可以重复。
+  - `"namespace"`不同，`namespace + id` 自然也就不同。
+- 如果没有配置 `"namespace"` ，那么 id 不能重复。
+  -  id 重复会导致数据互相覆盖。
+
+#### 如何获取自动生成的(主)键值?
+
+不同的数据库，获取自动生成的(主)键值的方式是不同的。
+
+MySQL 有两种方式，其中方式一较为常用。
+
+```xml
+// 方式一，使用 useGeneratedKeys + keyProperty 属性
+<insert id="insert" parameterType="Person" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO person(name, pswd)
+    VALUE (#{name}, #{pswd})
+</insert>
+    
+// 方式二，使用 `<selectKey />` 标签
+<insert id="insert" parameterType="Person">
+    <selectKey keyProperty="id" resultType="long" order="AFTER">
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+        
+    INSERT INTO person(name, pswd)
+    VALUE (#{name}, #{pswd})
+</insert>
+```
+
+Oracle 有两种方式，**序列**和**触发器**。
+
+
+
 ### （5）通过junit测试功能
 
 - SqlSession：代表Java程序和**数据库**之间的**会话**。（HttpSession是Java程序和浏览器之间的会话）
 - SqlSessionFactory：是生产 SqlSession 的 工厂。
+  - 工厂模式：如果创建某一个对象，使用的过程基本固定，那么我们就可以把创建这个对象的相关代码封装到一个“工厂类”中，以后都使用这个工厂类来“生产”我们需要的对象
 
-- 工厂模式：如果创建某一个对象，使用的过程基本固定，那么我们就可以把创建这个对象的相关代码封装到一个“工厂类”中，以后都使用这个工厂类来“生产”我们需要的对象
 
 <br>
 
