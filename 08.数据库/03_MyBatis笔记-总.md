@@ -12,6 +12,10 @@
 
 [Github仓库](https://github.com/mybatis/mybatis-3)
 
+[Mybatis3.4.x 技术内幕（二十三）：Mybatis 面试问题集锦（大结局）](https://my.oschina.net/zudajun/blog/747682)
+
+
+
 
 
 ### 视频
@@ -214,7 +218,7 @@ public interface UserMapper {
 }
 ```
 
-#### 最佳实践中，通常一个 XML 映射文件，都会写一个 Mapper 接口与之对应。请问，这个 Mapper 接口的工作原理是什么？Mapper 接口里的方法，参数不同时，方法能重载吗？
+#### 最佳实践中，通常一个 XML 映射文件，都会写一个 Mapper 接口与之对应。请问，这个 Mapper 接口的工作原理是什么？Mapper 接口里的方法，参数不同时，方法能重载吗？（京东）
 
 Mapper 接口，对应的关系如下：
 
@@ -1828,6 +1832,100 @@ SqlSession 一级缓存的工作流程：
    2. 将key和查询到的结果分别作为key,value对存储到Cache中；
    3. 将查询结果返回；
 
+
+
+接下来我们来验证一下，MyBatis 的一级缓存到底是不是只能在一个会话里面共享，以及跨会话（不同session）操作相同的数据会产生什么问题。判断是否命中缓存：如果再次发送SQL 到数据库执行，说明没有命中缓存；如果直接打印对象，说明是从内存缓存中取到了结果。
+
+1、在同一个session 中共享（不同session 不能共享）
+
+```java
+//同Session
+SqlSession session1 = sqlSessionFactory.openSession();
+BlogMapper mapper1 = session1.getMapper(BlogMapper.class);
+System.out.println(mapper1.selectBlogById(1002));
+System.out.println(mapper1.selectBlogById(1002));
+```
+
+执行以上sql我们可以看到控制台打印如下信息（需配置mybatis.configuration.log-impl=org.apache.ibatis.logging.stdout.StdOutImpl），会发现我们两次的查询就发送了一次查询数据库的操作，这说明了缓存在发生作用：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/1383365-20190628173854959-1659491558.png)
+
+PS：一级缓存在BaseExecutor 的query()——queryFromDatabase()中存入。在queryFromDatabase()之前会get()。
+
+```java
+public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
+        ErrorContext.instance().resource(ms.getResource()).activity("executing a query").object(ms.getId());
+　　　　。。。。。。try {
+                ++this.queryStack;//从缓存中获取
+                list = resultHandler == null ? (List)this.localCache.getObject(key) : null;
+                if (list != null) {
+                    this.handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
+                } else {//缓存中获取不到，查询数据库
+                    list = this.queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
+                }
+　　　　。。。。。。
+    }
+```
+
+2、同一个会话中，update（包括delete）会导致一级缓存被清空
+
+```java
+//同Session
+SqlSession session1 = sqlSessionFactory.openSession();
+BlogMapper mapper1 = session1.getMapper(BlogMapper.class);
+System.out.println(mapper1.selectBlogById(1002));
+Blog blog3 = new Blog();
+blog3.setBid(1002);
+blog3.setName("mybatis缓存机制修改");
+mapper1.updateBlog(blog3);
+session1.commit();// 注意要提交事务，否则不会清除缓存
+System.out.println(mapper1.selectBlogById(1002));
+```
+
+一级缓存是在BaseExecutor 中的update()方法中调用clearLocalCache()清空的（无条件）
+
+```java
+public int update(MappedStatement ms, Object parameter) throws SQLException {
+        ErrorContext.instance().resource(ms.getResource()).activity("executing an update").object(ms.getId());
+        if (this.closed) {
+            throw new ExecutorException("Executor was closed.");
+        } else {　　　　　　  //清除本地缓存
+            this.clearLocalCache();
+            return this.doUpdate(ms, parameter);
+        }
+}
+```
+
+
+
+3、其他会话更新了数据，导致读取到脏数据（一级缓存不能跨会话共享）
+
+```java
+SqlSession session1 = sqlSessionFactory.openSession();
+BlogMapper mapper1 = session1.getMapper(BlogMapper.class);
+SqlSession session2 = sqlSessionFactory.openSession();
+BlogMapper mapper2 = session2.getMapper(BlogMapper.class);
+// mapper2查询
+System.out.println(mapper2.selectBlogById(1002));
+// mapper1更新
+Blog blog3 = new Blog();
+blog3.setBid(1002);
+blog3.setName("mybatis缓存机制1");
+mapper1.updateBlog(blog3);
+
+session1.commit();
+System.out.println(mapper2.selectBlogById(1002));
+```
+
+一级缓存的不足：
+
+ 		使用一级缓存的时候，因为缓存不能跨会话共享，不同的会话之间对于相同的数据可能有不一样的缓存。在有多个会话或者分布式环境下，会存在脏数据的问题。如果要解决这个问题，就要用到二级缓存。MyBatis 一级缓存（MyBaits 称其为 Local Cache）无法关闭，但是有两种级别可选：
+
+1. session 级别的缓存，在同一个 sqlSession 内，对同样的查询将不再查询数据库，直接从缓存中。
+2. statement 级别的缓存，避坑： 为了避免这个问题，可以将一级缓存的级别设为 statement 级别的，这样每次查询结束都会清掉一级缓存。
+
+
+
 使一级缓存失效的四种情况：  
 
 1) 不同的SqlSession对应不同的一级缓存
@@ -1838,22 +1936,125 @@ SqlSession 一级缓存的工作流程：
 
 4) 同一个SqlSession两次查询期间手动清空了缓存
 
-<br>
-
 ## MyBatis的二级缓存
 
-二级缓存是**SqlSessionFactory**级别，通过同一个SqlSessionFactory创建的SqlSession查询的结果会被缓存；此后若再次执行相同的查询语句，结果就会从缓存中获取
+二级缓存是用来解决一级缓存不能跨会话共享的问题的，范围是namespace 级别的，可以被多个SqlSession 共享（只要是同一个接口里面的相同方法，都可以共享），生命周期和应用同步。
 
-<br>
+如果你的MyBatis使用了二级缓存，并且你的Mapper和select语句也配置使用了二级缓存，那么在执行select查询的时候，MyBatis会先从二级缓存中取数据，其次才是一级缓存，即MyBatis查询数据的顺序是：二级缓存 —> 一级缓存 —> 数据库。
+
+
+
+作为一个作用范围更广的缓存，它肯定是在SqlSession 的外层，否则不可能被多个SqlSession 共享。而一级缓存是在SqlSession 内部的，所以第一个问题，肯定是工作在一级缓存之前，也就是只有取不到二级缓存的情况下才到一个会话中去取一级缓存。第二个问题，二级缓存放在哪个对象中维护呢？ 要跨会话共享的话，SqlSession 本身和它里面的BaseExecutor 已经满足不了需求了，那我们应该在BaseExecutor 之外创建一个对象。
+
+实际上MyBatis 用了一个装饰器的类来维护，就是CachingExecutor。如果启用了二级缓存，MyBatis 在创建Executor 对象的时候会对Executor 进行装饰。CachingExecutor 对于查询请求，会判断二级缓存是否有缓存结果，如果有就直接返回，如果没有委派交给真正的查询器Executor 实现类，比如SimpleExecutor 来执行查询，再走到一级缓存的流程。最后会把结果缓存起来，并且返回给用户。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220531210642192.png)
+
+
 
 二级缓存开启的条件：
 
-1. 在核心配置文件中，设置全局配置属性cacheEnabled="true"，默认为true，不需要设置
+1. 配置 mybatis.configuration.cache-enabled=true，只要没有显式地设置cacheEnabled=false，都会用CachingExecutor 装饰基本的执行器。默认为true，不需要设置。
 2. 在映射文件中设置标签<cache />
+
+```xml
+<cache type="org.apache.ibatis.cache.impl.PerpetualCache"
+    size="1024"
+eviction="LRU"
+flushInterval="120000"
+readOnly="false"/>
+```
+
+基本上就是这样。这个简单语句的效果如下:
+
+- 映射语句文件中的所有 select 语句的结果将会被缓存。
+- 映射语句文件中的所有 insert、update 和 delete 语句会刷新缓存。
+- 缓存会使用最近最少使用算法（LRU, Least Recently Used）算法来清除不需要的缓存。
+- 缓存不会定时进行刷新（也就是说，没有刷新间隔）。
+- 缓存会保存列表或对象（无论查询方法返回哪种）的 1024 个引用。
+- 缓存会被视为读/写缓存，这意味着获取到的对象并不是共享的，可以安全地被调用者修改，而不干扰其他调用者或线程所做的潜在修改。
+
+这个更高级的配置创建了一个 FIFO 缓存，每隔 60 秒刷新，最多可以存储结果对象或列表的 512 个引用，而且返回的对象被认为是只读的，因此对它们进行修改可能会在不同线程中的调用者产生冲突。可用的清除策略有：
+
+- `LRU` – 最近最少使用：移除最长时间不被使用的对象。
+- `FIFO` – 先进先出：按对象进入缓存的顺序来移除它们。
+- `SOFT` – 软引用：基于垃圾回收器状态和软引用规则移除对象。
+- `WEAK` – 弱引用：更积极地基于垃圾收集器状态和弱引用规则移除对象。
+
+默认的清除策略是 LRU。
+
+Mapper.xml 配置了之后，select()会被缓存。update()、delete()、insert()会刷新缓存。
+
+如果cacheEnabled=true，Mapper.xml 没有配置标签，还有二级缓存吗？（没有）还会出现CachingExecutor 包装对象吗？（会）
+
+
+
+只要cacheEnabled=true 基本执行器就会被装饰。有没有配置，决定了在启动的时候会不会创建这个mapper 的Cache 对象，只是最终会影响到CachingExecutorquery 方法里面的判断。**如果某些查询方法对数据的实时性要求很高，不需要二级缓存，怎么办？**我们可以在单个Statement ID 上显式关闭二级缓存（默认是true）：
+
+```java
+<select id="selectBlog" resultMap="BaseResultMap" useCache="false">
+```
+
+
+
 3. 二级缓存必须在SqlSession关闭或提交之后有效
 4. 查询的数据所转换的实体类类型必须实现序列化的接口
 
+
+
 <br>
+
+二级缓存验证（验证二级缓存需要先开启二级缓存）
+
+1、事务不提交，二级缓存不存在
+
+```java
+System.out.println(mapper1.selectBlogById(1002));
+// 事务不提交的情况下，二级缓存不会写入
+// session1.commit();
+System.out.println(mapper2.selectBlogById(1002));
+```
+
+2、使用不同的session 和mapper，验证二级缓存可以跨session 存在（取消以上commit()的注释）
+
+3、在其他的session 中执行增删改操作，验证缓存会被刷新
+
+```java
+System.out.println(mapper1.selectBlogById(1002));
+//主键自增返回测试
+Blog blog3 = new Blog();
+blog3.setBid(1002);
+blog3.setName("mybatis缓存机制");
+mapper1.updateBlog(blog3);
+session1.commit();
+System.out.println(mapper2.selectBlogById(1002));
+```
+
+什么时候开启二级缓存？
+
+一级缓存默认是打开的，二级缓存需要配置才可以开启。那么我们必须思考一个问题，在什么情况下才**有必要**去开启二级缓存？
+
+1. 因为所有的增删改都会刷新二级缓存，导致二级缓存失效，所以适合在查询为主的应用中使用，比如历史交易、历史订单的查询。否则缓存就失去了意义。
+
+2. 如果多个namespace 中有针对于同一个表的操作，比如Blog 表，如果在一个namespace 中刷新了缓存，另一个namespace 中没有刷新，就会出现读到脏数据的情况。所以，**推荐在一个Mapper 里面只操作单表的情况使用**。
+
+如果要让多个namespace 共享一个二级缓存，应该怎么做？跨namespace 的缓存共享的问题，可以使用来解决：
+
+```xml
+<cache-ref namespace="com.wuzz.crud.dao.DepartmentMapper" />
+```
+
+cache-ref 代表引用别的命名空间的Cache 配置，两个命名空间的操作使用的是同一个Cache。在关联的表比较少，或者按照业务可以对表进行分组的时候可以使用。
+
+注意：在这种情况下，多个Mapper 的操作都会引起缓存刷新，缓存的意义已经不大了。
+
+<br>
+
+第三方缓存做二级缓存
+
+除了MyBatis 自带的二级缓存之外，我们也可以通过实现Cache 接口来自定义二级缓存。MyBatis 官方提供了一些第三方缓存集成方式，比如ehcache 和redis：[https://github.com/mybatis/redis-cache](https://gitee.com/link?target=https%3A%2F%2Fgithub.com%2Fmybatis%2Fredis-cache) ,这里就不过多介绍了。当然，我们也可以使用独立的缓存服务，不使用MyBatis 自带的二级缓存。
+
+
 
 使二级缓存失效的情况：两次查询之间执行了任意的增删改，会使一级和二级缓存同时失效
 
