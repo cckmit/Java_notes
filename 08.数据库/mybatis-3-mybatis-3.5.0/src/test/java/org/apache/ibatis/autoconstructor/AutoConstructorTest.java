@@ -31,21 +31,25 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+// 单元测试类
 public class AutoConstructorTest {
   private static SqlSessionFactory sqlSessionFactory;
 
   @BeforeAll
   public static void setUp() throws Exception {
     // create a SqlSessionFactory
+    // 创建 SqlSessionFactory 对象，基于 mybatis-config.xml 配置文件。
     try (Reader reader = Resources.getResourceAsReader("org/apache/ibatis/autoconstructor/mybatis-config.xml")) {
       sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
     }
 
     // populate in-memory database
+    // 初始化数据到内存数据库，基于 CreateDB.sql SQL 文件。
     BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
         "org/apache/ibatis/autoconstructor/CreateDB.sql");
   }
 
+  // 右键任一单元测试方法，愉快的调试起来把。
   @Test
   public void fullyPopulatedSubject() {
     try (SqlSession sqlSession = sqlSessionFactory.openSession()) {

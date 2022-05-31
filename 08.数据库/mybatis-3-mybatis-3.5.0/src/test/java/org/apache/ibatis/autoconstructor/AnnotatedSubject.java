@@ -17,6 +17,14 @@ package org.apache.ibatis.autoconstructor;
 
 import org.apache.ibatis.annotations.AutomapConstructor;
 
+/** 笔记
+
+ 一般情况下，POJO 对象里，不使用基本类型。
+
+ */
+
+
+// 对应 subject 表。
 public class AnnotatedSubject {
   private final int id;
   private final String name;
@@ -32,6 +40,8 @@ public class AnnotatedSubject {
     this.weight = weight;
   }
 
+  // @AutomapConstructor 注解，表示 MyBatis 查询后，在创建 AnnotatedSubject 对象，使用该构造方法。
+  // 😈 实际场景下，非常少使用这个注解，甚至 Google 上资料也不多。
   @AutomapConstructor
   public AnnotatedSubject(final int id, final String name, final int age, final Integer height, final Integer weight) {
     this.id = id;

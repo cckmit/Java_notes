@@ -15,14 +15,18 @@
  */
 package org.apache.ibatis.autoconstructor;
 
+// 对应的也是 extensive_subject 表。
+// 这是个复杂对象，基本涵盖了各种类型的数据。
 public class ExtensiveSubject {
     private final byte aByte;
     private final short aShort;
     private final char aChar;
     private final int anInt;
     private final long aLong;
+
     private final float aFloat;
     private final double aDouble;
+
     private final boolean aBoolean;
     private final String aString;
 
@@ -61,6 +65,7 @@ public class ExtensiveSubject {
         this.aBlob = aBlob;
     }
 
+    // 枚举
     public enum TestEnum {
         AVALUE, BVALUE, CVALUE;
     }

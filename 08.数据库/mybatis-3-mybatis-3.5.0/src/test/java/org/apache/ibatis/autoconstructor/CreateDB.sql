@@ -20,6 +20,11 @@ IF EXISTS;
 DROP TABLE extensive_subject
 IF EXISTS;
 
+/**
+创建了 subject 表，并初始化三条数据。
+创建了 extensive_subject 表，并初始化三条数据。
+ */
+
 CREATE TABLE subject (
   id     INT NOT NULL,
   name   VARCHAR(20),
