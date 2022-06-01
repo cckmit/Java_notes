@@ -1,4 +1,4 @@
-package thread_app;
+package thread;
 
 /**
  * @author cat

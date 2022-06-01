@@ -563,9 +563,514 @@ Java中的锁主要用于保障多并发线程情况下数据的一致性。
 
 
 
-锁<u>从乐观和悲观的角度</u>可分为**乐观锁和悲观锁**，从获取资源的公平性角度可分为公平锁和非公 平锁，从是否共享资源的角度可分为共享锁和独占锁，从锁的状态的角度可分为偏向锁、轻量级锁 和重量级锁。同时，在JVM中还巧妙设计了自旋锁以更快地使用CPU资源。
+- 锁从乐观和悲观的角度：可分为**乐观锁和悲观锁**
+- 从获取资源的公平性角度：可分为**公平锁和非公平锁**
+- 从是否共享资源的角度：可分为**共享锁和独占锁**
+- 从锁的状态的角度：可分为**偏向锁、轻量级锁 和重量级锁**
+- 同时，在JVM中还巧妙设计了**自旋锁**以更快地使用CPU资源
+
+
 
 下面将详细介绍这些锁。
+
+## 7.1 乐观锁
+
+乐观锁采用乐观的思想处理数据，在每次读取数据时都认为别人不会修改该数据，所以不会上 锁，但在更新时会判断在此期间别人有没有更新该数据，通常采用在写时先读出当前版本号然后加锁的方法。
+
+具体过程为：比较当前版本号与上一次的版本号，如果版本号一致，则更新，如果版本号不一致，则重复进行读、比较、写操作。
+
+Java中的乐观锁大部分是通过`CAS`（**Compare And Swap，比较和交换**）操作实现的，CAS是一 种原子更新操作，在对数据操作之前首先会比较当前值跟传入的值是否一样，如果一样则更新，否则不执行更新操作，直接返回失败状态。
+
+
+
+
+
+## 7.2 悲观锁
+
+悲观锁采用悲观思想处理数据，在每次读取数据时都认为别人会修改数据，所以每次在读写数据时都会上锁，这样别人想读写这个数据时就会阻塞、等待直到拿到锁。
+
+Java中的悲观锁大部分基于AQS（Abstract Queued Synchronized，抽象的队列同步器）架构实 现。AQS定义了一套多线程访问共享资源的同步框架，许多同步类的实现都依赖于它，例如常用的Synchronized、ReentrantLock、Semaphore、CountDownLatch等。该框架下的锁会先尝试以CAS乐观锁去获取锁，如果获取不到，则会转为悲观锁（如RetreenLock）。
+
+## 7.3 自旋锁
+
+
+
+## 7.4 synchronized
+
+synchronized关键字用于为**Java对象、方法、代码块**提供线程安全的操作。
+
+synchronized属于独占式的悲观锁，同时属于可重入锁。
+
+<br>
+
+在使用synchronized修饰对象时，同一时刻只能有一个线程对 该对象进行访问；
+
+在synchronized修饰方法、代码块时，同一时刻只能有一个线程执行该方法体或代码块，其他线程只有等待当前线程执行完毕并释放锁资源后才能访问该对象或执行同步代码块。
+
+
+
+### 作用范围
+
+- 作用于成员变量和非静态方法时：锁住的是对象的实例，即this对象。
+
+- 作用于静态方法时：锁住的是Class实例，因为静态方法属于Class而不属于对象。
+
+- 作用于一个代码块时：锁住的是所有代码块中配置的对象。
+
+### 用法简介
+
+#### （1）对于成员变量和非静态方法
+
+```java
+// 定义了两个使用synchronized修饰的普通方法，然后在main函数中定义对象的实例 并发执行各个方法。
+// 我们看到，线程 1会等待线程 2执行完成才能执行，这是因为synchronized锁住了当前的对象实例synchronizedDemo1导致的。
+public class SynchronizedDemo1 {
+
+
+    public static void main(String[] args) {
+        final SynchronizedDemo1 synchronizedDemo1 = new SynchronizedDemo1();
+
+        // 匿名内部类
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronizedDemo1.generalMethod1();
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronizedDemo1.generalMethod2();
+            }
+        }).start();
+
+    }
+
+    // 修饰普通的同步方法，锁住的是当前实例对象
+    public synchronized void generalMethod1(){
+        try {
+            for (int i = 0; i < 3; i++) {
+                System.out.println("generalMethod1 execute " + i + "time");
+                Thread.sleep(3000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 修饰普通的同步方法，锁住的是当前实例对象
+    public synchronized void generalMethod2(){
+        try {
+            for (int i = 0; i < 3; i++) {
+                System.out.println("generalMethod2 execute " + i + "time");
+                Thread.sleep(3000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+具体的执行结果如下
+
+```java
+generalMethod1 execute 0time
+generalMethod1 execute 1time
+generalMethod1 execute 2time
+generalMethod2 execute 0time
+generalMethod2 execute 1time
+generalMethod2 execute 2time
+```
+
+稍微把程序修改一下，定义两个实例分别调用两个方法，程序就能并发执行起来了：
+
+```java
+final SynchronizedDemo1 synchronizedDemo1 = new SynchronizedDemo1();
+final SynchronizedDemo1 synchronizedDemo2 = new SynchronizedDemo1();
+
+// 匿名内部类
+new Thread(new Runnable() {
+    @Override
+    public void run() {
+        synchronizedDemo1.generalMethod1();
+    }
+}).start();
+
+new Thread(new Runnable() {
+    @Override
+    public void run() {
+        //synchronizedDemo1.generalMethod2();
+        synchronizedDemo2.generalMethod2();
+    }
+}).start();
+```
+
+#### （2）对于静态方法
+
+锁住的是当前类的Class对象，具体的使用代码如下，我们只需在以上方法上加上**static**关键字即可：
+
+```java
+public class SynchronizedDemo2 {
+
+    public static void main(String[] args) {
+        final SynchronizedDemo2 synchronizedDemo1 = new SynchronizedDemo2();
+        final SynchronizedDemo2 synchronizedDemo2 = new SynchronizedDemo2();
+
+        // 匿名内部类
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronizedDemo1.generalMethod1();
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronizedDemo2.generalMethod2();
+            }
+        }).start();
+    }
+
+
+    // 修饰静态同步方法，锁住的是当前类的 Class对象
+    public static synchronized void generalMethod1(){
+        try {
+            for (int i = 0; i < 3; i++) {
+                System.out.println("generalMethod1 execute " + i + "time");
+                Thread.sleep(3000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 修饰静态同步方法，锁住的是当前类的 Class对象
+    public static synchronized void generalMethod2(){
+        try {
+            for (int i = 0; i < 3; i++) {
+                System.out.println("generalMethod2 execute " + i + "time");
+                Thread.sleep(3000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+
+
+以上代码首先定义了两个static的synchronized方法，然后定义了两个实例分别执行这两个方法，具体的执行结果如下
+
+```bah
+generalMethod1 execute 0time
+generalMethod1 execute 1time
+generalMethod1 execute 2time
+generalMethod2 execute 0time
+generalMethod2 execute 1time
+generalMethod2 execute 2time
+```
+
+我们通过日志能清晰地看到，因为static方法是属于Class的，并且Class的相关数据在JVM中是全局共享的，因此静态方法锁相当于类的一个全局锁，会锁住所有调用该方法的线程。
+
+#### （3）对于代码块
+
+锁住的是在代码块中配置的对象。
+
+```java
+public class SynchronizedDemo {
+
+    String lockA = "lockA";
+
+    public static void main(String[] args) {
+
+        final SynchronizedDemo synchronizedDemo = new SynchronizedDemo();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronizedDemo.blockMethod1();
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronizedDemo.blockMethod2();
+            }
+        }).start();
+
+    }
+
+
+    // 用于方法块,锁住的是在括号里面配置的对象
+    public void blockMethod1(){
+        try {
+            synchronized (lockA) {
+                for (int i = 0; i < 3; i++) {
+                    System.out.println("Method 1 execute");
+                    Thread.sleep(3000);
+                }
+            }
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void blockMethod2(){
+        try {
+            synchronized (lockA) {
+                for (int i = 0; i < 3; i++) {
+                    System.out.println("Method 2 execute");
+                    Thread.sleep(3000);
+                }
+            }
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+
+
+以上代码的执行结果很简单，由于两个方法都需要获取名为lockA的锁，所以线程 1会等待线程2执行完成后才能获取该锁并执行
+
+```bash
+Method 1 execute
+Method 1 execute
+Method 1 execute
+Method 2 execute
+Method 2 execute
+Method 2 execute
+```
+
+
+
+我们在写多线程程序时可能会出现A线程依赖B线程中的资源，而B线程又依赖于A线程中的资 源的情况，这时就可能出现死锁。我们在开发时要杜绝资源相互调用的情况。
+
+如下所示就是一段典型的死锁代码：
+
+```java
+```
+
+
+
+
+
+### 实现原理
+
+在synchronized内部包括ContentionList、EntryList、WaitSet、OnDeck、Owner、!Owner这6个区域，每个区域的数据都代表锁的不同状态。
+
+- ContentionList：锁竞争队列，所有请求锁的线程都被放在竞争队列中。
+
+- EntryList：竞争候选列表，在Contention List中有资格成为候选者来竞争锁资源的线程被移动到了Entry List中。
+- WaitSet：等待集合，调用wait方法后被阻塞的线程将被放在WaitSet中。
+- OnDeck：竞争候选者，在同一时刻最多只有一个线程在竞争锁资源，该线程的状态被称为OnDeck。
+- Owner：竞争到锁资源的线程被称为Owner状态线程。
+- !Owner：在Owner线程释放锁后，会从Owner的状态变成!Owner。
+
+synchronized在收到新的锁请求时首先自旋，如果通过自旋也没有获取锁资源，则将被放入锁竞争队列ContentionList中。
+
+
+
+synchronized是一个重量级操作，需要调用操作系统的相关接口，性能较低，给线程加锁的时间有可能超过获取锁后具体逻辑代码的操作时间。
+
+JDK 1.6对synchronized做了很多优化，引入了适应自旋、锁消除、锁粗化、轻量级锁及偏向锁 等以提高锁的效率。锁可以从偏向锁升级到轻量级锁，再升级到重量级锁。这种升级过程叫作锁膨胀。在JDK 1.6中默认开启了偏向锁和轻量级锁，可通过-XX:UseBiasedLocking禁用偏向锁。
+
+
+
+
+
+## 7.5 ReentrantLock
+
+ReentrantLock继承了Lock接口并实现了在接口中定义的方法，是一个可重入的独占锁。
+
+ReentrantLock通过自定义队列同步器（Abstract Queued Sychronized，AQS）来实现锁的获取与释放。
+
+
+
+ReentrantLock不但提供了synchronized对锁的操作功能，还提供了诸如可响应中断锁、可轮询锁请求、定时锁等避免多线程死锁的方法。
+
+### ReentrantLock用法
+
+ReentrantLock有显式的操作过程，何时加锁、何时释放锁都在程序员的控制之下。
+
+具体的使用 流程是定义一个ReentrantLock，在需要加锁的地方通过lock方法加锁，等资源使用完成后再通过unlock方法释放锁。具体的实现代码如下：
+
+```java
+public class ReentrantLockDemo implements Runnable {
+
+    // 1 定义一个 ReentrantLock
+    public static ReentrantLock lock = new ReentrantLock();
+    public static int i = 0;
+
+    @Override
+    public void run() {
+        for (int j = 0; j < 10; j++) {
+            // 2 加锁
+            lock.lock();
+            // 可重入锁
+            //lock.lock();
+            try {
+                i++;
+            } finally {
+                // 3 释放锁
+                lock.unlock();
+                // 可重入锁
+                //lock.unlock();
+            }
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        ReentrantLockDemo reentrantLockDemo = new ReentrantLockDemo();
+        Thread t1 = new Thread(reentrantLockDemo);
+
+        t1.start();
+        t1.join();
+        System.out.println(i);
+    }
+}
+```
+
+ReentrantLock之所以**被称为可重入锁**，是因为ReentrantLock锁可以反复进入。即允许连续两次 获得同一把锁，两次释放同一把锁。
+
+将上述代码中的注释部分去掉后，程序仍然可以正常执行。注 意，获取锁和释放锁的次数要相同。
+
+- 如果释放锁的次数多于获取锁的次数，Java就会抛出java.lang.IllegalMonitorStateException异常；
+- 如果释放锁的次数少于获取锁的次数，该线程就会一直持有该锁，其他线程将无法获取锁资源。
+
+
+
+### ReentrantLock如何避免死锁：响应中断、可轮询锁、定时锁
+
+
+
+
+
+### Lock接口的主要方法
+
+| 方法                                | 作用                             | 注                                                           |
+| ----------------------------------- | -------------------------------- | ------------------------------------------------------------ |
+| void lock()                         | 给对象加锁                       | 如果锁未被其他线程使用，则当前线程将获取该锁；如果锁正在被其他线程持有，则将阻塞等待，直到当前线程获取锁。 |
+| boolean tryLock()                   | 试图给对象加锁                   |                                                              |
+| tryLock(long timeout TimeUnit unit) | 创建定时锁                       | 如果在给定的等待时间内有可用锁，则获取该锁。                 |
+| void unlock()                       | 释放当前线程所持有的锁           | 锁只能由持有者释放，如果当前线程并不持有该锁却执行该方法，则抛出异常。 |
+| Condition newCondition()            | 创建条件对象，获取等待通知组件。 |                                                              |
+| getHoldCount()                      | 查询当前线程保持此锁的次数       | 也就是此线程执行lock方法的次数                               |
+| getQueueLength()                    | 返回等待获取此锁的线程估计数     | 比如启动 5 个线程，1 个线程获得锁，此时返回4。               |
+|                                     |                                  |                                                              |
+|                                     |                                  |                                                              |
+
+
+
+### 公平锁与非公平锁（默认）
+
+ReentrantLock支持公平锁和非公平锁两种方式。
+
+公平锁指锁的分配和竞争机制是公平的，即遵循**先到先得原则**。非公平锁指JVM遵循**随机、就近原则**分配锁的机制。
+
+ReentrantLock通过在构造函数ReentrantLock(boolean fair)中传递不同的参数来定义不同类型的 锁，默认的实现是非公平锁。
+
+这是因为，非公平锁虽然放弃了锁的公平性，但是执行效率明显高于公平锁。如果系统没有特殊的要求，一般情况下建议使用非公平锁。
+
+
+
+## 7.6 synchronized和ReentrantLock的比较
+
+共同点
+
+
+
+不同点
+
+
+
+## 7.8 AtomicInteger
+
+我们知道，在多线程程序中，诸如++i或i++等运算不具有原子性，因此不是安全的线程操作。
+
+我们可以通过synchronized或ReentrantLock将该操作变成一个原子操作，但是synchronized和ReentrantLock均属于重量级锁。
+
+因此JVM为此类原子操作提供了一些原子操作同步类，使得同步操作（线程安全操作）更加方便、高效，它便是AtomicInteger。
+
+<br>
+
+AtomicInteger 为 提供原子操作的 Integer 的 类 ， 常 见的原子操作类还有 AtomicBoolean 、AtomicInteger、AtomicLong、AtomicReference等，它们的实现原理相同，区别在于运算对象的类型 不同。
+
+还可以通过AtomicReference<V>将一个对象的所有操作都转化成原子操作。AtomicInteger的性能通常是synchronized和ReentrantLock的好几倍。具体用法如下：
+
+```java
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Java并发关键字
+
+## CountDownLatch
+
+
+
+## volatile关键字的作用
+
+
+
+
+
+# 进程调度算法
+
+## 优先调度算法
+
+## 高优先级优先调度
+
+## 时间片的轮转调度算法
+
+
+
+
+
+# 什么是CAS
+
+# 什么是AQS
+
+AQS（Abstract Queued Synchronizer）是一个抽象的队列同步器，通过维护一个共享资源状态 （Volatile Int State）和一个先进先出（FIFO）的线程等待队列来实现一个多线程访问共享资源的同步框架。
+
+## 原理
+
+## 状态
+
+## **AQS**共享资源的方式：独占式（Exclusive）和共享式（Share）
+
+独占式：只有一个线程能执行，具体的Java实现有ReentrantLock。
+
+共享式：多个线程可同时执行，具体 的Java实现有Semaphore和CountDownLatch。
+
+
+
+
+
+
+
+
+
+
 
 
 
