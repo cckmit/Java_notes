@@ -20,9 +20,12 @@ public class ThreadDemo3 {
         Thread thread = new Thread(futureTask);
         thread.start();
 
+        //System.out.println(Thread.currentThread().getName() + "&&id: " + Thread.currentThread().getId());
+
         // 获取返回值
         try {
             // 如果futureTask任务没有执行完，这里的代码会等待，直到线程1跑完才提取结果
+            // 6 调用get()方法就可以获取Callable线程任务返回的数据并汇总结果
             String s = futureTask.get();
             System.out.println(s);
         } catch (Exception e) {
@@ -47,6 +50,9 @@ class MyCallable implements Callable<String>{
         for (int i = 1; i <= n; i++) {
             sum += i;
         }
+        System.out.println(Thread.currentThread().getName() + "&&id: " + Thread.currentThread().getId());
+
+
         return "子线程执行结果是：" + sum + "";
     }
 }

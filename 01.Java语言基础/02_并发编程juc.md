@@ -20,13 +20,491 @@
 
 
 
+# 1 Java 线程的创建方式
+
+
+
+## 继承 Thread 类创建线程
+
+```java
+// 1, 为什么不直接调用了run方法，而是调用start启动线程。
+// 直接调用run方法会当成普通方法执行，此时相当于还是单线程执行。
+// 只有调用start方法才是启动一个新的线程执行。
+    
+public class ThreadDemo1 {
+
+    public static void main(String[] args) {
+        // 3, 实例化新线程对象，调用start()方法启动线程
+        Thread myThread = new MyThread();
+        // start()方法是一个native方法，通过在操作系统上启动一个新线程，并最终执行run方法来启动一个线程。
+        // 通知CPU以线程的方式启动run()方法
+        myThread.start();
+
+        for (int i = 0; i < 5; i++) {
+            System.out.println("主线程执行输出+++" + i);
+        }
+    }
+
+}
+
+// Thread类 implements实现了 Runnable接口，并定义了操作线程的一些方法。
+// 1,定义一个线程类继承Thread（创建了一个线程）
+class MyThread extends Thread{
+    
+    // 2,重写run方法，里面是定义线程以后要干啥
+    @Override
+    public void run() {
+        //super.run();
+        for (int i = 0; i < 5; i++) {
+            System.out.println("子线程执行输出..." + i);
+        }
+    }
+}
+```
+
+## 实现Runnable接口
+
+
+
+## 通过ExecutorService和Callable`<Class>`实现有返回值的线程
+
+```java
+public class ThreadDemo33 {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        // 创建固定大小的线程池
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        // 创建有多个返回值的任务列表list
+        List<Future> list = new ArrayList<>();
+        
+        for (int i = 0; i < 5; i++) {
+            // 创建Callable任务对象
+            MyCallable33 myCallable = new MyCallable33(i);
+            // 提交线程，获取Future对象并将其保存到Future List中
+            Future future = pool.submit(myCallable);
+            list.add(future);
+        }
+        // 关闭线程池,等待线程执行结束
+        pool.shutdownNow();
+        // 遍历所有线程的运行结果
+        for (Future future : list) {
+            System.out.println(future.get().toString());
+        }
+
+    }
+}
+
+// 1, 定义一个任务类，实现Callable接口，应该申明线程任务执行完毕后返回结果的数据类型
+class MyCallable33 implements Callable<String>{
+    private final int n;
+
+    public MyCallable33(int n) {
+        this.n = n;
+    }
+
+    // 2, 重写call()方法（任务方法）
+    @Override
+    public String call() throws Exception {
+        int sum = 0;
+        for (int i = 1; i <= n; i++) {
+            sum += i;
+        }
+        // 查看下当前线程的名字和id
+        System.out.println(Thread.currentThread().getName() + "&&id: " + Thread.currentThread().getId());
+        
+        return "子线程执行结果是：" + sum + "";
+    }
+}
+```
+
+
+
+## 基于线程池
+
+创建一个线程池并用该线程池提交线程任务。
+
+# 2 线程池的工作原理
+
+程序中，我们会用各种池化技术来缓存付出昂贵代价创建的对象，比如线程池、连接池、内存池。一般是预先创建一些对象放入池中，使用的时候直接取出使用，用完归还以便复用，还会通过一定的策略调整池中缓存对象的数量，实现池的动态伸缩。
+
+由于线程的创建比较昂贵，随意、没有控制地创建大量线程会造成性能问题，因此短平快的任务一般考虑使用线程池来处理，而不是直接创建线程。
+
+
+
+## 核心组件（4个）和核心类
+
+- 线程池管理器（用于创建并管理线程池）
+- 工作线程（线程池中执行具体任务的线程）
+- 任务接口（用于定义工作线程的调度和执行策略）
+- 任务队列（存放待处理的任务）
+
+
+
+线程池的体系结构
+
+ java.util.concurrent.Executor : 负责线程的使用与调度的根接口
+
+```lua
+ |--ExecutorService 子接口：线程池的主要接口
+   |--ThreadPoolExecutor 线程池的实现类
+   |--ScheduledExecutorService 子接口：负责线程的调度
+     |--ScheduledThreadPoolExecutor ：继承 ThreadPoolExecutor， 实现 ScheduledExecutorService
+```
+
+
+
+ThreadPoolExecutor 是构建线程的核心方法，定义如下
+
+```java
+// ThreadPoolExecutor 的构造方法
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler) {
+   ........................
+}
+```
+
+参数说明
+
+| 序号 | 参数            | 说明                                             |
+| ---- | --------------- | ------------------------------------------------ |
+| 1    | corePoolSize    | 核心线程数量                                     |
+| 2    | maximumPoolSize | 最大线程数量                                     |
+| 3    | keepAliveTime   | 当前线程数大于corePoolSize时，空闲线程的存活时间 |
+| 4    | unit            | keepAliveTime的时间单位                          |
+| 5    | workQueue       | 任务队列，被提交但尚未被执行的任务存放的地方     |
+| 6    | threadFactory   | 线程工厂，用于创建线程                           |
+| 7    | handler         | 任务拒绝策略                                     |
+
+### Java 线程池的工作流程
+
+
+
+### 线程池的拒绝策略
+
+# 3 5种常用的线程池
+
+Java定义了 `Executor`接口并在该接口中定义了`execute()` 方法（唯一一个方法）用于执行一个线程任务，然后通过 ExecutorService 继承Executor接口并执行具体的线程操作。
+
+ExecutorService接口有多个实现类可用于创建不同的线程池，如下所示是5种常用的线程池。
+
+| 名称                    | 说明                          |
+| ----------------------- | ----------------------------- |
+| newCachedThreadPool     | 可缓存的线程池                |
+| newFixedThreadPool      | 固定大小的线程池              |
+| newScheduledThreadPool  | 可做任务调度的线程池          |
+| newSingleThreadExecutor | 单个线程的线程池              |
+| newWorkStealingPool     | 足够大小的线程池，JDK 1.8新增 |
+
+
+
+## newScheduledThreadPool（可定时调度）
+
+newScheduledThreadPool创建了一个可定时调度的线程池，可设置在给定的延迟时间后执行或者定期执行某个线程任务：
+
+```java
+public class ScheduledThreadPool {
+
+    public static void main(String[] args) {
+        ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
+
+        // 1 创建一个延迟3秒执行的线程
+        scheduledThreadPool.schedule(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("delay 3 seconds execute.");
+            }
+        },3, TimeUnit.SECONDS);
+        
+        // 2 创建一个延迟1秒执行且每3秒执行一次的线程
+        //scheduledThreadPool.scheduleAtFixedRate(new Runnable() {
+        //    @Override
+        //    public void run() {
+        //        System.out.println("delay 1 seconds. repeat execute every 3 seconds");
+        //    }
+        //}, 1, 3, TimeUnit.SECONDS);
+
+        scheduledThreadPool.shutdown();
+    }
+
+}
+```
 
 
 
 
-## 1. 概览
+
+## newSingleThreadExecutor（永远有且只有一个可用的）
+
+保证永远有且只有一个可用的线程，在该线程停止或发生异常时，newSingleThreadExecutor线程池会启动一个新的线程来代替该线程继续执行任务
+
+```java
+ExecutorService singleThread = Executors.newSingleThreadExecutor();
+```
 
 
+
+
+
+
+
+# 4 线程池使用注意
+
+通过三个生产事故，来看看使用线程池应该注意些什么。
+
+## 线程池的声明需要手动进行
+
+**Java** 中的 **Executors** 类定义了一些快捷的工具方法，来帮助我们快速创建线程池。《阿里巴巴Java开发手册》中提到，禁止使用这些方法来创建线程池，而应该手动 **new ThreadPoolExecutor** 来创建线程池。
+
+这一条规则的背后，是大量血淋淋的生产事故，最典型的就是 **newFixedThreadPool** 和**newCachedThreadPool** ，可能因为资源耗尽导致 **OOM** 问题。
+
+首先，我们来看一下 **newFixedThreadPool** 为什么可能会出现 **OOM** 的问题。
+
+我们写一段测试代码，来初始化一个单线程的 **FixedThreadPool** ，循环1亿次向线程池提交任务，每个任务都会创建一个比较大的字符串然后休眠一小时：
+
+```java
+@GetMapping("oom1")
+public void oom1() throws InterruptedException {
+ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+//打印线程池的信息，稍后我会解释这段代码
+printStats(threadPool); 
+for (int i = 0; i < 100000000; i++) {
+    threadPool.execute(() -> {
+        String payload = IntStream.rangeClosed(1, 1000000)
+                .mapToObj(__ -> "a")
+                .collect(Collectors.joining("")) + UUID.randomUUID().toString();
+        try {
+            TimeUnit.HOURS.sleep(1);
+        } catch (InterruptedException e) {
+        }
+        log.info(payload);
+    });
+}
+ 
+threadPool.shutdown();
+threadPool.awaitTermination(1, TimeUnit.HOURS);
+ 
+}
+```
+
+执行程序后不久，日志中就出现了如下 **OOM** ：
+
+```bash
+Exception in thread "http-nio-45678-ClientPoller" java.lang.OutOfMemoryError: GC overhead limit exceeded
+```
+
+翻看 **newFixedThreadPool** 方法的源码不难发现，线程池的工作队列直接 **new** 了一个 **LinkedBlockingQueue**，而默认构造方法的 **LinkedBlockingQueue** 是一个 **Integer.MAX_VALUE** 长度的队列，可以认为是无界的：
+
+```java
+public static ExecutorService newFixedThreadPool(int nThreads) {
+return new ThreadPoolExecutor(nThreads, nThreads,
+0L, TimeUnit.MILLISECONDS,
+new LinkedBlockingQueue<Runnable>());
+}
+public class LinkedBlockingQueue<E> extends AbstractQueue<E>
+implements BlockingQueue<E>, java.io.Serializable {
+...
+/**
+ * Creates a {@code LinkedBlockingQueue} with a capacity of
+ * {@link Integer#MAX_VALUE}.
+ */
+public LinkedBlockingQueue() {
+    this(Integer.MAX_VALUE);
+}
+ 
+...
+}
+```
+
+虽然使用 **newFixedThreadPool** 可以把工作线程控制在固定的数量上，但任务队列是无界的。如果任务较多并且执行较慢的话，队列可能会快速积压，撑爆内存导致OOM。
+
+<br>
+
+我们再把刚才的例子稍微改一下，改为使用 **newCachedThreadPool** 方法来获得线程池。程序运行不久后，同样看到了如下 **OOM** 异常：
+
+```bash
+[11:30:30.487] [http-nio-45678-exec-1] [ERROR] [.a.c.c.C.[.[.[/].[dispatcherServlet]:175 ] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Handler dispatch failed; nested exception is java.lang.OutOfMemoryError: unable to create new native thread] with root cause
+java.lang.OutOfMemoryError: unable to create new native thread
+```
+
+从日志中可以看到，这次 **OOM** 的原因是无法创建线程，翻看 **newCachedThreadPool** 的源码可以看到，这种线程池的最大线程数是**Integer.MAX_VALUE**，可以认为是没有上限的，而其工作队列 **SynchronousQueue** 是一个没有存储空间的阻塞队列。这意味着，只要有请求到来，就必须找到一条工作线程来处理，如果当前没有空闲的线程就再创建一条新的。
+
+由于我们的任务需要 **1** 小时才能执行完成，大量的任务进来后会创建大量的线程。我们知道线程是需要分配一定的内存空间作为线程栈的，比如 **1MB**，因此无限制创建线程必然会导致 **OOM**：
+
+```java
+public static ExecutorService newCachedThreadPool() {
+	return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+}
+```
+
+其实，大部分 **Java** 开发同学知道这两种线程池的特性，只是抱有侥幸心理，觉得只是使用线程池做一些轻量级的任务，不可能造成队列积压或开启大量线程。
+
+但，现实往往是残酷的。
+
+我之前就遇到过这么一个事故：用户注册后，我们调用一个外部服务去发送短信，发送短信接口正常时可以在 **100** 毫秒内响应，TPS **100**的注册量，**CachedThreadPool** 能稳定在占用 **10** 个左右线程的情况下满足需求。在某个时间点，外部短信服务不可用了，我们调用这个服务的超时又特别长，比如1分钟，1分钟可能就进来了 **6000** 用户，产生 **6000** 个发送短信的任务，需要 **6000** 个线程，没多久就因为无法创建线程导致了 **OOM**，整个应用程序崩溃。
+
+<br>
+
+因此，我同样不建议使用 **Executors** 提供的两种快捷的线程池，原因如下：
+
+我们需要根据自己的场景、并发情况来评估线程池的几个核心参数，包括核心线程数、最大线程数、线程回收策略、工作队列的类型，以及拒绝策略，确保线程池的工作行为符合需求，一般都需要设置有界的工作队列和可控的线程数。
+
+任何时候，都应该为自定义线程池指定有意义的名称，以方便排查问题。当出现线程数量暴增、线程死锁、线程占用大量CPU、线程执行出现异常等问题时，我们往往会抓取线程栈。此时，有意义的线程名称，就可以方便我们定位问题。
+
+除了建议手动声明线程池以外，我还**建议用一些监控手段来观察线程池的状态**。线程池这个组件往往会表现得任劳任怨、默默无闻，除非是出现了拒绝策略，否则压力再大都不会抛出一个异常。如果我们能提前观察到线程池队列的积压，或者线程数量的快速膨胀，往往可以提早发现并解决问题。
+
+
+
+## 线程池线程管理策略详解
+
+在之前的 **Demo** 中，我们用一个 **printStats** 方法实现了最简陋的监控，每秒输出一次线程池的基本内部信息，包括线程数、活跃线程数、完成了多少任务，以及队列中还有多少积压任务等信息：
+
+```java
+private void printStats(ThreadPoolExecutor threadPool) {
+   Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        log.info("=========================");
+        log.info("Pool Size: {}", threadPool.getPoolSize());
+        log.info("Active Threads: {}", threadPool.getActiveCount());
+        log.info("Number of Tasks Completed: {}", threadPool.getCompletedTaskCount());
+        log.info("Number of Tasks in Queue: {}", threadPool.getQueue().size());
+		log.info("=========================");
+	}, 0, 1, TimeUnit.SECONDS);
+}
+```
+
+接下来，我们就利用这个方法来观察一下线程池的基本特性吧。
+
+首先，自定义一个线程池。这个线程池具有 **2** 个核心线程、**5** 个最大线程、使用容量为 **10** 的 **ArrayBlockingQueue** 阻塞队列作为工作队列，使用默认的**AbortPolicy** 拒绝策略，也就是任务添加到线程池失败会抛出 **RejectedExecutionException** 。此外，我们借助了 **Jodd** 类库的 **ThreadFactoryBuilder** 方法来构造一个线程工厂，实现线程池线程的自定义命名。
+
+然后，我们写一段测试代码来观察线程池管理线程的策略。测试代码的逻辑为，每次间隔 **1** 秒向线程池提交任务，循环 **20** 次，每个任务需要 **10** 秒才能执行完成，代码如下：
+
+```java
+@GetMapping("right")
+public int right() throws InterruptedException {
+//使用一个计数器跟踪完成的任务数
+AtomicInteger atomicInteger = new AtomicInteger();
+//创建一个具有2个核心线程、5个最大线程，使用容量为10的ArrayBlockingQueue阻塞队列作为工作队列的线程池，使用默认的AbortPolicy拒绝策略
+ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
+2, 5,
+5, TimeUnit.SECONDS,
+new ArrayBlockingQueue<>(10),
+new ThreadFactoryBuilder().setNameFormat("demo-threadpool-%d").get(),
+new ThreadPoolExecutor.AbortPolicy());
+printStats(threadPool);
+//每隔1秒提交一次，一共提交20次任务
+IntStream.rangeClosed(1, 20).forEach(i -> {
+    try {
+        TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    int id = atomicInteger.incrementAndGet();
+    try {
+        threadPool.submit(() -> {
+            log.info("{} started", id);
+            //每个任务耗时10秒
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+            }
+            log.info("{} finished", id);
+        });
+    } catch (Exception ex) {
+        //提交出现异常的话，打印出错信息并为计数器减一
+        log.error("error submitting task {}", id, ex);
+        atomicInteger.decrementAndGet();
+    }
+});
+ 
+TimeUnit.SECONDS.sleep(60);
+return atomicInteger.intValue();
+ 
+}
+```
+
+**60** 秒后页面输出了 **17**，有3次提交失败了：
+
+![image-20220601145842933](/Users/cat/Library/Application%20Support/typora-user-images/image-20220601145842933.png)
+
+
+
+并且日志中也出现了 **3** 次类似的错误信息：
+
+```bash
+[14:24:52.879] [http-nio-45678-exec-1] [ERROR] [.t.c.t.demo1.ThreadPoolOOMController:103 ] - error submitting task 18
+java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.FutureTask@163a2dec rejected from java.util.concurrent.ThreadPoolExecutor@18061ad2[Running, pool size = 5, active threads = 5, queued tasks = 10, completed tasks = 2]
+```
+
+
+
+我们把 **printStats** 方法打印出的日志绘制成图表，得出如下曲线：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220517082642564.png)
+
+至此，我们可以总结出线程池默认的工作行为：
+
+不会初始化 **corePoolSize** 个线程，有任务来了才创建工作线程；
+
+- 当核心线程满了之后不会立即扩容线程池，而是把任务堆积到工作队列中；
+- 当工作队列满了后扩容线程池，一直到线程个数达到 **maximumPoolSize** 为止；
+- 如果队列已满且达到了最大线程后还有任务进来，按照拒绝策略处理；
+- 当线程数大于核心线程数时，线程等待 **keepAliveTime** 后还是没有任务需要处理的话，收缩线程到核心线程数。
+
+了解这个策略，有助于我们根据实际的容量规划需求，为线程池设置合适的初始化参数。当然，我们也可以通过一些手段来改变这些默认工作行为，比如：
+
+- 声明线程池后立即调用 **prestartAllCoreThreads** 方法，来启动所有核心线程；
+- 传入 **true** 给 **allowCoreThreadTimeOut** 方法，来让线程池在空闲的时候同样回收核心线程。
+
+
+
+
+
+# 5 线程的生命周期
+
+
+
+线程的生命周期分为新建（New）、就绪（Runnable）、运行（Running）、阻塞（Blocked） 和死亡（Dead）这 5种状态。
+
+在系统运行过程中不断有新的线程被创建，旧的线程在执行完毕后被 清理，线程在排队获取共享资源或者锁时将被阻塞，因此运行中的线程会在就绪、阻塞、运行状态之间来回切换。线程的具体状态转化流程如图所示。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220601152944877.png)
+
+
+
+
+
+# 6 线程的基本方法
+
+线程相关的基本方法有wait、notify、notifyAll、sleep、join、yield等，这些方法控制线程的运行，并影响线程的状态变化。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220601153635190.png)
+
+
+
+
+
+## 线程等待 wait方法
+
+调用wait方法的线程会进入WAITING状态，只有等到其他线程的通知或被中断后才会返回。
+
+需要注意的是，在调用wait方法后会释放对象的锁，因此wait方法一般被用于同步方法或同步代码块中。
+
+## 线程睡眠 sleep方法
+
+调用sleep方法会导致当前线程休眠。
+
+与wait方法不同的是，sleep方法不会释放当前占有的锁，会导致线程进入TIMED-WATING状态，而wait方法会导致当前线程进入WATING状态。
+
+
+
+
+
+# 7 Java中的 锁🔐
 
 
 
