@@ -427,7 +427,7 @@ return atomicInteger.intValue();
 
 **60** 秒后页面输出了 **17**，有3次提交失败了：
 
-![image-20220601145842933](/Users/cat/Library/Application%20Support/typora-user-images/image-20220601145842933.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220601145842933.png)
 
 
 
@@ -480,7 +480,7 @@ java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.Futur
 
 # 6 线程的基本方法
 
-线程相关的基本方法有wait、notify、notifyAll、sleep、join、yield等，这些方法控制线程的运行，并影响线程的状态变化。
+线程相关的基本方法有wait、notify、notifyAll、sleep、join、yield等，这些方法**控制线程的运行，并影响线程的状态变化**。
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220601153635190.png)
 
@@ -490,7 +490,7 @@ java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.Futur
 
 ## 线程等待 wait方法
 
-调用wait方法的线程会进入WAITING状态，只有等到其他线程的通知或被中断后才会返回。
+调用wait方法的线程会进入 `WAITING` 状态，只有等到其他线程的通知或被中断后才会返回。
 
 需要注意的是，在调用wait方法后会释放对象的锁，因此wait方法一般被用于同步方法或同步代码块中。
 
@@ -498,21 +498,74 @@ java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.Futur
 
 调用sleep方法会导致当前线程休眠。
 
-与wait方法不同的是，sleep方法不会释放当前占有的锁，会导致线程进入TIMED-WATING状态，而wait方法会导致当前线程进入WATING状态。
+与wait方法不同的是，sleep方法不会释放当前占有的锁，会导致线程进入`TIMED-WATING` 状态，而wait方法会导致当前线程进入WATING状态。
+
+## 线程让步 yield方法
+
+调用yield方法会使当前线程让出（释放）CPU执行时间片，与其他线程一起重新竞争CPU时间片。
+
+在一般情况下，优先级高的线程更有可能竞争到CPU时间片，但这不是绝对的，有的操作系统对线程的优先级并不敏感。
+
+## 线程中断 interrupt方法
+
+interrupt方法用于向线程发行一个终止通知信号，会影响该线程内部的一个中断标识位，这个 线程本身并不会因为调用了interrupt方法而改变状态（阻塞、终止等）。状态的具体变化需要等待接收到中断标识的程序的最终处理结果来判定。
+
+对interrupt方法的理解需要注意以下4个核心点。
+
+- 调用interrupt方法并不会中断一个正在运行的线程，也就是说处于Running状态的线程并不会因为被中断而终止，仅仅改变了内部维护的中断标识位而已。具体的JDK源码如下：
+
+```java
+```
 
 
+
+## 线程加入 join方法
+
+
+
+## 线程唤醒 notify方法
+
+
+
+
+
+## 后台守护线程 setDaemon方法
+
+
+
+## 终止线程的4种方式
+
+### （1）正常运行结束
+
+指线程体执行完成，线程自动结束。
+
+### （2）使用退出标志退出线程
+
+在一般情况下，在run方法执行完毕时，线程会正常结束。
+
+然而，有些线程是后台线程，需要 长时间运行，只有在系统满足某些特殊条件后，才能触发关闭这些线程。
+
+### （3）使用**Interrupt**方法终止线程
+
+使用interrupt方法终止线程有以下两种情况。
+
+### （4）使用**stop**方法终止线程：不安全
+
+在程序中可以直接调用Thread.stop方法强行终止线程，但这是很危险的，就像突然关闭计算机的电源，而不是正常关机一样，可能会产生不可预料的后果。
+
+在程序使用Thread.stop方法终止线程时，该线程的子线程会抛出ThreadDeatherror错误，并且释 放子线程持有的所有锁。加锁的代码块一般被用于保护数据的一致性，如果在调用Thread.stop方法 后导致该线程所持有的所有锁突然释放而使锁资源不可控制，被保护的数据就可能出现不一致的情况，其他线程在使用这些被破坏的数据时，有可能使程序运行错误。因此，并不推荐采用这种方法终止线程。
 
 
 
 # 7 Java中的 锁🔐
 
+Java中的锁主要用于保障多并发线程情况下数据的一致性。
 
 
 
+锁<u>从乐观和悲观的角度</u>可分为**乐观锁和悲观锁**，从获取资源的公平性角度可分为公平锁和非公 平锁，从是否共享资源的角度可分为共享锁和独占锁，从锁的状态的角度可分为偏向锁、轻量级锁 和重量级锁。同时，在JVM中还巧妙设计了自旋锁以更快地使用CPU资源。
 
-
-
-
+下面将详细介绍这些锁。
 
 
 
