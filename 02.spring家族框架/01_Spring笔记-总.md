@@ -1,18 +1,22 @@
 
 
-# 零 写在前面
+# 写在前面
+
+## question
+
+
+
+
 
 ## 1 认知
 
-- 整个Java体系最核心的框架，没有之一	
+- 整个 Java 体系最核心的框架，没有之一	
 
 - 面试必备 / 热点（从Spring的核心原理，到SpringMVC的执行流程，再到SpringBoot的自动配置）
 
 - 技术、思想提升（大量设计模式的应用和体现）（应用了很多技术）
 
 
-
-<br>
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211450426.png)
 
@@ -34,7 +38,7 @@
 
 
 
-## 3 参考与推荐如下资料
+## 3 推荐
 
 ### 推荐1：黑马最新课程
 
@@ -62,10 +66,7 @@ https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-ref
 
 
 
-
-
-<hr>
-
+<br>
 
 
 ```bash
