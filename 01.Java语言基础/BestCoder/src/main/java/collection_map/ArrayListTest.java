@@ -1,6 +1,7 @@
 package collection_map;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * @author cat
@@ -15,10 +16,12 @@ public class ArrayListTest {
             list.add("1");
 
         }
-
         list.add("1");
         list.get(0);
-
         System.out.println(list.size());
+
+
+        LinkedList<Object> linkedList = new LinkedList<>();
+
     }
 }

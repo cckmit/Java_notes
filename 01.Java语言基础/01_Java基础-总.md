@@ -2424,8 +2424,8 @@ public ArrayList(Collection<? extends E> c) {
 ```
 
 - `EMPTY_ELEMENTDATA` 和 `DEFAULTCAPACITY_EMPTY_ELEMENTDATA` 两个空数组的区别
-  - EMPTY_ELEMENTDATA 用在有参构造函数初始容量为0时共享赋值用
-  - DEFAULTCAPACITY_EMPTY_ELEMENTDATA 用在无参构造函数赋值用
+  - `EMPTY_ELEMENTDATA` 用在有参构造函数初始容量为0时共享赋值用
+  - `DEFAULTCAPACITY_EMPTY_ELEMENTDATA` 用在无参构造函数赋值用
   - 两者都是用来减少空数组的创建，所有空 ArrayList 都共享空数组
 
 
@@ -2452,25 +2452,53 @@ Arrays.asList(…) 返回值是一个固定长度的 List 集合。
 
 
 
-### List实现类之二：LinkedList（双向链表）（插入和删除）
+### List实现类之二：LinkedList（基于双向链表）（插入和删除快、查询慢）
 
-对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高。
+- 对于频繁的插入或删除元素的操作，建议使用LinkedList类，效率较高。
+  - 只用修改指针即可
+- 提供有操作链表头部和尾部的元素，故可被当做堆栈和队列使用。
 
-**双向链表**，内部没有声明数组，而是定义了 Node 类型的first和last，用于记录首末元素。
+- 内部没有声明数组，而是定义了 Node 类型的first和last，用于记录首末元素。
 
-同时，定义内部类Node，作为LinkedList中保存数据的基本结构。Node除了保存数据，还定义了两个变量：
+```java
+transient int size = 0;
 
-- prev变量记录前一个元素的位置
+/**
+ * Pointer to first node.
+ * Invariant: (first == null && last == null) ||
+ *            (first.prev == null && first.item != null)
+ */
+transient Node<E> first;
 
-- next变量记录下一个元素的位置
+/**
+ * Pointer to last node.
+ * Invariant: (first == null && last == null) ||
+ *            (last.next == null && last.item != null)
+ */
+transient Node<E> last;
+
+/**
+ * Constructs an empty list.
+ */
+public LinkedList() {
+}
+```
+
+- 同时，定义内部类Node，作为LinkedList中保存数据的基本结构。Node除了保存数据，还定义了两个变量：
+
+  - prev 变量记录前一个元素的位置
+
+
+  - next 变量记录后一个元素的位置
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414215219900.png?w=550)
+
+![](./img/linkedlist_node.png)
 
 
 
-### List 实现类之三：Vector
+### List 实现类之三：Vector（基于数组，线程安全）
 
 Vector 是一个古老的集合，JDK1.0就有了。大多数操作与ArrayList相同，区别之处在于Vector是线程安全的。
 
