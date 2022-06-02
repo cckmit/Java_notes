@@ -8,7 +8,7 @@ import java.util.LinkedList;
  * @description
  * @date 2022/6/2 下午7:28
  */
-public class ArrayListTest {
+public class ListTest {
     public static void main(String[] args) {
 
         ArrayList<String> list = new ArrayList<>();

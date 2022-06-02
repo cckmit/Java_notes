@@ -2537,44 +2537,71 @@ Set集合的功能上基本上与Collection的API一致。
 
 
 <hr>
+### Set实现类之一：HashSet（HashMap实现、无序）
 
-### Set实现类之一：HashSet
+- 底层基于 HashMap
 
-HashSet 是 Set 接口的典型实现，大多数时候使用 Set 集合时都使用这个实现类。
+```java
+private transient HashMap<E,Object> map;
 
-HashSet 按 **Hash 算法**来存储集合中的元素，因此具有很好的存取、查找、删除性能。 
+// Dummy value to associate with an Object in the backing Map
+private static final Object PRESENT = new Object();
 
-<br>
+public HashSet() {
+    map = new HashMap<>();
+}
 
-具有的特点：
-
-- 不能保证元素的排列顺序
-
-- HashSet 不是线程安全的
-
-- 集合元素可以是 null
-
-
-
-HashSet 集合判断两个元素相等的标准：两个对象通过 hashCode() 方法比较相等，并且两个对象的 equals() 方法返回值也相等。
-
-对于存放在Set容器中的对象，对应的类一定要重写equals()和hashCode(Object obj)方法，以实现对象相等规则。即：“相等的对象必须具有相等的散列码”。
+public HashSet(int initialCapacity) {
+    map = new HashMap<>(initialCapacity);
+}
+```
 
 
 
+- 存放元素
+  - 按 **Hash 算法**来存储集合中的元素，因此具有很好的存取、查找、删除性能。
+  - 不能保证元素的排列顺序
+  - 线程不安全
+  - 集合元素可以是 null
+
+```java
+public boolean add(E e) {
+    return map.put(e, PRESENT)==null;
+}
+
+public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+```
 
 
 
+- HashSet 集合判断两个元素相等的标准
+  - 两个对象通过 hashCode() 方法比较相等，并且两个对象的 equals() 方法返回值也相等。
+  - 对于存放在Set容器中的对象，对应的类一定要重写equals()和hashCode(Object obj)方法，以实现对象相等规则。
 
 
 
-### Set实现类之二：LinkedHashSet
+### Set实现类之二：LinkedHashSet（继承HashSet）
+
+- 继承HashSet，所有方法和操作同HashSet，其实现只提供了4个构造方法
+
+- 底层使用 LinkedHashMap存储元素
+
+```java
+// @param      initialCapacity the initial capacity of the linked hash set
+// @param      loadFactor      the load factor of the linked hash set
+public LinkedHashSet(int initialCapacity, float loadFactor) {
+    super(initialCapacity, loadFactor, true);
+}
+
+// 父类中
+HashSet(int initialCapacity, float loadFactor, boolean dummy) {
+    map = new LinkedHashMap<>(initialCapacity, loadFactor);
+}
+```
 
 
-
-
-
-<hr>
 
 
 
@@ -2626,15 +2653,21 @@ Map接口的常用实现类：HashMap（使用频率最高）、TreeMap、Linked
 
 
 
-<hr>
-
-
 ### Map实现类之一：HashMap（使用频率最高）
 
-- 允许使用null键和null值，与HashSet一样，不保证映射的顺序。
+- 基于键的 HashCode 值唯一标识一条数据，同时基于HashCode值进行存取。
+  - 因此可以快速查询和更新数据
+  - key 和 value允许为 `null`，与HashSet一样，不保证映射的顺序。
+
+- 非线程安全。同一时刻多个线程写 HashMap 可能导致数据的不一致。
+  - 可以使用 `Collections.synchronizedMap(  )`
+  - 或者使用 `ConcurrentHashMap`
+
+<br>
+
 - 所有的 key 和 value
   - 所有的key构成的集合是Set：无序的、不可重复的。所以，key所在的类要重写：equals()和hashCode()
-  - 所有的value构成的集合是Collection:无序的、可以重复的。所以，value所在的类要重写：equals()
+  - 所有的value构成的集合是Collection：无序的、可以重复的。所以，value所在的类要重写：equals()
 
 - 一个key-value构成一个entry，所有的entry构成的集合是Set（无序的、不可重复的）。
 - 判断 key 或 value相等
@@ -2643,7 +2676,7 @@ Map接口的常用实现类：HashMap（使用频率最高）、TreeMap、Linked
 
 <br>
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416101639515.png?w=600)
+![](./img/hashmap.png)
 
 <br>
 
@@ -2672,7 +2705,7 @@ HashMap源码中的重要常量
 
 
 
-### Map实现类之二：LinkedHashMap 
+### Map实现类之二：LinkedHashMap
 
 - extends HashMap
 
