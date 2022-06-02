@@ -2349,6 +2349,29 @@ Collection 接口是 List、Set 和 Queue 接口的父接口，该接口里定�
 | hashCode()                                                   | 获取集合对象的哈希值 |                                            |
 | iterator()                                                   | 遍历                 | 返回迭代器对象，用于集合遍历               |
 
+<br>
+
+```bash
+#### Collection体系的特点、使用场景总结
+
+如果希望元素可以重复，又有索引，索引查询要快？
+- 用ArrayList集合，基于数组的。（用的最多）
+
+如果希望元素可以重复，又有索引，增删首尾操作快？
+- 用LinkedList集合，基于链表的。
+
+如果希望增删改查都快，但是元素不重复、无序、无索引。
+- 用HashSet集合，基于哈希表的。
+
+如果希望增删改查都快，但是元素不重复、有序、无索引。
+- 用LinkedHashSet集合，基于哈希表和双链表。
+
+如果要对对象进行排序。
+- 用TreeSet集合，基于红黑树。后续也可以用List集合实现排序。
+```
+
+
+
 
 
 ## 2 Iterator迭代器接口 （用于遍历）
@@ -2536,7 +2559,6 @@ Set集合的功能上基本上与Collection的API一致。
 
 
 
-<hr>
 ### Set实现类之一：HashSet（HashMap实现、无序）
 
 - 底层基于 HashMap
@@ -2653,7 +2675,7 @@ Map接口的常用实现类：HashMap（使用频率最高）、TreeMap、Linked
 
 
 
-### Map实现类之一：HashMap（使用频率最高）
+### Map实现类之一：HashMap（数组+链表+红黑树、线程不安全）（使用频率最高）⭐️
 
 - 基于键的 HashCode 值唯一标识一条数据，同时基于HashCode值进行存取。
   - 因此可以快速查询和更新数据
@@ -2668,8 +2690,7 @@ Map接口的常用实现类：HashMap（使用频率最高）、TreeMap、Linked
 - 所有的 key 和 value
   - 所有的key构成的集合是Set：无序的、不可重复的。所以，key所在的类要重写：equals()和hashCode()
   - 所有的value构成的集合是Collection：无序的、可以重复的。所以，value所在的类要重写：equals()
-
-- 一个key-value构成一个entry，所有的entry构成的集合是Set（无序的、不可重复的）。
+  - 一个key-value构成一个entry，所有的entry构成的集合是Set（无序的、不可重复的）。
 - 判断 key 或 value相等
   - HashMap **判断两个** **key** **相等的标准**是：两个 key 通过 equals() 方法返回 true，hashCode 值也相等。
   - HashMap **判断两个** **value相等的标准**是：两个 value 通过 equals() 方法返回 true。
@@ -2684,16 +2705,57 @@ Map接口的常用实现类：HashMap（使用频率最高）、TreeMap、Linked
 
 
 
+- 构造方法
+
+（1）无参构造
+
+```java
+/**
+ * The load factor used when none specified in constructor.
+ */
+static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+/**
+ * The load factor for the hash table.
+ *
+ * @serial
+ */
+final float loadFactor;
+
+
+public HashMap() {
+    this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
+}
+```
+
+（2）给定初始容量的有参构造
+
+```java
+/**
+ * Returns a power of two size for the given target capacity.
+ * 返回给定目标容量的2次方
+ */
+static final int tableSizeFor(int cap) {
+    int n = cap - 1;
+    n |= n >>> 1;
+    n |= n >>> 2;
+    n |= n >>> 4;
+    n |= n >>> 8;
+    n |= n >>> 16;
+    return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+}
+```
+
 
 
 HashMap源码中的重要常量
 
 | 常量                     | 说明                                                         |      |
 | ------------------------ | ------------------------------------------------------------ | ---- |
-| DEFAULT_INITIAL_CAPACITY | HashMap的默认容量，16                                        |      |
+| DEFAULT_INITIAL_CAPACITY | HashMap的默认容量，16 ⭐️                                      |      |
 | MAXIMUM_CAPACITY         | HashMap的最大支持容量，2^30                                  |      |
-| DEFAULT_LOAD_FACTOR      | HashMap的默认加载因子                                        |      |
-| TREEIFY_THRESHOLD        | Bucket中链表长度大于该默认值，转化为红黑树                   |      |
+| DEFAULT_LOAD_FACTOR      | HashMap的默认加载因子 0.75f ⭐️                                |      |
+| TREEIFY_THRESHOLD        | Bucket中链表长度大于该默认值，转化为红黑树 ⭐️                 |      |
 | UNTREEIFY_THRESHOLD      | Bucket中红黑树存储的Node小于该默认值，转化为链表             |      |
 | MIN_TREEIFY_CAPACITY     | 桶中的Node被树化时最小的hash表容量。（当桶中Node的数量大到需要变红黑树时，若hash表容量小于MIN_TREEIFY_CAPACITY时，此时应执行resize扩容操作这个MIN_TREEIFY_CAPACITY的值至少是TREEIFY_THRESHOLD的4倍。） |      |
 | table                    | 存储元素的数组，总是2的n次幂                                 |      |
@@ -2705,19 +2767,28 @@ HashMap源码中的重要常量
 
 
 
-### Map实现类之二：LinkedHashMap
+### ConcurrentHashMap
 
-- extends HashMap
+- JDK1.7及之前：采用分段锁的思想实现并发操作。由多个Segment 组成
+- 1.8：弃用了Segment 分段锁，改用 Synchronized + CAS 实现多线程安全操作。同时引入了红黑树。
+
+
+
+
+
+### Map实现类之二：LinkedHashMap（继承HashMap）
 
 - 在HashMap存储结构的基础上，使用了**一对双向链表**来**记录添加元素的顺序**
-
-- 与LinkedHashSet类似，LinkedHashMap 可以维护 Map 的迭代顺序：迭代顺序与 Key-Value 对的插入顺序一致
-
+  - 与LinkedHashSet类似，LinkedHashMap 可以维护 Map 的迭代顺序：迭代顺序与 Key-Value 对的插入顺序一致
 
 
-### Map实现类之三：TreeMap
 
-- TreeMap存储 Key-Value 对时，需要根据 key-value 对进行排序。TreeMap 可以保证所有的 Key-Value 对处于**有序**状态。
+
+### Map实现类之三：TreeMap（基于二叉树）
+
+- 实现了SortedMap 接口以保障元素的顺序存放，默认按键值的升序排序
+  - TreeMap存储 Key-Value 对时，需要根据 key-value 对进行排序。TreeMap 可以保证所有的 Key-Value 对处于**有序**状态。
+
 - TreeSet底层使用**红黑树**结构存储数据
 - TreeMap判断**两个key相等的标准**：两个key通过compareTo()方法或者compare()方法返回0。
 
@@ -2736,8 +2807,6 @@ HashMap源码中的重要常量
 - 由于属性文件里的 key、value 都是字符串类型，所以 Properties 里的 key 和 value 都是字符串类型
 
 - 存取数据时，建议使用 setProperty(String key,String value) 方法和 getProperty(String key) 方法
-
-
 
 
 
@@ -2771,112 +2840,11 @@ Collections 中提供了一系列静态的方法对集合元素进行排序、�
 | void copy(List dest,List src)                               | 将src中的内容复制到dest中                               |
 | boolean replaceAll(List list，Object oldVal，Object newVal) | 使用新值替换 List 对象的所有旧值                        |
 
-
+得益于JDK 8开始的新技术Lambda表达式，提供了一种更简单、更直接的遍历集合的方式。
 
 ### 同步控制
 
 Collections 类中提供了多个 synchronizedXxx() 方法，该方法可使将指定集合包装成线程同步的集合，从而可以解决多线程并发访问集合时的线程安全问题
-
-
-
-
-
-
-
-
-
-
-
-<hr>
-#### Set系列集合
-
-##### HashSet元素无序的底层原理：哈希表
-
-##### HashSet元素去重复的底层原理
-
-##### 实现类：LinkedHashSet
-
-##### 实现类：TreeSet
-
-
-
-
-
-#### Collection体系的特点、使用场景总结
-
-如果希望元素可以重复，又有索引，索引查询要快？
-
-- 用ArrayList集合，基于数组的。（用的最多）
-
-如果希望元素可以重复，又有索引，增删首尾操作快？
-
-- 用LinkedList集合，基于链表的。
-
-如果希望增删改查都快，但是元素不重复、无序、无索引。
-
-- 用HashSet集合，基于哈希表的。
-
-如果希望增删改查都快，但是元素不重复、有序、无索引。
-
-- 用LinkedHashSet集合，基于哈希表和双链表。
-
-如果要对对象进行排序。
-
-- 用TreeSet集合，基于红黑树。后续也可以用List集合实现排序。
-
-
-
-
-
-#### 补充知识：可变参数
-
-可变参数在方法内部本质上就是一个数组。
-
-
-
-#### 补充知识：集合工具类Collections
-
-java.utils.Collections:是集合工具类
-
-**作用：Collections并不属于集合，是用来操作集合的工具类。**
-
-
-
-
-
-#### Collection体系的综合案例
-
-
-
-
-
-#### Map接口系列集合
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220411225519826.png)
-
-
-
-使用最多的Map集合是HashMap。
-
-重点掌握HashMap , LinkedHashMap , TreeMap。其他的后续理解。
-
-
-
-得益于JDK 8开始的新技术Lambda表达式，提供了一种更简单、更直接的遍历集合的方式。
-
-
-
-##### Map集合的遍历方式三：Lambda
-
-Map结合Lambda遍历的API
-
-| 方法名称                                                     | 说明                  |
-| ------------------------------------------------------------ | --------------------- |
-| default void forEach(BiConsumer<? super K, ? super V> action) | 结合lambda遍历Map集合 |
-
-
-
-
 
 
 
