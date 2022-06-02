@@ -3053,15 +3053,11 @@ class Car{
 
 
 
-
-
 # 十、IO流 stream
-
-
 
 Java程序中，对于数据的输入/输出操作以“流(stream)” 的方式进行。
 
-java.io包下提供了各种“流”类和接口，用以获取不同种类的数据，并通过标准的方法输入或输出数据。
+`java.io` 包下提供了各种“流”类和接口，用以获取不同种类的数据，并通过标准的方法输入或输出数据。
 
 <br>
 
@@ -3248,18 +3244,15 @@ try {
 
 
 
-<hr>
 # 十三、Java8 新特性
 
-Java 8 是oracle公司于2014年3月发布，可以看成是自Java 5 以来最具革命性的版本。Java 8为Java语言、编译器、类库、开发工具与JVM带来了大量新特性。
+Java 8 是oracle公司于2014年3月发布，可以看成是自Java 5 以来最具革命性的版本。
+
+Java 8为 Java语言、编译器、类库、开发工具与JVM带来了大量新特性。
 
 
 
-
-
-
-
-## 1 Lambda表达式（核心1）
+## 1 Lambda表达式（核心1）⭐️
 
 ### 为什么
 
@@ -3333,7 +3326,7 @@ Java 内置四大核心函数式接口
 
 
 
-## 4 强大的Stream API（核心2）
+## 4 强大的Stream API（核心2）⭐️
 
 Java8中有两大最为重要的改变。第一个是 Lambda 表达式；另外一个则是 Stream API。
 
@@ -3368,7 +3361,11 @@ Stream API ( java.util.stream) 把真正的函数式编程风格引入到Java中
 
 stream把list转map
 
+### Stream 的实现原理
 
+jdk的stream源码是高度工程化的代码，工程化的代码为了效率和满足各式各样的需求，会将代码实现的极其复杂，不易理解。
+
+https://www.cnblogs.com/xiaoxiongcanguan/p/10511233.html
 
 
 
