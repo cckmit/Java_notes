@@ -2367,18 +2367,13 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 - 鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组。
 
-List集合类中**元素有序、且可重复**，集合中的每个元素都有其对应的顺序索引。
+- List集合类中**元素有序、且可重复**，集合中的每个元素都有其对应的顺序索引。
 
-List容器中的元素都对应一个整数型的序号记载其在容器中的位置，可以根据序号存取容器中的元素。
-
-
+- List除了从Collection接口继承的方法外，List 集合里添加了一些根据索引来操作集合元素的方法。
 
 
 
- List除了从Collection接口继承的方法外，List 集合里添加了一些根据索引来操作集合元素的方法。
-
-<hr>
-### List实现类之一：ArrayList（数组）
+### List实现类之一：ArrayList（基于数组）
 
 - 底层是数组
 - 构造方法有3个
@@ -2428,10 +2423,10 @@ public ArrayList(Collection<? extends E> c) {
 }
 ```
 
-- EMPTY_ELEMENTDATA 和 DEFAULTCAPACITY_EMPTY_ELEMENTDATA两个空数组的区别
-  - EMPTY_ELEMENTDATA用在有参构造函数初始容量为0时共享赋值用
+- `EMPTY_ELEMENTDATA` 和 `DEFAULTCAPACITY_EMPTY_ELEMENTDATA` 两个空数组的区别
+  - EMPTY_ELEMENTDATA 用在有参构造函数初始容量为0时共享赋值用
   - DEFAULTCAPACITY_EMPTY_ELEMENTDATA 用在无参构造函数赋值用
-  - 两者都是用来减少空数组的创建，所有空ArrayList都共享空数组
+  - 两者都是用来减少空数组的创建，所有空 ArrayList 都共享空数组
 
 
 
@@ -2445,14 +2440,15 @@ public ArrayList(Collection<? extends E> c) {
 
 
 ```bash
-Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，也不是Vector 实例。 Arrays.asList(…) 返回值是一个固定长度的 List 集合。
+Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，也不是Vector 实例。 
+Arrays.asList(…) 返回值是一个固定长度的 List 集合。
 ```
 
 
 
 - 关于扩容
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220602205003084.png)
+![](./img/arraylist_grpw.png)
 
 
 
