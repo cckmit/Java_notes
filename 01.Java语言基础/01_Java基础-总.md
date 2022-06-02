@@ -2363,21 +2363,13 @@ Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()
 
 
 
+## 3 （一）List接口（可重复）
 
-
-## 3 （一）List接口
-
-### 概述
-
-鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组。
+- 鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组。
 
 List集合类中**元素有序、且可重复**，集合中的每个元素都有其对应的顺序索引。
 
 List容器中的元素都对应一个整数型的序号记载其在容器中的位置，可以根据序号存取容器中的元素。
-
-JDK API中List接口的实现类常用的有：ArrayList、LinkedList和Vector。
-
-<br>
 
 
 
@@ -2386,21 +2378,81 @@ JDK API中List接口的实现类常用的有：ArrayList、LinkedList和Vector�
  List除了从Collection接口继承的方法外，List 集合里添加了一些根据索引来操作集合元素的方法。
 
 <hr>
-
 ### List实现类之一：ArrayList（数组）
 
-ArrayList 是 List 接口的典型实现类、主要实现类。本质上，ArrayList是对象引用的一个”变长”数组。
+- 底层是数组
+- 构造方法有3个
+  - 无参构造
+  - 基于给定初始容量构造
+  - 基于集合
+
+```java
+// 默认初始容量为10
+private static final int DEFAULT_CAPACITY = 10;
+
+private static final Object[] EMPTY_ELEMENTDATA = {};
+
+private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+
+transient Object[] elementData;
+
+// 无参构造
+public ArrayList() {
+  	this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+}
+
+// 给定初始容量的构造方法
+public ArrayList(int initialCapacity) {
+  	// 情况1：自定义长度>0，数组长度=自定义长度
+    if (initialCapacity > 0) {
+        this.elementData = new Object[initialCapacity];
+    // 情况2：自定义长度=0，空数组  
+    } else if (initialCapacity == 0) {
+        this.elementData = EMPTY_ELEMENTDATA;
+    // 否则，抛出不合法异常  
+    } else {
+        throw new IllegalArgumentException("Illegal Capacity: "+ initialCapacity);
+    }
+}
+
+public ArrayList(Collection<? extends E> c) {
+    elementData = c.toArray();
+    if ((size = elementData.length) != 0) {
+        // c.toArray might (incorrectly) not return Object[] (see 6260652)
+        if (elementData.getClass() != Object[].class)
+            elementData = Arrays.copyOf(elementData, size, Object[].class);
+    } else {
+        // replace with empty array.
+        this.elementData = EMPTY_ELEMENTDATA;
+    }
+}
+```
+
+- EMPTY_ELEMENTDATA 和 DEFAULTCAPACITY_EMPTY_ELEMENTDATA两个空数组的区别
+  - EMPTY_ELEMENTDATA用在有参构造函数初始容量为0时共享赋值用
+  - DEFAULTCAPACITY_EMPTY_ELEMENTDATA 用在无参构造函数赋值用
+  - 两者都是用来减少空数组的创建，所有空ArrayList都共享空数组
 
 
 
-ArrayList 在 JDK1.8之前与之后的实现区别？
+- ArrayList 在 JDK1.8之前与之后的实现区别？
 
-- JDK1.7：ArrayList像饿汉式，直接创建一个初始容量为10的数组
-- JDK1.8：ArrayList像懒汉式，一开始创建一个长度为 0 的数组，当添加第一个元素时再创建一个始容量为 10 的数组
+  - JDK1.7：ArrayList像饿汉式，直接创建一个初始容量为10的数组
+
+  - JDK1.8：ArrayList像懒汉式，一开始创建一个长度为 0 的数组，当添加第一个元素时再创建一个始容量为 10 的数组
 
 
 
+
+```bash
 Arrays.asList(…) 方法返回的 List 集合，既不是 ArrayList 实例，也不是Vector 实例。 Arrays.asList(…) 返回值是一个固定长度的 List 集合。
+```
+
+
+
+- 关于扩容
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220602205003084.png)
 
 
 
@@ -2434,7 +2486,7 @@ Vector 是一个古老的集合，JDK1.0就有了。大多数操作与ArrayList�
 
 
 
-## 4 （二）set接口
+## 4 （二）set接口（不可重复）
 
 Set接口是Collection的子接口，set接口没有提供额外的方法。
 
@@ -2764,18 +2816,6 @@ Map结合Lambda遍历的API
 | 方法名称                                                     | 说明                  |
 | ------------------------------------------------------------ | --------------------- |
 | default void forEach(BiConsumer<? super K, ? super V> action) | 结合lambda遍历Map集合 |
-
-
-
-
-
-#### 补充知识：集合的嵌套
-
-
-
-
-
-
 
 
 
