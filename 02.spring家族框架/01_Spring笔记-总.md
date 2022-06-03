@@ -40,7 +40,7 @@
 
 ## 3 推荐
 
-### 推荐1：黑马最新课程
+### 黑马最新课程
 
 [黑马程序员20220420最新SSM框架教程_Spring+SpringMVC+Maven高级+SpringBoot+MyBatisPlus企业实用开发技术](https://www.bilibili.com/video/BV1Fi4y1S7ix?spm_id_from=333.999.0.0)
 
@@ -48,7 +48,7 @@
 
 [黑马220323 Spring高级课程](https://www.bilibili.com/video/BV1P44y1N7QG?spm_id_from=333.999.0.0)
 
-### 推荐2：官方文档
+### 官方文档
 
 `spring4`官方文档
 
@@ -58,9 +58,9 @@ https://docs.spring.io/spring-framework/docs/4.3.9.RELEASE/spring-framework-refe
 
 https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-reference/index.html
 
-<br>
 
-### 推荐3：极客时间丁雪丰
+
+### 极客时间丁雪丰
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416172241777.png)
 
@@ -92,7 +92,7 @@ https://docs.spring.io/spring-framework/docs/5.2.19.RELEASE/spring-framework-ref
 
 ### 1.2 学什么
 
-Spring框架主要的优势是在简化开发和框架整合上
+Spring框架的主要优势在于简化开发和框架整合上
 
 ```bash
 # 简化开发
@@ -133,7 +133,7 @@ Spring框架主要的优势是在简化开发和框架整合上
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426185049133.png)
 
-重点关注Spring Framework、SpringBoot和 SpringCloud :
+重点关注 Spring Framework、SpringBoot和 SpringCloud :
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426185151752.png)
 
@@ -143,8 +143,10 @@ Spring框架主要的优势是在简化开发和框架整合上
 # Spring Framework:Spring框架，是Spring中最早最核心的技术，也是所有其他技术的基础。
 Spring最早出现的技术，本笔记的内容。
 Spring全家桶中的地位：其它所有的技术都是依赖它执行的，是一个底层的框架，是一个设计型的框架，具有举足轻重的地位。
+
 # SpringBoot:Spring是来简化开发，而SpringBoot是来帮助Spring在简化的基础上能更快速进行开发。
 简化开发的基础上加速开发，提高开发速度。
+
 # SpringCloud:这个是用来做分布式之微服务架构的相关开发。
 分布式开发技术
 
@@ -154,7 +156,7 @@ Spring全家桶中的地位：其它所有的技术都是依赖它执行的，�
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426190240474.png?w=550)
+![](./img/spring5.png)
 
 
 
@@ -165,6 +167,7 @@ Spring全家桶中的地位：其它所有的技术都是依赖它执行的，�
 # Spring2.0为了简化开发[ 引入了注解开发 ]，此时是配置文件加注解的开发方式
 # Spring3.0已经可以进行[ 纯注解开发 ]，使开发效率大幅提升，我们的课程会以注解开发为主
 # Spring4.0根据JDK的版本升级对个别API进行了调整
+
 # Spring5.0已经全面支持JDK8，现在Spring最新的是5系列所以建议大家把JDK安装成1.8版
 ```
 
@@ -172,7 +175,7 @@ Spring全家桶中的地位：其它所有的技术都是依赖它执行的，�
 
 ## 3 Spring系统架构
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426190817874.png)
+![](./img/spring4.png)
 
 Spring Framework的5版本目前没有最新的架构图，而最新的是4版本，所以接下来主要研究的是4的架构图
 
@@ -211,7 +214,13 @@ Spring主要整合了Junit来完成单元测试和集成测试
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220426192735551.png)
+![](./img/学习阶段.png)
+
+
+
+
+
+
 
 
 
