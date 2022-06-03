@@ -45,6 +45,7 @@ public class A01 {
         // DefaultSingletonBeanRegistry 管理所有的单例bean，其中的singletonObjects放的就是所有的单例bean
         Field singletonObjects = DefaultSingletonBeanRegistry.class.getDeclaredField("singletonObjects");
         singletonObjects.setAccessible(true);
+
         ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
         Map<String, Object> map = (Map<String, Object>) singletonObjects.get(beanFactory);
         map.entrySet().stream().filter(e -> e.getKey().startsWith("component"))

@@ -12,8 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SetTest {
     public static void main(String[] args) {
+        // HashSet
         HashSet<String> hashSet = new HashSet<>();
+        hashSet.add("5=6");
+        hashSet.add("2=3");
+        hashSet.add("3=4");
         hashSet.add(null);
+        System.out.println(hashSet);
+
 
         LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>();
         linkedHashSet.add(null);

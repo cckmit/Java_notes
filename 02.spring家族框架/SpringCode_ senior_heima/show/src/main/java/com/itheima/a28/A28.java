@@ -67,17 +67,17 @@ public class A28 {
     }
 
     private static void test3() throws IOException {
-        MockHttpInputMessage message = new MockHttpInputMessage("""
-                {
-                    "name":"李四",
-                    "age":20
-                }
-                """.getBytes(StandardCharsets.UTF_8));
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        if (converter.canRead(User.class, MediaType.APPLICATION_JSON)) {
-            Object read = converter.read(User.class, message);
-            System.out.println(read);
-        }
+        //MockHttpInputMessage message = new MockHttpInputMessage("""
+        //        {
+        //            "name":"李四",
+        //            "age":20
+        //        }
+        //        """.getBytes(StandardCharsets.UTF_8));
+        //MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        //if (converter.canRead(User.class, MediaType.APPLICATION_JSON)) {
+        //    Object read = converter.read(User.class, message);
+        //    System.out.println(read);
+        //}
     }
 
     private static void test2() throws IOException {

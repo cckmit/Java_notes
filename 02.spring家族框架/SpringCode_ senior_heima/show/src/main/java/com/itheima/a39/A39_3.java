@@ -76,9 +76,9 @@ public class A39_3 {
     private static GenericApplicationContext createApplicationContext(WebApplicationType type) {
         GenericApplicationContext context = null;
         switch (type) {
-            case SERVLET -> context = new AnnotationConfigServletWebServerApplicationContext();
-            case REACTIVE -> context = new AnnotationConfigReactiveWebServerApplicationContext();
-            case NONE -> context = new AnnotationConfigApplicationContext();
+            //case SERVLET -> context = new AnnotationConfigServletWebServerApplicationContext();
+            //case REACTIVE -> context = new AnnotationConfigReactiveWebServerApplicationContext();
+            //case NONE -> context = new AnnotationConfigApplicationContext();
         }
         return context;
     }

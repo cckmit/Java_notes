@@ -93,19 +93,19 @@ public class WebConfig {
         return new BasicErrorController(new DefaultErrorAttributes(), errorProperties);
     }
 
-    @Bean
-    public View error() {
-        return new View() {
-            @Override
-            public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-                System.out.println(model);
-                response.setContentType("text/html;charset=utf-8");
-                response.getWriter().print("""
-                        <h3>服务器内部错误</h3>
-                        """);
-            }
-        };
-    }
+    //@Bean
+    //public View error() {
+    //    return new View() {
+    //        @Override
+    //        public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    //            System.out.println(model);
+    //            response.setContentType("text/html;charset=utf-8");
+    //            response.getWriter().print("""
+    //                    <h3>服务器内部错误</h3>
+    //                    """);
+    //        }
+    //    };
+    //}
 
     @Bean
     public ViewResolver viewResolver() {

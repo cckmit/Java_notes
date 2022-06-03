@@ -4480,7 +4480,13 @@ public class SpringJunitTest {
 
 - 事件解耦
 
-## 第一讲 BeanFactory 与 ApplicationContext
+## 第一讲 BeanFactory 与 ApplicationContext 的功能
+
+```java
+ConfigurableApplicationContext context = SpringApplication.run(A01.class, args);
+```
+
+
 
 
 
@@ -4502,6 +4508,58 @@ public class SpringJunitTest {
 
 
 
+```java
+public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
+    ConfigurableApplicationContext context = SpringApplication.run(A01.class, args);
+    System.out.println(context);
+    Field singletonObjects = DefaultSingletonBeanRegistry.class.getDeclaredField("singletonObjects");
+    singletonObjects.setAccessible(true);
+    
+    ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+    Map<String, Object> map = (Map<String, Object>) singletonObjects.get(beanFactory);
+    
+    map.entrySet().stream().filter(e -> e.getKey().startsWith("component"))
+            .forEach(e -> {
+                System.out.println(e.getKey() + "=" + e.getValue());
+            });
+}
+
+// 注册的2个bean
+@Component
+public class Component1 {
+    private static final Logger log = LoggerFactory.getLogger(Component1.class);
+}
+
+@Component
+public class Component2 {
+    private static final Logger log = LoggerFactory.getLogger(Component2.class);
+}
+```
+
+打印结果
+
+```bash
+component1=com.itheima.a01.Component1@4d8539de
+component2=com.itheima.a01.Component2@3eba57a7
+```
+
+- （3）ApplicationContext 比 BeanFactory 多点啥（扩展的功能主要体现在继承的4个父接口上）
+  - 多语言能力（国际化能力）
+  - 通配符匹配资源的能力
+  - 发布事件对象
+  - 环境信息
+
+```java
+System.out.println(context.getMessage("hi", null, Locale.CHINA));
+System.out.println(context.getMessage("hi", null, Locale.ENGLISH));
+System.out.println(context.getMessage("hi", null, Locale.JAPANESE));
+```
+
+
+
+存在的未解决的问题
+
+Exception in thread "main" org.springframework.context.NoSuchMessageException: No message found under code 'hi' for locale 'zh_CN'.
 
 
 
@@ -4511,6 +4569,9 @@ public class SpringJunitTest {
 
 
 
+
+
+## 第二讲 BeanFactory 与 ApplicationContext 的实现
 
 
 
