@@ -4549,6 +4549,8 @@ component2=com.itheima.a01.Component2@3eba57a7
   - 发布事件对象
   - 环境信息
 
+功能1
+
 ```java
 System.out.println(context.getMessage("hi", null, Locale.CHINA));
 System.out.println(context.getMessage("hi", null, Locale.ENGLISH));
@@ -4560,6 +4562,49 @@ System.out.println(context.getMessage("hi", null, Locale.JAPANESE));
 存在的未解决的问题
 
 Exception in thread "main" org.springframework.context.NoSuchMessageException: No message found under code 'hi' for locale 'zh_CN'.
+
+<br>
+
+功能2
+
+```java
+Resource[] resources = context.getResources("classpath*:META-INF/spring.factories");
+for (Resource resource : resources) {
+  	System.out.println(resource);
+}
+```
+
+打印的结果
+
+```java
+URL [jar:file:/Users/cat/environment/repo/org/springframework/boot/spring-boot/2.5.5/spring-boot-2.5.5.jar!/META-INF/spring.factories]
+URL [jar:file:/Users/cat/environment/repo/org/springframework/boot/spring-boot-autoconfigure/2.5.5/spring-boot-autoconfigure-2.5.5.jar!/META-INF/spring.factories]
+URL [jar:file:/Users/cat/environment/repo/org/springframework/spring-beans/5.3.10/spring-beans-5.3.10.jar!/META-INF/spring.factories]
+```
+
+<br>
+
+功能3
+
+```java
+System.out.println(context.getEnvironment().getProperty("JAVA_8_HOME"));
+System.out.println(context.getEnvironment().getProperty("JAVA_11_HOME"));
+System.out.println(context.getEnvironment().getProperty("spring.messages.basename"));
+```
+
+打印的结果
+
+```bash
+/Library/Java/JavaVirtualMachines/jdk1.8.0_211.jdk/Contents/Home
+/Library/Java/JavaVirtualMachines/jdk-11.0.14.jdk/Contents/Home
+messages://messages_zh.properties
+```
+
+<br>
+
+
+
+功能4
 
 
 
@@ -4578,6 +4623,10 @@ Exception in thread "main" org.springframework.context.NoSuchMessageException: N
 
 
 
+
+
+
+## 第三讲
 
 
 

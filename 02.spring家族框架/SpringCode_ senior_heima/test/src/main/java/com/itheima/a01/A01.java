@@ -7,7 +7,9 @@ import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.Map;
@@ -22,7 +24,7 @@ public class A01 {
     private static final Logger log = LoggerFactory.getLogger(A01.class);
 
 
-    public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
+    public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException, IOException {
         ConfigurableApplicationContext context = SpringApplication.run(A01.class, args);
         System.out.println(context);
 
@@ -39,9 +41,19 @@ public class A01 {
 
 
 
-        System.out.println(context.getMessage("hi", null, Locale.CHINA));
-        System.out.println(context.getMessage("hi", null, Locale.ENGLISH));
-        System.out.println(context.getMessage("hi", null, Locale.JAPANESE));
+        //System.out.println(context.getMessage("hi", null, Locale.CHINA));
+        //System.out.println(context.getMessage("hi", null, Locale.ENGLISH));
+        //System.out.println(context.getMessage("hi", null, Locale.JAPANESE));
+
+        Resource[] resources = context.getResources("classpath*:META-INF/spring.factories");
+        for (Resource resource : resources) {
+            System.out.println(resource);
+        }
+
+        System.out.println("");
+        System.out.println(context.getEnvironment().getProperty("JAVA_8_HOME"));
+        System.out.println(context.getEnvironment().getProperty("JAVA_11_HOME"));
+        System.out.println(context.getEnvironment().getProperty("spring.messages.basename"));
 
     }
 }
