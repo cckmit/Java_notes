@@ -4543,7 +4543,7 @@ component1=com.itheima.a01.Component1@4d8539de
 component2=com.itheima.a01.Component2@3eba57a7
 ```
 
-- （3）ApplicationContext 比 BeanFactory 多点啥（扩展的功能主要体现在继承的4个父接口上）
+- （3）ApplicationContext 比 BeanFactory 多点啥（扩展的功能主要体现在继承的4个父接口上）⭐️
   - 多语言能力（国际化能力）
   - 通配符匹配资源的能力
   - 发布事件对象
@@ -4604,15 +4604,27 @@ messages://messages_zh.properties
 
 
 
-功能4
+功能4：发布事件（如实现用户注册和发布事件的解耦）
 
+```java
+@EventListener
+public void aaa(UserRegisteredEvent event) {
+    log.debug("{}", event);
+    log.debug("发送短信");
+}
+```
 
+工作中的使用如下
 
+[基于自定义注解、AOP和Spring事件发布实现日志记录](https://blog.51cto.com/u_15473389/5356183)
 
+<br>
 
+总结一下
 
+a.  BeanFactory 与 ApplicationContext 并不仅仅是简单接口继承的关系, ApplicationContext 组合并扩展了 BeanFactory 的功能
 
-
+b.  又新学一种代码之间解耦途径
 
 
 
