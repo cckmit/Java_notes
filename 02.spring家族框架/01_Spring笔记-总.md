@@ -8,22 +8,6 @@
 
 
 
-## 1 认知
-
-- 整个 Java 体系最核心的框架，没有之一	
-
-- 面试必备 / 热点（从Spring的核心原理，到SpringMVC的执行流程，再到SpringBoot的自动配置）
-
-- 技术、思想提升（大量设计模式的应用和体现）（应用了很多技术）
-
-
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211450426.png)
-
-
-
-
-
 ## 2 总结
 
 ### 容器与bean（01-08）
@@ -38,15 +22,37 @@
 
 
 
-## 3 推荐
+## 推荐
 
-### 黑马最新课程
+### 黑马程序员
+
+[spring 高级49讲220323](https://www.bilibili.com/video/BV1P44y1N7QG?spm_id_from=333.999.0.0)
+
+- 整个 Java 体系最核心的框架，没有之一	
+
+- 面试必备 / 热点（从Spring的核心原理，到SpringMVC的执行流程，再到SpringBoot的自动配置）
+
+- 技术、思想提升（大量设计模式的应用和体现）（应用了很多技术）
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220408211450426.png)
+
+- 步骤（重在梳理线索，源码自己阅读）
+  - 了解欲研究的组件（类）的基本使用
+  - 用单元测试研究组件的特性
+  - 试着自己实现类似功能
+  - 最后再深入阅读该组件的源码
+- 内容（五大篇章，49讲）
+  - 容器与Bean（1-8）
+  - AOP（9-19）
+  - Web MVC（20-36）
+  - Spring Boot（37-42）
+  - 其它（43-49）
+
+
 
 [黑马程序员20220420最新SSM框架教程_Spring+SpringMVC+Maven高级+SpringBoot+MyBatisPlus企业实用开发技术](https://www.bilibili.com/video/BV1Fi4y1S7ix?spm_id_from=333.999.0.0)
 
 
-
-[黑马220323 Spring高级课程](https://www.bilibili.com/video/BV1P44y1N7QG?spm_id_from=333.999.0.0)
 
 ### 官方文档
 
@@ -4466,25 +4472,55 @@ public class SpringJunitTest {
 
 
 
+# 容器与Bean
+
+- BeanFactory 能做哪些事
+
+- ApplicationContext 有哪些扩展功能
+
+- 事件解耦
+
+## 第一讲 BeanFactory 与 ApplicationContext
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220603112156589.png)
 
 
 
 
-<hr>
 
-## 08 容器与Bean
+- （1）到底什么是 BeanFactory
+  - 它是 ApplicationContext 的父接口
+  - 它才是 Spring 的核心容器, 主要的 ApplicationContext 实现都【组合】了它的功能（BeanFactory是ApplicationContext的一个成员变量）
 
-### 01）容器接口
+- （2）BeanFactory 能干点啥
+  - 表面上只有 `getBean`
+  - 实际上控制反转、基本的依赖注入、直至 Bean 的生命周期的各种功能, 都由它的实现类提供（DefaultListableBeanFactory）
 
 
 
 
 
-BeanFactory 能做哪些事
 
-ApplicationContext 有哪些扩展功能
 
-事件解耦
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
