@@ -999,10 +999,19 @@ import 语句告诉编译器去哪寻找类。
 
 继承的关键字是 **extends** ，即子类不是父类的子集，而是对父类的扩展。
 
+```java
+// Student称为子类（派生类），People称为父类(基类 或超类)。
+public class Student extends People {
+  
+}
+```
+
+
+
 ### 作用
 
 - 减少了代码冗余，提高了代码的复用性。
-- 更有利于功能的扩展。
+- 更有利于功能的扩展。子类更强大。
 - 让类与类之间产生了关系，提供了多态的前提。
 
 ### 注意
@@ -1011,9 +1020,29 @@ import 语句告诉编译器去哪寻找类。
 
 - Java**只支持单继承和多层继承**，不允许多重继承。但提供了一些类似多重继承的功能。
 
-  - 一个子类只能有一个父类
+  - 一个子类只能有一个直接父类
 
   - 一个父类可以派生出多个子类（继承层次）
+  
+  - 所有的类都是Object类的子类
+- 继承后：成员变量、成员方法的访问特点
+  - 就近原则，子类有找子类、子类没有找父类、父类没有就报错。
+  - 如果子父类中，出现了重名的成员，会优先使用子类的，此时如果一定要在子类中使用父类的怎么办？
+    - 格式：super.父类成员变量/父类成员方法
+
+
+- 继承后：子类构造器的特点
+  - 子类中所有的构造器默认都会先访问父类中无参的构造器，再执行自己。
+
+```bash
+# 为什么？
+子类在初始化的时候，有可能会使用到父类中的数据，如果父类没有完成初始化，子类将无法使用父类的数据。
+子类初始化之前，一定要调用父类构造器先完成父类数据空间的初始化。
+# 怎么调用父类构造器的？
+子类构造器的第一行语句默认都是：super()，不写也存在。
+```
+
+
 
 
 
@@ -3254,21 +3283,61 @@ Java 8为 Java语言、编译器、类库、开发工具与JVM带来了大量新
 
 ## 1 Lambda表达式（核心1）⭐️
 
-Lambda 表达式本质是一个**匿名函数**，可以替代我们以前经常写的匿名内部类，我们可以把 Lambda 表达式理解为是**一段可以传递的代码**（将代码像数据一样进行传递）。
+- Lambda 表达式是一个可传递的代码块，可以在以后执行一次或多次。
+  - 将一个代码块传递到某个对象（一个定时器，或者一个sort方法），这个方法会在将来某个时间调用。
+  - Lambda 表达式本质是一个**匿名函数**，可以替代我们以前经常写的匿名内部类。
 
-使用它可以写出更简洁、更灵活的代码。作为一种更紧凑的代码风格，使Java的语言表达能力得到了提升。
+- 使用它可以写出更简洁、更灵活的代码。作为一种更紧凑的代码风格，使Java的语言表达能力得到了提升。
+
+```java
+Arrays.sort(planets, new Comparator<String>(){
+  @Override
+  public int compare(String o1, String o2) {
+    return o1.length() - o2.length();
+  }
+});
+
+Arrays.sort(planets, (first, second) -> first.length() - second.length());
+```
 
 
 
+- 使用：如何对一个比较器和一个动作监听器使用 Lambda 表达式
 
+```java
+public class LambdaTest
+{
+    public static void main(String[] args)
+    {
+        String[] planets = new String[] { "Mercury", "Venus", "Earth", "Mars",
+                "Jupiter", "Saturn", "Uranus", "Neptune" };
+        System.out.println(Arrays.toString(planets));
 
-### 举例
+        System.out.println("Sorted in dictionary order:");
+        Arrays.sort(planets);
+        System.out.println(Arrays.toString(planets));
+
+        System.out.println("Sorted by length:");
+      	// 这里
+        Arrays.sort(planets, (first, second) -> first.length() - second.length());
+        System.out.println(Arrays.toString(planets));
+
+        Timer timer = new Timer(1000, event ->
+                System.out.println("The time is " + new Date()));
+        timer.start();
+
+        // keep program running until user selects "OK"
+        JOptionPane.showMessageDialog(null, "Quit program?");
+        System.exit(0);
+    }
+}
+```
 
 
 
 ### 语法
 
--  Lambda 操作符或箭头操作符：->
+-  Lambda 操作符或箭头操作符：`->`
 - 参数列表（左侧）
 - Lambda 体（右侧）：是抽象方法的实现逻辑，也即Lambda 表达式要执行的功能。
 
@@ -3292,15 +3361,13 @@ Lambda 表达式本质是一个**匿名函数**，可以替代我们以前经常
 
 只包含一个抽象方法的接口，称为函数式接口。
 
-在 `java.util.function `包下定义了Java 8 的丰富的函数式接口
+在 `java.util.function `包下定义了Java 8 的丰富的函数式接口  
 
 
 
 Java 内置四大核心函数式接口
 
 ![](./img/函数式接口.png)
-
-
 
 
 
@@ -3320,17 +3387,11 @@ Java 内置四大核心函数式接口
 
 
 
-
-
-
-
 ## 4 强大的Stream API（核心2）⭐️
 
 Java8中有两大最为重要的改变。第一个是 Lambda 表达式；另外一个则是 Stream API。
 
 Stream API ( java.util.stream) 把真正的函数式编程风格引入到Java中。这是目前为止对Java类库最好的补充，因为Stream API可以极大提高Java程序员的生产力，让程序员写出高效率、干净、简洁的代码。
-
-
 
 
 
@@ -3429,69 +3490,6 @@ public void test2() {
     Girl girl = opt.orElse(new Girl("嫦娥"));
     System.out.println("他的女朋友是：" + girl.getName());
 }
-```
-
-
-
-
-
-
-
-## 面向对象三大特征之二：继承
-
-##### 概述与好处
-
-Java中提供一个关键字extends，用这个关键字，我们可以让一个类和另一个类建立起父子关系。
-
-```java
-// Student称为子类（派生类），People称为父类(基类 或超类)。
-public class Student extends People {}
-
-```
-
-
-
-当子类继承父类后，就可以直接使用父类公共的属性和方法了。因此，用好这个技术可以很好的我们**提高代码的复用性。**
-
-Java中子类更强大。
-
-
-
-##### 继承的特点
-
-子类可以继承父类的属性和行为，但是子类不能继承父类的构造器。
-
-Java是单继承模式：一个类只能继承一个直接父类。Java不支持多继承、但是支持多层继承。
-
-Java中所有的类都是Object类的子类。
-
-
-
-##### 继承后：成员变量、成员方法的访问特点
-
-就近原则，子类有找子类、子类没有找父类、父类没有就报错！
-
-如果子父类中，出现了重名的成员，会优先使用子类的，此时如果一定要在子类中使用父类的怎么办？
-
-```java
-格式：super.父类成员变量/父类成员方法
-```
-
-
-
-
-
-##### 继承后：子类构造器的特点
-
-子类中所有的构造器默认都会先访问父类中无参的构造器，再执行自己。
-
-```bash
-# 为什么？
-子类在初始化的时候，有可能会使用到父类中的数据，如果父类没有完成初始化，子类将无法使用父类的数据。
-子类初始化之前，一定要调用父类构造器先完成父类数据空间的初始化。
-# 怎么调用父类构造器的？
-子类构造器的第一行语句默认都是：super()，不写也存在。
-
 ```
 
 
