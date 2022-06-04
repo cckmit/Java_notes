@@ -6,19 +6,25 @@
 
 
 
+```bash
+# 容器与bean（01-08）
+
+@Autowired 先按照类型
+@Resource 按照 bean名字
+
+# AOP（09-19）
 
 
-## 2 总结
+# Web MVC（20-36）
 
-### 容器与bean（01-08）
 
-### AOP（09-19）
+# Spring Boot（37-42）
 
-### Web MVC（20-36）
 
-### Spring Boot（37-42）
+# 其它（43-49）
+```
 
-### 其它（43-49）
+
 
 
 
@@ -4474,13 +4480,17 @@ public class SpringJunitTest {
 
 # 容器与Bean
 
+
+
+## 第一讲 BeanFactory 与 ApplicationContext 的功能
+
 - BeanFactory 能做哪些事
 
 - ApplicationContext 有哪些扩展功能
 
 - 事件解耦
 
-## 第一讲 BeanFactory 与 ApplicationContext 的功能
+
 
 ```java
 ConfigurableApplicationContext context = SpringApplication.run(A01.class, args);
@@ -4630,6 +4640,411 @@ b.  又新学一种代码之间解耦途径
 
 ## 第二讲 BeanFactory 与 ApplicationContext 的实现
 
+- BeanFactory 实现的特点
+
+- ApplicationContext 的常见实现和用法
+- 内嵌容器、注册 DispatcherServlet
+
+### BeanFactory实现（了解DefaultListableBeanFactory就够了）
+
+原始功能并不丰富，扩展功能是通过后处理器完成。
+
+```java
+public static void main(String[] args) {
+  DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+  // step1:bean 的定义（class, scope, 初始化, 销毁）
+  AbstractBeanDefinition beanDefinition =
+    BeanDefinitionBuilder.genericBeanDefinition(Config.class).setScope("singleton").getBeanDefinition();
+  // step2:bean 的注册
+  beanFactory.registerBeanDefinition("config", beanDefinition);
+
+
+  // 给 BeanFactory 添加一些常用的后处理器（解析@Configuration、@Bean ，扩展了beanFactory）
+  AnnotationConfigUtils.registerAnnotationConfigProcessors(beanFactory);
+
+  // 第一类处理器：BeanFactory 后处理器主要功能，补充了一些 bean 定义
+  beanFactory.getBeansOfType(BeanFactoryPostProcessor.class).values().forEach(beanFactoryPostProcessor -> {
+    // 这里是执行bean工厂后处理器
+    beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+  });
+
+  //for (String beanDefinitionName : beanFactory.getBeanDefinitionNames()) {
+  //    System.out.println(beanDefinitionName);
+  //}
+
+  System.out.println("---------------------> p9");
+  //System.out.println(beanFactory.getBean(Bean1.class).getBean2());
+  // null
+  // 原因：@Autowired对于beanFactory也属于扩展功能
+
+  // 第二类处理器：Bean 后处理器, 针对 bean 的生命周期的各个阶段提供扩展, 例如 @Autowired @Resource ...
+  beanFactory.getBeansOfType(BeanPostProcessor.class).values().forEach(beanFactory::addBeanPostProcessor);
+
+  //for (String beanDefinitionName : beanFactory.getBeanDefinitionNames()) {
+  //    System.out.println(beanDefinitionName);
+  //}
+
+
+  System.out.println("添加 Bean 后处理器后...");
+  System.out.println(beanFactory.getBean(Bean1.class).getBean2());
+
+  // 上面我们看到的bean都是延时加载的，需要用到时才创建
+  // 我们可以预先实例化所有的单例对象
+  beanFactory.preInstantiateSingletons(); // 准备好所有单例
+
+}
+```
+
+打印结果
+
+```java
+---------------------> p9
+config
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.context.event.internalEventListenerFactory
+bean1
+bean2
+bean3
+bean4
+添加 Bean 后处理器后...
+23:03:28.128 [main] DEBUG com.itheima.a02.TestBeanFactory$Bean1 - 构造 Bean1()
+23:03:28.142 [main] DEBUG com.itheima.a02.TestBeanFactory$Bean2 - 构造 Bean2()
+com.itheima.a02.TestBeanFactory$Bean2@52aa2946  
+```
+
+a. beanFactory 不会做的事
+
+- （1）不会主动调用 BeanFactory 后处理器
+- （2）不会主动添加 Bean 后处理器
+- （3）不会主动初始化单例
+- （4）不会解析beanFactory 还不会解析 ${ } 与 #{ }
+
+
+
+b. bean 后处理器会有排序的逻辑
+
+```java
+beanFactory.getBeansOfType(BeanPostProcessor.class).values().forEach(beanPostProcessor -> {
+  System.out.println(">>>>" + beanPostProcessor);
+  beanFactory.addBeanPostProcessor(beanPostProcessor);
+});
+```
+
+结果
+
+- AutowiredAnnotationBeanPostProcessor 后处理器先解析@Autowired注解
+- CommonAnnotationBeanPostProcessor 后处理器后解析@Resource注解
+
+```bash
+>>>>org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor@1e9e725a
+>>>>org.springframework.context.annotation.CommonAnnotationBeanPostProcessor@15d9bc04
+```
+
+
+
+### ApplicationContext 的实现（常见四个）
+
+#### ClassPathXmlApplicationContext（了解）
+
+
+
+```java
+// ⬇️较为经典的容器, 基于 classpath 下 xml 格式的配置文件来创建
+private static void testClassPathXmlApplicationContext() {
+  ClassPathXmlApplicationContext context =
+    new ClassPathXmlApplicationContext("a02.xml");
+
+  for (String name : context.getBeanDefinitionNames()) {
+    System.out.println(name);
+  }
+
+  System.out.println(context.getBean(Bean2.class).getBean1());
+}
+```
+
+
+
+#### FileSystemXmlApplicationContext
+
+```java
+// ⬇️基于磁盘路径下 xml 格式的配置文件来创建
+private static void testFileSystemXmlApplicationContext() {
+    FileSystemXmlApplicationContext context =
+            new FileSystemXmlApplicationContext(
+                    "src\\main\\resources\\a02.xml");
+    for (String name : context.getBeanDefinitionNames()) {
+        System.out.println(name);
+    }
+    System.out.println(context.getBean(Bean2.class).getBean1());
+}
+```
+
+
+
+
+
+#### AnnotationConfigApplicationContext
+
+```java
+// ⬇️较为经典的容器, 基于 java 配置类来创建
+private static void testAnnotationConfigApplicationContext() {
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(Config.class)
+    for (String name : context.getBeanDefinitionNames()) {
+        System.out.println(name);
+    }
+    System.out.println(context.getBean(Bean2.class).getBean1());
+}
+```
+
+
+
+
+
+#### AnnotationConfigServletWebServerApplicationContext
+
+```java
+// ⬇️较为经典的容器, 基于 java 配置类来创建, 用于 web 环境
+private static void testAnnotationConfigServletWebServerApplicationContext() {
+  AnnotationConfigServletWebServerApplicationContext context =
+    new AnnotationConfigServletWebServerApplicationContext(WebConfig.class);
+  for (String name : context.getBeanDefinitionNames()) {
+    System.out.println(name);
+  }
+}
+
+@Configuration
+static class WebConfig {
+  @Bean
+  public ServletWebServerFactory servletWebServerFactory(){
+    return new TomcatServletWebServerFactory();
+  }
+  @Bean
+  public DispatcherServlet dispatcherServlet() {
+    return new DispatcherServlet();
+  }
+  @Bean
+  public DispatcherServletRegistrationBean registrationBean(DispatcherServlet dispatcherServlet) {
+    return new DispatcherServletRegistrationBean(dispatcherServlet, "/");
+  }
+  @Bean("/hello")
+  public Controller controller1() {
+    return (request, response) -> {
+      response.getWriter().print("hello");
+      return null;
+    };
+  }
+}
+```
+
+
+
+<br>
+
+总结一下
+
+- a. 常见的 ApplicationContext 容器实现
+- b. 内嵌容器、DispatcherServlet 的创建方法、作用
+
+
+
+## 第三讲 bean生命周期和模板方法
+
+- Spring bean 生命周期各个阶段
+- 模板设计模式
+
+### bean 生命周期
+
+- 生命周期的4个方法（执行顺序亦如下）
+  - 构造
+  - 依赖注入
+  - 初始化
+  - 销毁
+
+```java
+@Component
+public class LifeCycleBean {
+    private static final Logger log = LoggerFactory.getLogger(LifeCycleBean.class);
+
+    public LifeCycleBean() {
+        System.out.println("构造");
+        log.debug("构造");
+    }
+
+    @Autowired
+    public void autowire(@Value("${JAVA_11_HOME}") String home) {
+        log.debug("依赖注入: {}", home);
+    }
+
+    @PostConstruct
+    public void init() {
+        log.debug("初始化");
+    }
+
+    @PreDestroy
+    public void destroy() {
+        log.debug("销毁");
+    }
+}
+```
+
+打印结果
+
+```java
+2022-06-04 10:32:13.696 DEBUG 6655 --- [           main] com.itheima.a03.LifeCycleBean            : 构造
+2022-06-04 10:32:13.700 DEBUG 6655 --- [           main] com.itheima.a03.LifeCycleBean            : 依赖注入: /Library/Java/JavaVirtualMachines/jdk-11.0.14.jdk/Contents/Home
+2022-06-04 10:32:13.701 DEBUG 6655 --- [           main] com.itheima.a03.LifeCycleBean            : 初始化
+2022-06-04 10:32:14.068  INFO 6655 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2022-06-04 10:32:14.078  INFO 6655 --- [           main] com.itheima.a03.A03                      : Started A03 in 1.785 seconds (JVM running for 2.359)
+2022-06-04 10:32:15.246 DEBUG 6655 --- [           main] com.itheima.a03.LifeCycleBean            : 销毁
+```
+
+
+
+- bean后处理器提供bean生命周期各个阶段的一些扩展
+
+```java
+@Component
+public class MyBeanPostProcessor implements InstantiationAwareBeanPostProcessor, DestructionAwareBeanPostProcessor {
+
+    private static final Logger log = LoggerFactory.getLogger(MyBeanPostProcessor.class);
+
+    @Override
+    public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean"))
+            log.debug("<<<<<< 销毁之前执行, 如 @PreDestroy");
+    }
+
+    @Override
+    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean"))
+            log.debug("<<<<<< 实例化之前执行, 这里返回的对象会替换掉原本的 bean");
+        return null;
+    }
+
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean")) {
+            log.debug("<<<<<< 实例化之后执行, 这里如果返回 false 会跳过依赖注入阶段");
+//            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean"))
+            log.debug("<<<<<< 依赖注入阶段执行, 如 @Autowired、@Value、@Resource");
+        return pvs;
+    }
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean"))
+            log.debug("<<<<<< 初始化之前执行, 这里返回的对象会替换掉原本的 bean, 如 @PostConstruct、@ConfigurationProperties");
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean"))
+            log.debug("<<<<<< 初始化之后执行, 这里返回的对象会替换掉原本的 bean, 如代理增强");
+        return bean;
+    }
+}
+```
+
+打印结果
+
+```bash
+com.itheima.a03.MyBeanPostProcessor      : <<<<<< 实例化之前执行, 这里返回的对象会替换掉原本的 bean
+com.itheima.a03.LifeCycleBean            : 构造
+com.itheima.a03.MyBeanPostProcessor      : <<<<<< 实例化之后执行, 这里如果返回 false 会跳过依赖注入阶段
+com.itheima.a03.MyBeanPostProcessor      : <<<<<< 依赖注入阶段执行, 如 @Autowired、@Value、@Resource
+com.itheima.a03.LifeCycleBean            : 依赖注入: /Library/Java/JavaVirtualMachines/jdk-11.0.14.jdk/Contents/Home
+com.itheima.a03.MyBeanPostProcessor      : <<<<<< 初始化之前执行, 这里返回的对象会替换掉原本的 bean, 如 @PostConstruct、@ConfigurationProperties
+com.itheima.a03.LifeCycleBean            : 初始化
+com.itheima.a03.MyBeanPostProcessor      : <<<<<< 初始化之后执行, 这里返回的对象会替换掉原本的 bean, 如代理增强
+
+2022-06-04 10:39:04.966  INFO 7002 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+
+com.itheima.a03.A03                      : Started A03 in 2.547 seconds (JVM running for 3.277)
+com.itheima.a03.MyBeanPostProcessor      : <<<<<< 销毁之前执行, 如 @PreDestroy
+com.itheima.a03.LifeCycleBean            : 销毁
+```
+
+- 学到了
+  - bean生命周期的4个阶段：创建、依赖注入、初始化、销毁
+  - 各个阶段会做功能增强，后处理器提供。（执行时机：实例化前后、依赖注入前后、初始化前后、销毁之前）
+
+
+
+### 模板方法设计模式
+
+- 重点
+  - 静：固定不变的逻辑
+  - 动：扩展的部分
+
+```java
+public class TestMethodTemplate {
+
+    public static void main(String[] args) {
+        MyBeanFactory beanFactory = new MyBeanFactory();
+        beanFactory.addBeanPostProcessor(bean -> System.out.println("解析 @Autowired"));
+        beanFactory.addBeanPostProcessor(bean -> System.out.println("解析 @Resource"));
+        beanFactory.getBean();
+    }
+
+    // 模板方法  Template Method Pattern
+    static class MyBeanFactory {
+        public Object getBean() {
+            Object bean = new Object();
+            System.out.println("构造 " + bean);
+            System.out.println("依赖注入 " + bean); // @Autowired, @Resource
+            for (BeanPostProcessor processor : processors) {
+                System.out.println("---------> " + processor);
+                processor.inject(bean);
+            }
+            System.out.println("初始化 " + bean);
+            return bean;
+        }
+
+        private List<BeanPostProcessor> processors = new ArrayList<>();
+
+        public void addBeanPostProcessor(BeanPostProcessor processor) {
+            processors.add(processor);
+        }
+    }
+
+    static interface BeanPostProcessor {
+        public void inject(Object bean); // 对依赖注入阶段的扩展
+    }
+}
+```
+
+
+
+打印结果
+
+```bash
+构造 java.lang.Object@76fb509a
+依赖注入 java.lang.Object@76fb509a
+---------> com.itheima.a03.TestMethodTemplate$$Lambda$1/2084435065@300ffa5d
+解析 @Autowired
+---------> com.itheima.a03.TestMethodTemplate$$Lambda$2/1702297201@1f17ae12
+解析 @Resource
+初始化 java.lang.Object@76fb509a
+```
+
+
+
+## 第四讲 bean后处理器
+
+- Bean 后处理器的作用：为bean生命周期各个阶段提供扩展
+- 常见的后处理器
 
 
 
@@ -4638,7 +5053,12 @@ b.  又新学一种代码之间解耦途径
 
 
 
-## 第三讲
+
+
+
+## 第五讲 工厂后处理器
+
+
 
 
 

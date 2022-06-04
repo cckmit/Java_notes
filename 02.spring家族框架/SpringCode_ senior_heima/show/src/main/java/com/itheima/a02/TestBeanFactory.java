@@ -19,9 +19,10 @@ public class TestBeanFactory {
 
     public static void main(String[] args) {
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-        // bean 的定义（class, scope, 初始化, 销毁）
+        // step1:bean 的定义（class, scope, 初始化, 销毁）
         AbstractBeanDefinition beanDefinition =
                 BeanDefinitionBuilder.genericBeanDefinition(Config.class).setScope("singleton").getBeanDefinition();
+        // step2:bean 的注册
         beanFactory.registerBeanDefinition("config", beanDefinition);
 
         // 给 BeanFactory 添加一些常用的后处理器
@@ -43,6 +44,7 @@ public class TestBeanFactory {
         for (String name : beanFactory.getBeanDefinitionNames()) {
             System.out.println(name);
         }
+
 
         beanFactory.preInstantiateSingletons(); // 准备好所有单例
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ");
