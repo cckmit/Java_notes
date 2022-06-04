@@ -2730,7 +2730,7 @@ Map接口的常用实现类：HashMap（使用频率最高）、TreeMap、Linked
 
 <br>
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416101712791.png)
+![](./img/hashmap7.png)
 
 
 

@@ -1,90 +1,17 @@
+
+
 # 写在前面
 
-## 目录
-
-
-
-- [常用总结与问题解决](#常用总结与问题解决)
-  - [常用总结](#常用总结)
-  - [问题解决](#问题解决)
-- [服务框架学习路线](#服务框架学习路线)
-- [springcloud实用篇一](#springcloud实用篇一)
-  - [一、认识微服务](#一认识微服务)
-    - [服务框架演变](#服务框架演变)
-    - [微服务技术对比](#微服务技术对比)
-    - [SpringCloud](#springcloud)
-  - [二、微服务拆分案例](#二微服务拆分案例)
-    - [服务拆分](#服务拆分)
-    - [案例cloud-demo](#案例cloud-demo)
-    - [概念：提供者与消费者](#概念提供者与消费者)
-  - [三、eureka注册中心](#三eureka注册中心)
-    - [1、远程调用的问题（一堆问题）](#1远程调用的问题一堆问题)
-    - [2、eureka原理](#2eureka原理)
-    - [3、搭建EurekaServer注册中心](#3搭建eurekaserver注册中心)
-    - [4、服务注册](#4服务注册)
-    - [5、服务发现](#5服务发现)
-  - [四、Ribbon负载均衡原理](#四ribbon负载均衡原理)
-    - [负载均衡原理](#负载均衡原理)
-    - [负载均衡策略](#负载均衡策略)
-    - [懒加载](#懒加载)
-  - [五、nacos注册中心](#五nacos注册中心)
-    - [1、认识和安装](#1认识和安装)
-    - [2、快速入门](#2快速入门)
-    - [3、服务分级存储模型](#3服务分级存储模型)
-    - [4、环境隔离namespace](#4环境隔离namespace)
-      - [如何修改一个服务的命名空间：](#如何修改一个服务的命名空间)
-      - [总结](#总结)
-      - [临时实例和非临时实例](#临时实例和非临时实例)
-- [springcloud实用篇二](#springcloud实用篇二)
-  - [一、Nacos配置管理](#一nacos配置管理)
-    - [1、统一配置管理](#1统一配置管理)
-      - [Nacos实现配置管理](#nacos实现配置管理)
-      - [微服务配置拉取](#微服务配置拉取)
-    - [2、配置热更新](#2配置热更新)
-    - [3、配置共享](#3配置共享)
-    - [4、搭建Nacos集群](#4搭建nacos集群)
-      - [搭建集群的基本步骤](#搭建集群的基本步骤)
-  - [二、Feign远程调用（HTTP客户端Feign）](#二feign远程调用http客户端feign)
-    - [1、Feign替代RestTemplate](#1feign替代resttemplate)
-      - [1.1 RestTemplate方式调用存在的问题](#11-resttemplate方式调用存在的问题)
-      - [1.2 Feign的介绍](#12-feign的介绍)
-      - [1.3 定义和使用Feign客户端](#13-定义和使用feign客户端)
-    - [2、自定义配置](#2自定义配置)
-      - [配置Feign日志有两种方式](#配置feign日志有两种方式)
-    - [3、Figen使用优化（性能调优）](#3figen使用优化性能调优)
-      - [连接池配置](#连接池配置)
-    - [4、最佳实践](#4最佳实践)
-      - [Feign的最佳实践](#feign的最佳实践)
-      - [实现Feign最佳实践](#实现feign最佳实践)
-  - [三、Gateway服务网关](#三gateway服务网关)
-    - [1、为什么需要网关](#1为什么需要网关)
-    - [2、gateway快速入门](#2gateway快速入门)
-      - [搭建服务网关](#搭建服务网关)
-    - [3、断言工厂](#3断言工厂)
-    - [4、全局过滤器](#4全局过滤器)
-      - [路由过滤器 GatewayFilter](#路由过滤器-gatewayfilter)
-      - [过滤器工厂 GatewayFilterFactory](#过滤器工厂-gatewayfilterfactory)
-      - [案例：给所有进入userservice的请求添加一个请求头：Truth=itcast is freaking awesome!](#案例给所有进入userservice的请求添加一个请求头truthitcast-is-freaking-awesome)
-      - [全局过滤器 GlobalFilter](#全局过滤器-globalfilter)
-      - [案例：定义全局过滤器，拦截并判断用户身份](#案例定义全局过滤器拦截并判断用户身份)
-      - [过滤器执行顺序](#过滤器执行顺序)
-    - [5、跨域问题处理](#5跨域问题处理)
-
-
-
-## 参考与推荐
+## 推荐
 
 [SpringCloud+RabbitMQ+Docker+Redis+搜索+分布式_黑马20210811](https://www.bilibili.com/video/BV1LQ4y127n4?p=3)
-
-
 
 [[ 动力结点 ]springcloud微服务SpringCloud+SpringCloud Alibaba 双管齐下玩转SpringCloud](https://www.bilibili.com/video/BV1My4y1672a/?spm_id_from=333.788.recommend_more_video.9)
 
 
 
-
-
 ## 常用总结
+
 ```lua
 项目布局  
 cloud_demo -- 父工程：定义版本    　　   
@@ -97,8 +24,6 @@ cloud_demo -- 父工程：定义版本    　　
 ```
 
 <br>
-
-
 
 ```bash
 # 注册中心Eureka
@@ -143,11 +68,7 @@ cloud_demo -- 父工程：定义版本    　　
 
 **需要学习的微服务知识**
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/%E5%BE%AE%E6%9C%8D%E5%8A%A11.png)
-
-
-
-
+![](./img/微服务知识1.png)
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211120632882.png)
 
@@ -155,13 +76,11 @@ cloud_demo -- 父工程：定义版本    　　
 
 **学习路径**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211120655865.png)
-
-<br>
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604211759122.png)
 
 **分层次教学**
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211122543190.png)
+![](./img/层次.png)
 
 <br>
 
@@ -182,8 +101,6 @@ cloud_demo -- 父工程：定义版本    　　
 ```
 
 
-
-<br>
 
 ## 一、认识微服务 Microservices
 
@@ -245,9 +162,7 @@ cloud_demo -- 父工程：定义版本    　　
 
 在国内最知名的就是 SpringCloud 和阿里巴巴的Dubbo。
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211125555526.png)
-
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212103519.png)
 
 
 
@@ -363,7 +278,7 @@ public class OrderService {
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211162822962.png)
+![](./img/订单101.png)
 
 
 
@@ -380,20 +295,20 @@ public class OrderService {
 
 
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211164700331.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212316290.png)
 
 
 
 ## 三、Eureka注册中心
 
-### 1、远程调用的问题（一堆问题）
+### 1、远程调用的一堆问题
 
 ```bash
 # 服务消费者该如何获取服务提供者的地址信息？
 
-服务提供者启动时向eureka注册自己的信息
-eureka保存这些信息
-消费者根据服务名称向eureka拉取提供者信息
+服务提供者启动时向eureka【注册】自己的信息
+eureka【保存】这些信息
+消费者根据服务名称向eureka【拉取】提供者信息
 
 # 如果有多个服务提供者，消费者该如何选择？
 
@@ -410,7 +325,7 @@ eureka会更新记录服务列表信息，心跳不正常会被剔除
 
 ### 2、Eureka原理
 
-<img src="https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20211211165752560.png" alt="image-20211211165752560" style="zoom: 40%;" />
+![](./img/Eureka.png)
 
 
 
@@ -432,7 +347,7 @@ eureka会更新记录服务列表信息，心跳不正常会被剔除
 @EnableEurekaServer
 ```
 
-3）添加application.yml文件，配置如下
+3）添加application.yml 配置文件如下
 
 ```yaml
 server:
@@ -588,7 +503,7 @@ ribbon:
 
 Nacos是阿里巴巴的产品，现在是SpringCloud中的一个组件。相比Eureka功能更加丰富，在国内受欢迎程度较高。
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211182315838.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212429180.png)
 
 
 
@@ -633,13 +548,13 @@ spring:
 
 4）启动并测试
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211191456264.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212504175.png)
 
 
 
 ### 3 服务分级存储模型
 
-![image-20211211194746398](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211194746398.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212531533.png)
 
 
 
@@ -651,19 +566,23 @@ spring:
 本地集群不可访问时，再去访问其它集群
 ```
 
-
+​	
 
 #### 3.2 服务集群属性
 
 修改application.yml，添加如下内容：
 
-![image-20211211231019257](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231019257.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212639364.png)
 
 
 
 在Nacos控制台可以看到集群变化：（我们修改user-service集群属性配置，达到下面的效果）
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231239040.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212800713.png)
+
+
+
+
 
 #### 3.3 总结：
 
@@ -683,19 +602,21 @@ spring:
 
 我们希望优先选择HZ集群（8001和8002），进行如下设置：
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212847057.png)
 
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231610325.png)
+
+
 
 > 1）修改order-service中的application.yml，设置集群为HZ：
 >
-> <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231905497.png" alt="image-20211211231905497" style="zoom:33%;" />
+> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212927176.png)
 >
 > 2）然后在order-service中设置负载均衡的IRule为**NacosRule**，这个规则**优先会寻找与自己同集群的服务**：
 >
 > NacosRule负载均衡策略：先本地，然后本地内随机
 >
-> <img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211231930721.png" alt="image-20211211231930721" style="zoom: 33%;" />
+> ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212947383.png)
 
 <br>
 
@@ -715,7 +636,9 @@ Nacos提供了权重配置来控制访问频率，权重越大则访问频率越
 
 在Nacos控制台可以设置实例的权重值，首先选中实例后面的编辑按钮
 
-![image-20211211232908311](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211232908311.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213011741.png)
+
+
 
 将权重设置为0.1，测试可以发现8081被访问到的频率大大降低
 
@@ -754,11 +677,13 @@ Nacos提供了权重配置来控制访问频率，权重越大则访问频率越
 
 **2）然后填写一个新的命名空间信息**
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234013400.png" alt="image-20211211234013400" style="zoom:33%;" />
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213050802.png)
+
+
 
 **3）保存后会在控制台看到这个命名空间的id**
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234038201.png" alt="image-20211211234038201" style="zoom:33%;" />
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213122275.png)
 
 
 
@@ -783,11 +708,15 @@ spring:
 
 **5）重启order-service后，再来查看控制台：**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234615252.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213143564.png)
+
+
+
+
 
 **6）此时访问order-service，因为namespace不同，会导致找不到userservice，控制台会报错：**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211234632036.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213157894.png)
 
 
 
@@ -817,7 +746,7 @@ spring:
 
 
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211211235219524.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213223165.png)
 
 
 
@@ -879,7 +808,11 @@ Nacos集群默认采用AP方式（强调可用性），当集群中存在非临�
 
 在Nacos中添加配置信息
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212094350600.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213312134.png)
+
+
+
+
 
 在弹出表单中填写配置信息
 
@@ -986,15 +919,13 @@ public class PatternProperties {
 
 无论profile如何变化，[spring.application.name].yaml这个文件一定会加载，因此多环境共享配置可以写入这个文件
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212131127779.png" alt="image-20211212131127779" style="zoom:50%;" />
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213341528.png)
 
 
 
 **多种配置的优先级：[服务名]-[环境].yaml >[服务名].yaml > 本地配置**
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212131225553.png" alt="image-20211212131225553" style="zoom:50%;" />
-
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213403879.png)
 
 
 
@@ -1047,9 +978,7 @@ public class PatternProperties {
 
 
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211212132653512.png" alt="image-20211212132653512" style="zoom:33%;" />
-
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213453053.png)
 
 
 
@@ -1412,7 +1341,7 @@ feign接口定义：发http请求的信息写出来就可以
 
 
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213101049566.png" alt="image-20211213101049566" style="zoom:33%;" />
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213539955.png)
 
 
 
@@ -1432,7 +1361,9 @@ feign接口定义：发http请求的信息写出来就可以
 
 2）在order-service的启动类添加注解开启Feign的功能：`@EnableFeignClients`
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213110316047.png" alt="image-20211213110316047" style="zoom: 33%;" />
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213610527.png)
+
+
 
 3）编写Feign客户端
 
@@ -1444,9 +1375,9 @@ feign接口定义：发http请求的信息写出来就可以
 
 #### 方式1：配置文件
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213225807846.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213643002.png)
 
-<br>
+
 
 #### 方式2：java代码方式，需要先声明一个Bean
 
@@ -1535,7 +1466,7 @@ feign:
 
 将FeignClient抽取为独立模块，并且把接口有关的POJO、默认的Feign配置都放到这个模块中，提供给所有消费者使用
 
-![image-20211213232535909](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213232535909.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213727930.png)
 
 
 
@@ -1559,7 +1490,9 @@ feign:
 
 **当定义的FeignClient不在SpringBootApplication的扫描包范围时，这些FeignClient无法使用。有两种方式解决：**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211213233439656.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213819738.png)
+
+
 
 
 
@@ -1719,17 +1652,13 @@ spring:
 
 **GatewayFilter是网关中提供的一种过滤器，可以对进入网关的请求和微服务返回的响应做处理：**
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214002520861.png)
-
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213909646.png)
 
 #### 4.2 过滤器工厂 GatewayFilterFactory
 
 **Spring提供了31种不同的路由过滤器工厂。例如：**
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214002728752.png" alt="image-20211214002728752" style="zoom: 50%;" />
-
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604213941635.png)
 
 #### 4.3 案例：请求添加请求头
 
@@ -1737,7 +1666,9 @@ spring:
 
 实现方式：在gateway中修改application.yml文件，给userservice的路由添加过滤器：
 
-<img src="https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214003315444.png" alt="image-20211214003315444" style="zoom: 33%;" />
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604214009343.png)
+
+
 
 
 
@@ -1757,9 +1688,9 @@ spring:
 >
 > 定义方式是实现 `GlobalFilter`接口。
 
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604214035377.png)
 
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214005424921.png)
 
 
 
@@ -1821,9 +1752,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 
 <br>
 
-![](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214010241143.png)
-
-
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604214102581.png)
 
 
 
@@ -1833,7 +1762,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 
 **请求路由后，会将当前路由过滤器和DefaultFilter、GlobalFilter合并到一个过滤器链（集合）中（设计模式之适配器模式），排序后依次执行每个过滤器**
 
-![image-20211214010849607](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214010849607.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604214128795.png)
 
 
 
@@ -1851,7 +1780,11 @@ GlobalFilter通过实现Ordered接口，或者添加@Order注解来指定order�
 
 > **可以参考下面几个类的源码来查看：**
 
-![image-20211214011320668](https://gitee.com/lemonade19/blog-img/raw/master/img/image-20211214011320668.png)
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604214157147.png)
+
+
+
+
 
 > 路由过滤器、defaultFilter、全局过滤器的执行顺序？
 >
@@ -2165,442 +2098,6 @@ crux:
 ```
 
 
-
-
-
-# 服务异步通信RabbitMQ
-
-
-
-## 初识MQ
-
-### 同步通讯
-
-微服务间基于Feign的调用就属于同步方式，存在一些问题。
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410171419640.png)
-
-
-
-同步调用存在的问题
-
-> 耦合度高，违反开闭原则
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410171452063.png)
-
-
-
-```bash
-# 同步调用的优点：
-时效性较强，可以立即得到结果
-
-# 同步调用的问题：
-耦合度高
-性能和吞吐能力下降
-有额外的资源消耗
-有级联失败问题
-```
-
-
-
-### 异步通讯
-
-异步调用常见实现就是事件驱动模式
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172708529.png)
-
-
-
-<br>
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172743457.png)
-
-
-
-<br>
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172812702.png)
-
-
-
-<br>
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410172834096.png)
-
-
-
-```bash
-# 异步通信的优点：
-耦合度低
-吞吐量提升
-故障隔离
-流量削峰
-
-# 异步通信的缺点：
-依赖于Broker的可靠性、安全性、吞吐能力
-架构复杂了，业务没有明显的流程线，不好追踪管理
-```
-
-
-
-
-
-### MQ常见框架
-
-MQ （MessageQueue），中文是消息队列，字面来看就是存放消息的队列。也就是事件驱动架构中的Broker。
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410173618414.png)
-
-
-
-
-
-## RabbitMQ快速入门
-
-### RabbitMQ概述和安装(可靠性、稳定性、高可用)
-
-RabbitMQ是基于Erlang语言开发的开源消息通信中间件，官网地址：https://www.rabbitmq.com/
-
-可以基于docker安装
-
-
-
-> 各个用户虚拟主机进行隔离
-
-
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410174040438.png)
-
-
-
-```bash
-# RabbitMQ中的几个概念：
-channel：操作MQ的工具
-exchange：路由消息到队列中
-queue：缓存消息
-virtual host：虚拟主机，是对queue、exchange等资源的逻辑分组
-```
-
-
-
-
-
-
-
-### 常见消息模型
-
-MQ的官方文档中给出了5个MQ的Demo示例，对应了几种不同的用法：
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410174623504.png)
-
-
-
-> 前两种不是完整的消息驱动模型
-
-
-
-### 快速入门 HelloWorld案例
-
-官方的HelloWorld是基于最基础的消息队列模型来实现的，只包括三个角色：
-
-- publisher：消息发布者，将消息发送到队列queue
-- queue：消息队列，负责接受并缓存消息
-- consumer：订阅队列，处理队列中的消息
-
-
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410175654089.png)
-
-
-
-实现步骤：
-
-- 导入课前资料中的demo工程
-- 运行publisher服务中的测试类PublisherTest中的测试方法testSendMessage()
-- 查看RabbitMQ控制台的消息
-- 启动consumer服务，查看是否能接收消息
-
-
-
-<br>
-
-```bash
-# 基本消息队列的消息发送流程：
-建立connection
-创建channel
-利用channel声明队列
-利用channel向队列发送消息
-
-# 基本消息队列的消息接收流程：
-建立connection
-创建channel
-利用channel声明队列
-定义consumer的消费行为handleDelivery()
-利用channel将消费者与队列绑定
-```
-
-
-
-
-
-## SpringAMQP
-
-
-
-SpringAmqp的官方地址：https://spring.io/projects/spring-amqp
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181100816.png?w=600)
-
-
-
-### Basic Queue 简单队列模型
-
-#### 利用SpringAMQP实现HelloWorld中的基础消息队列功能
-
-流程如下：
-
-步骤1：在父工程中引入spring-amqp的依赖
-
-> 因为publisher和consumer服务都需要amqp依赖，因此这里把依赖直接放到父工程mq-demo中
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181536945.png)
-
-
-
-<br>
-
-步骤2：在publisher服务中利用RabbitTemplate发送消息到simple.queue这个队列（使用很优雅）
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181655809.png)
-
-<br>
-
-在consumer服务中编写消费逻辑，绑定simple.queue这个队列
-
-![image-20220410181751954](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410181751954.png)
-
-
-
-```bash
-# 什么是AMQP？
-应用间消息通信的一种协议，与语言和平台无关。
-
-# SpringAMQP如何发送消息？
-引入amqp的starter依赖
-配置RabbitMQ地址
-利用RabbitTemplate的convertAndSend方法
-
-# SpringAMQP如何接收消息？
-引入amqp的starter依赖
-yml配置RabbitMQ地址
-定义类，添加@Component注解
-类中声明方法，添加@RabbitListener注解，方法参数就是消息
-注意：消息一旦消费就会从队列删除，RabbitMQ没有消息回溯功能
-```
-
-
-
-
-
-### Work Queue 工作队列模型
-
-Work queue，工作队列，可以提高消息处理速度，避免队列消息堆积
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184405468.png)
-
-#### 模拟WorkQueue，实现一个队列绑定多个消费者
-
-```bash
-基本思路如下：
-在publisher服务中定义测试方法，每秒产生50条消息，发送到simple.queue
-在consumer服务中定义两个消息监听者，都监听simple.queue队列
-消费者1每秒处理50条消息，消费者2每秒处理10条消息
-```
-
-
-
-步骤1：生产者循环发送消息到simple.queue
-
-在publisher服务中添加一个测试方法，循环发送50条消息到simple.queue队列
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184817475.png)
-
-<br>
-
-步骤2：编写两个消费者，都监听simple.queue
-
-在consumer服务中添加一个消费者，也监听simple.queue：
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184908534.png?w=600)
-
-
-
-#### 消费预取限制
-
-修改application.yml文件，设置preFetch这个值，可以控制预取消息的上限：
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410184948736.png)
-
-
-
-<br>
-
-```bash
-Work模型的使用：
-多个消费者绑定到一个队列，同一条消息只会被一个消费者处理
-通过设置prefetch来控制消费者预取的消息数量
-```
-
-
-
-### 发布、订阅模型-Fanout
-
-发布订阅模式与之前案例的区别就是允许将同一消息发送给多个消费者。实现方式是加入了exchange（交换机）。
-
-<br>
-
-常见exchange类型包括：
-
-- Fanout：广播
-- Direct：路由
-- Topic：话题
-
-
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410185817593.png)
-
-注意：exchange负责消息路由，而不是存储，路由失败则消息丢失
-
-<hr>
-
-
-
-Fanout Exchange 会将接收到的消息广播到每一个跟其绑定的queue
-
-![image-20220410194230317](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410194230317.png)
-
-#### 利用SpringAMQP演示FanoutExchange的使用
-
-```bash
-# 实现思路如下：
-在consumer服务中，利用代码声明队列、交换机，并将两者绑定
-在consumer服务中，编写两个消费者方法，分别监听fanout.queue1和fanout.queue2
-在publisher中编写测试方法，向itcast.fanout发送消息
-```
-
-
-
-步骤1：在consumer服务声明Exchange、Queue、Binding
-
-SpringAMQP提供了声明交换机、队列、绑定关系的API，例如：
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410195551662.png)
-
-
-
-<br>
-
-在consumer服务创建一个类，添加@Configuration注解，并声明FanoutExchange、Queue和绑定关系对象Binding，代码如下：
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410191341735.png?w=600)
-
-
-
-步骤2：在consumer服务声明两个消费者 
-
-在consumer服务的SpringRabbitListener类中，添加两个方法，分别监听fanout.queue1和fanout.queue2：
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410191411663.png)
-
-
-
-步骤3：在publisher服务发送消息到FanoutExchange
-
-在publisher服务的SpringAmqpTest类中添加测试方法：
-
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410195722519.png)
-
-
-
-<br>
-
-```bash
-# 交换机的作用是什么？
-接收publisher发送的消息
-将消息按照规则路由到与之绑定的队列
-不能缓存消息，路由失败，消息丢失
-FanoutExchange的会将消息路由到每个绑定的队列
-
-# 声明队列、交换机、绑定关系的Bean是什么？
-Queue
-FanoutExchange
-Binding
-```
-
-
-
-### 发布、订阅模型-Direct
-
-```bash
-# Direct Exchange 会将接收到的消息根据规则路由到指定的Queue，因此称为路由模式（routes）。
-每一个Queue都与Exchange设置一个BindingKey
-发布者发送消息时，指定消息的RoutingKey
-Exchange将消息路由到BindingKey与消息RoutingKey一致的队列
-```
-
-#### 利用SpringAMQP演示DirectExchange的使用
-
-
-
-
-
-```bash
-# 描述下Direct交换机与Fanout交换机的差异？
-Fanout交换机将消息路由给每一个与之绑定的队列
-Direct交换机根据RoutingKey判断路由给哪个队列
-如果多个队列具有相同的RoutingKey，则与Fanout功能类似
-
-# 基于@RabbitListener注解声明队列和交换机有哪些常见注解？
-@Queue
-@Exchange
-```
-
-
-
-
-
-### 发布、订阅模型-Topic消息转换器
-
-```bash
-TopicExchange与DirectExchange类似，区别在于routingKey必须是多个单词的列表，并且以 . 分割。
-Queue与Exchange指定BindingKey时可以使用通配符：
-#：代指0个或多个单词
-*：代指一个单词
-```
-
-
-
-> china.news 代表有中国的新闻消息；
->
-> china.weather 代表中国的天气消息；
->
-> japan.news 则代表日本新闻
->
-> japan.weather 代表日本的天气消息；
-
-
-
-
-
-
-
-
-
-```bash
-# SpringAMQP中消息的序列化和反序列化是怎么实现的？
-利用MessageConverter实现的，默认是JDK的序列化
-注意发送方与接收方必须使用相同的MessageConverter
-```
 
 
 
