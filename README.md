@@ -42,7 +42,7 @@
 
 ### 推荐
 
-- [尚硅谷Java入门基础视频 717P]()
+- [尚硅谷Java入门基础视频 717P](https://www.bilibili.com/video/BV1Kb411W75N)
 
 
 
@@ -84,6 +84,8 @@
 并发
 ```
 
+- [尚硅谷宋红康JVM全套教程（详解java虚拟机）](https://www.bilibili.com/video/BV1PJ411n7xZ?p=94)
+
 
 
 
@@ -121,6 +123,14 @@
 ## 三、分布式&微服务
 
 
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212103519.png)
+
+
+
+<br>
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410173618414-20220605220546223.png)
 
 
 
