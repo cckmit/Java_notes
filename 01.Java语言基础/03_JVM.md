@@ -392,9 +392,48 @@ PC寄存器用来存储指向下一条指令的地址
 
 Java 虚拟机规范允许 **Java栈的大小是动态的或者是固定不变的**。
 
+- 如果采用固定大小的Java虚拟机栈，那每一个线程的Java虚拟机栈容量可以在线程创建的时候独立选定。如果线程请求分配的栈容量超过Java虚拟机栈允许的最大容量，Java虚拟机将会抛出一个**StackOverflowError** 异常。 
+
+- 如果Java虚拟机栈可以动态扩展，并且在尝试扩展的时候无法申请到足够的内存，或者在创建新的线程时没有足够的内存去创建对应的虚拟机栈，那Java虚拟机将会抛出一个 **OutOfMemoryError** 异常。 
+
+```java
+public static void main(String[] args) {
+    test();
+}
+public static void test() {
+    test();
+}
+//抛出异常：Exception in thread"main"java.lang.StackoverflowError
+//程序不断的进行递归调用，而且没有退出条件，就会导致不断地进行压栈。
+```
+
+<br>
+
+
+
 **设置栈内存大小**
 
 我们可以使用参数 -Xss选项来设置线程的最大栈空间，栈的大小直接决定了函数调用的最大可达深度
+
+```java
+public class StackDeepTest{ 
+    private static int count=0; 
+  
+    public static void recursion(){
+        count++; 
+        recursion(); 
+    }
+  
+    public static void main(String args[]){
+        try{
+            recursion();
+        } catch (Throwable e){
+            System.out.println("deep of calling="+count); 
+            e.printstackTrace();
+        }
+    }
+}
+```
 
 
 
