@@ -3402,16 +3402,6 @@ Stream API ( java.util.stream) 把真正的函数式编程风格引入到Java中
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220416133720717.png)
 
-
-
-
-
-
-
-
-
-stream把list转map
-
 ### Stream 的实现原理
 
 jdk的stream源码是高度工程化的代码，工程化的代码为了效率和满足各式各样的需求，会将代码实现的极其复杂，不易理解。
