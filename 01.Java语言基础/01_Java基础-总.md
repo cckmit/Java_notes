@@ -35,7 +35,9 @@
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220425235130232.png)
 
-<br>
+
+
+
 
 ## 2 标识符
 
@@ -909,7 +911,7 @@ static代码块通常用于初始化static的属性
 
 
 
-## 3 面向对象特征1：封装和隐藏
+## 3 面向对象特征1：封装和隐藏（好处是什么？需要补充）
 
 我们程序设计追求“高内聚，低耦合”。
 
@@ -1008,7 +1010,7 @@ public class Student extends People {
 
 
 
-### 作用
+### 作用（复用、扩展、多态前提）
 
 - 减少了代码冗余，提高了代码的复用性。
 - 更有利于功能的扩展。子类更强大。
@@ -1676,7 +1678,7 @@ public abstract void talk();
 
 接口(interface)是**抽象方法**和**常量值**定义的集合。
 
-定义Java类的语法格式：先写extends，后写implements
+定义Java类的语法格式：先写 `extends`，后写 `implements`
 
 接口的主要用途就是被实现类实现。（面向接口编程）
 
