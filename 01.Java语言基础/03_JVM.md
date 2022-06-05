@@ -16,6 +16,10 @@
 
 《offer 来了》
 
+### 博客
+
+[宋红康JVM语雀笔记📒](https://www.yuque.com/u21195183/jvm/lep6m9)
+
 
 
 ## 总结（核心点简述）
@@ -515,21 +519,476 @@ public class CurrentFrameTest{
 
 
 
+#### 静态变量与局部变量的对比
+
+我们知道类变量表有两次初始化的机会，第一次是在“准备阶段”，执行系统初始化，对类变量设置零值，另一次则是在“初始化”阶段，赋予程序员在代码中定义的初始值。
+
+和类变量初始化不同的是，局部变量表不存在系统初始化的过程，这意味着一旦定义了局部变量则必须人为的初始化，否则无法使用。
+
+```java
+public void test(){
+    int i;
+    System. out. println(i);
+}
+```
+
+这样的代码是错误的，没有赋值不能够使用。
+
+
+
+#### 补充说明
+
+在栈帧中，与性能调优关系最为密切的部分就是前面提到的局部变量表。在方法执行时，虚拟机使用局部变量表完成方法的传递。
+
+**局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或间接引用的对象都不会被回收。**
+
 
 
 ### 4.4 操作数栈（Operand Stack）
 
+每一个独立的栈帧除了包含局部变量表以外，还包含一个后进先出（Last-In-First-Out）的 操作数栈，也可以称之为表达式栈（Expression Stack）
 
+操作数栈，在方法执行过程中，根据字节码指令，往栈中写入数据或提取数据，即入栈（push）和 出栈（pop）
+
+- 某些字节码指令将值压入操作数栈，其余的字节码指令将操作数取出栈。使用它们后再把结果压入栈
+- 比如：执行复制、交换、求和等操作
+
+
+
+### 4.5 代码追踪
+
+代码
+
+```java
+public void testAddOperation(){
+    byte i = 15; 
+    int j = 8; 
+    int k = i + j;
+}
+```
+
+字节码指令信息
+
+> 使用javap 命令反编译class文件：`javap -v 类名.class`
+
+```shell
+public void testAddOperation(); 
+    Code:
+    0: bipush 15
+    2: istore_1 
+    3: bipush 8
+    5: istore_2 
+    6:iload_1 
+    7:iload_2 
+    8:iadd
+    9:istore_3 
+    10:return
+```
+
+操作数栈，主要用于保存计算过程的中间结果，同时作为计算过程中变量临时的存储空间。
+
+
+
+### 栈的相关面试题
+
+- 举例栈溢出的情况？（StackOverflowError） 
+  -   通过 -Xss设置栈的大小
+
+- 调整栈大小，就能保证不出现溢出么？
+  -   不能保证不溢出
+
+- 分配的栈内存越大越好么？
+  -   不是，一定时间内降低了OOM概率，但是会挤占其它的线程空间，因为整个空间是有限的。
+
+- 垃圾回收是否涉及到虚拟机栈？ 
+  - 不会
+- 方法中定义的局部变量是否线程安全？
+  -   具体问题具体分析。如果对象是在内部产生，并在内部消亡，没有返回到外部，那么它就是线程安全的，反之则是线程不安全的。
+
+| 运行时数据区 | 是否存在Error | 是否存在GC |
+| ------------ | ------------- | ---------- |
+| 程序计数器   | 否            | 否         |
+| 虚拟机栈     | 是（SOE）     | 否         |
+| 本地方法栈   | 是            | 否         |
+| 方法区       | 是（OOM）     | 是         |
+| 堆           | 是            | 是         |
 
 
 
 ## 5 本地方法接口和本地方法栈
 
+本地接口的作用是融合不同的编程语言为Java所用，它的初衷是融合C/C++程序。
 
 
-## 6 堆 ⭐️⭐️⭐️⭐️⭐️
 
-## 7 方法区
+### 5.2 本地方法栈（线程私有）
+
+**Java虚拟机栈于管理Java方法的调用，而本地方法栈用于管理本地方法的调用。**
+
+本地方法是使用C语言实现的。
+
+它的具体做法是Native Method Stack中登记native方法，在Execution Engine 执行时加载本地方法库。
+
+<br>
+
+在Hotspot JVM中，直接将本地方法栈和虚拟机栈合二为一。
+
+## 6 堆 Heap⭐️⭐️⭐️⭐️⭐️
+
+### 6.1 核心概述
+
+- 一个JVM实例只存在一个堆内存，堆也是Java内存管理的核心区域。
+
+- Java 堆区在JVM启动的时候即被创建，其空间大小也就确定了。是JVM管理的**最大一块内存空间**。
+
+- 堆是GC（Garbage Collection，垃圾收集器）**执行垃圾回收的重点区域**。
+
+
+
+#### 堆内存细分
+
+Java 7及之前堆内存逻辑上分为三部分：新生区 + 养老区 + **永久区**
+
+- Young Generation Space 新生区 Young/New 
+  - 又被划分为Eden区和Survivor区
+
+- Tenure generation space 养老区 Old/Tenure
+
+- Permanent Space 永久区 Perm
+
+<br>
+
+Java 8及之后堆内存逻辑上分为三部分：新生区 + 养老区 + **元空间**
+
+- Young Generation Space 新生区 Young/New 
+  - 又被划分为Eden区和Survivor区
+
+- Tenure generation space 养老区 Old/Tenure
+
+- Meta Space 元空间 Meta
+
+约定：新生区（代）<=>年轻代 、 养老区<=>老年区（代）、 永久区<=>永久代
+
+
+
+
+
+### 6.2 设置堆内存大小与OOM
+
+#### 堆空间大小设置
+
+Java堆区用于存储Java对象实例，堆的大小在JVM启动时就已经设定好了，大家可以通过选项"-Xmx"和"-Xms"来进行设置。
+
+通常会将-Xms和-Xmx两个参数配置相同的值，其目的是**为了能够在 Java垃圾回收机制清理完堆区后不需要重新分隔计算堆区的大小，从而提高性能**。
+
+默认情况下
+
+- 初始内存大小：物理电脑内存大小 / 64
+
+- 最大内存大小：物理电脑内存大小 / 4
+
+
+
+```java
+public class HeapTest {
+    public static void main(String[] args) {
+        // Java虚拟机中的堆内存容量
+        long initialMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+        // Java虚拟机中的最大堆内存容量
+        long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+
+        System.out.println("-Xms: " + initialMemory + "M");
+        System.out.println("-Xmx: " + maxMemory + "M");
+    }
+}
+```
+
+查看设置的参数
+
+- 方式1：jps / jstat -gc 进程id
+- 方式2：-XX:+PrintFCDetails
+
+#### OutOfMemory举例
+
+```java
+public class OOMTest {
+    public static void main(String[]args){
+        ArrayList<Picture> list = new ArrayList<>();
+        while(true){
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+            list.add(new Picture(new Random().nextInt(1024*1024)));
+        }
+    }
+}
+```
+
+打印结果
+
+```java
+Exception in thread "main" java.lang.OutofMemoryError: Java heap space
+    at com.atguigu. java.Picture.<init>(OOMTest. java:25)
+    at com.atguigu.java.O0MTest.main(OOMTest.java:16)
+```
+
+
+
+### 6.3 年轻代与老年代
+
+存储在JVM中的Java对象可以被划分为两类：
+
+- 一类是生命周期较短的瞬时对象，这类对象的创建和消亡都非常迅速
+
+- 另外一类对象的生命周期却非常长，在某些极端的情况下还能够与JVM的生命周期保持一致
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220605185004793.png)
+
+- 默认`-XX:NewRatio=2`，表示新生代占1，老年代占2，新生代占整个堆的1/3
+
+<br>
+
+**几乎所有的 Java对象都是在Eden区被new出来的**。绝大部分的Java对象的销毁都在新生代进行了。
+
+
+
+### 6.4 图解对象分配过程
+
+```bash
+1.  new的对象先放伊甸园区。此区有大小限制。 
+2.  当伊甸园的空间填满时，程序又需要创建对象，JVM的垃圾回收器将对伊甸园区进行垃圾回收（MinorGC），将伊甸园区中的不再被其他对象所引用的对象进行销毁。再加载新的对象放到伊甸园区。 
+3.  然后将伊甸园中的剩余对象移动到幸存者0区。 
+4.  如果再次触发垃圾回收，此时上次幸存下来的放到幸存者0区的，如果没有回收，就会放到幸存者1区。 
+5.  如果再次经历垃圾回收，此时会重新放回幸存者0区，接着再去幸存者1区。 
+
+6.  啥时候能去养老区呢？可以设置次数。默认是15次。 
+  ○ 可以设置参数：进行设置-Xx:MaxTenuringThreshold= N
+7.  在养老区，相对悠闲。当养老区内存不足时，再次触发GC：Major GC，进行养老区的内存清理 
+8.  若养老区执行了Major GC之后，发现依然无法进行对象的保存，就会产生OOM异常。 
+```
+
+
+
+![img](./img/gc.png)
+
+- 伊甸园区的对象先往to区放（空的）
+
+- 年龄计数器达到15晋升老年代
+
+- 总结
+  - 针对幸存者s0，s1区的总结：复制之后有交换，谁空谁是to
+  - 关于垃圾回收：频繁在新生区收集，很少在老年代收集，几乎不再永久代和元空间进行收集
+
+
+
+流程图
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220605193658143.png)
+
+
+
+**常用调优工具（在JVM下篇：性能监控与调优篇会详细介绍）**
+
+- JDK命令行
+
+- Eclipse:Memory Analyzer Tool
+
+- Jconsole
+
+- VisualVM
+
+- Jprofiler
+
+- Java Flight Recorder
+
+- GCViewer
+
+- GC Easy
+
+
+
+### 6.5 Minor GC、MajorGC、Full GC
+
+JVM在进行GC时，并非每次都对上面三个内存区域一起回收的，大部分时候回收的都是指新生代。
+
+针对Hotspot VM的实现，它里面的GC按照回收区域又分为两大种类型：一种是部分收集（Partial GC），一种是整堆收集（FullGC）
+
+- 部分收集：不是完整收集整个Java堆的垃圾收集。其中又分为： 
+
+- - 新生代收集（Minor GC / Young GC）：只是新生代的垃圾收集
+
+- - 老年代收集（Major GC / Old GC）：只是老年代的圾收集。 
+
+- - - 目前，只有CMSGC会有单独收集老年代的行为。
+
+- - - 注意，很多时候Major GC会和Full GC混淆使用，需要具体分辨是老年代回收还是整堆回收。
+
+- - 混合收集（MixedGC）：收集整个新生代以及部分老年代的垃圾收集。 
+
+- - - 目前，只有G1 GC会有这种行为
+
+- 整堆收集（Full GC）：收集整个java堆和方法区的垃圾收集。
+
+
+
+### 6.6 堆空间分代思想
+
+分代的唯一理由就是优化GC性能。
+
+如果没有分代，GC的时候要找到哪些对象没用，就会对堆的所有区域进行扫描。而很多对象都是朝生夕死的，如果分代的话，把新创建的对象放到某一地方，当GC的时候先把这块存储“朝生夕死”对象的区域进行回收，这样就会腾出很大的空间出来。
+
+
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220605195432976.png)
+
+
+
+### 6.7 内存分配策略
+
+针对不同年龄段的对象分配原则如下所示：
+
+- 优先分配到Eden
+
+- 大对象直接分配到老年代（尽量避免程序中出现过多的大对象）
+
+- 长期存活的对象分配到老年代
+
+- 动态对象年龄判断：如果survivor区中相同年龄的所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象可以直接进入老年代，无须等到`MaxTenuringThreshold`中要求的年龄。
+
+- 空间分配担保： `-XX:HandlePromotionFailure`
+
+### 6.8 为对象分配内存：TLAB
+
+
+
+### 6.9 小结：堆空间的参数设置
+
+```java
+// 详细的参数内容会在JVM下篇：性能监控与调优篇中进行详细介绍，这里先熟悉下
+-XX:+PrintFlagsInitial  //查看所有的参数的默认初始值
+-XX:+PrintFlagsFinal  //查看所有的参数的最终值（可能会存在修改，不再是初始值）
+-Xms  //初始堆空间内存（默认为物理内存的1/64）
+-Xmx  //最大堆空间内存（默认为物理内存的1/4）
+-Xmn  //设置新生代的大小。（初始值及最大值）
+-XX:NewRatio  //配置新生代与老年代在堆结构的占比
+-XX:SurvivorRatio  //设置新生代中Eden和S0/S1空间的比例
+-XX:MaxTenuringThreshold  //设置新生代垃圾的最大年龄
+-XX:+PrintGCDetails //输出详细的GC处理日志
+//打印gc简要信息：①-Xx：+PrintGC ② - verbose:gc
+-XX:HandlePromotionFalilure：//是否设置空间分配担保
+```
+
+
+
+
+
+
+
+### 堆是分配对象的唯一选择么？
+
+在Java虚拟机中，对象是在Java堆中分配内存的，这是一个普遍的常识。
+
+但是，有一种特殊情况，那就是如果经过逃逸分析（Escape Analysis）后发现，一个对象并没有逃逸出方法的话，那么就可能被优化成栈上分配。这样就无需在堆上分配内存，也无须进行垃圾回收了。这也是最常见的堆外存储技术。
+
+
+
+
+
+
+
+## 7 方法区⭐️⭐️⭐️⭐️⭐️
+
+### 7.1 栈、堆、方法区的交互关系
+
+
+
+
+
+
+
+
+
+
+
+### 7.2 方法区的理解
+
+### 7.3 设置方法区大小与OOM
+
+### 7.4 方法区的内部结构
+
+### 7.5 方法区使用举例
+
+
+
+
+
+### 7.6 方法区的演进细节
+
+
+
+### 7.7 方法区的垃圾回收
+
+
+
+
+
+### 总结
+
+
+
+
+
+### 面试题 🎈
+
+#### 百度：说一下JVM内存模型吧，有哪些区？分别干什么的？
+
+
+
+#### 蚂蚁金服：Java8的内存分代改进 JVM内存分哪几个区，每个区的作用是什么？
+
+一面：JVM内存分布/内存结构？栈和堆的区别？堆的结构？为什么两个survivor区？
+
+
+
+二面：Eden和survior的比例分配
+
+#### 小米：jvm内存分区，为什么要有新生代和老年代
+
+
+
+#### 字节跳动
+
+一面：Java的内存分区
+
+
+
+二面：讲讲 jvm运行时数据库区 什么时候对象会进入老年代？
+
+#### 京东
+
+JVM的内存结构，Eden和Survivor比例。
+
+ 
+
+JVM内存为什么要分成新生代，老年代，持久代。
+
+ 
+
+新生代中为什么要分为Eden和survivor
+
+
+
+
+
+
+
+
+
+
 
 
 
