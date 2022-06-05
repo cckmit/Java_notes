@@ -124,13 +124,13 @@
 
 
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220604212103519.png)
+![](./img/微服务对比.png)
 
 
 
 <br>
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220410173618414-20220605220546223.png)
+![](./img/mq对比.png)
 
 
 
