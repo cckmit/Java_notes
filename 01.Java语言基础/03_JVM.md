@@ -773,7 +773,7 @@ Exception in thread "main" java.lang.OutofMemoryError: Java heap space
 
 
 
-![img](./img/gc.png)
+![](./img/GC.png)
 
 - 伊甸园区的对象先往to区放（空的）
 
