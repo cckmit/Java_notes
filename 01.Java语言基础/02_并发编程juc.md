@@ -1003,8 +1003,55 @@ class X {
 - 那 synchronized 里的加锁 lock() 和解锁 unlock() 锁定的对象在哪里呢？
   - 我们看到只有修饰代码块的时候，锁定了一个 obj 对象
   - 那修饰方法的时候锁定的是什么呢？这个也是 Java 的一条隐式规则
-    - 当修饰静态方法的时候，锁定的是当前类的 Class 对象，在上面的例子中就是 Class X；
-    - 当修饰非静态方法的时候，锁定的是当前实例对象 this。
+    - 当修饰静态方法的时候，锁定的是**当前类的 Class 对象**，在上面的例子中就是 Class X；
+    - 当修饰非静态方法的时候，锁定的是**当前实例对象 this**。
+
+对于上面的例子，synchronized 修饰静态方法相当于:
+
+```java
+class X {
+  // 修饰静态方法
+  synchronized(X.class) static void bar() {
+    // 临界区
+  }
+}
+```
+
+修饰非静态方法，相当于：
+
+```java
+class X {
+  // 修饰非静态方法
+  synchronized(this) void foo() {
+    // 临界区
+  }
+}
+```
+
+#### （4）用 synchronized 解决 count+=1 问题
+
+针对前面文章中提到过的 count+=1 存在的并发问题，现在我们可以尝试用 synchronized 来小试牛刀一把。
+
+
+
+```java
+class SafeCalc {
+  long value = 0L;
+  long get() {
+    return value;
+  }
+  
+  synchronized void addOne() {
+    value += 1;
+  }
+}
+```
+
+- 我们使用的这两个方法有没有并发问题呢？
+  - 我们先来看看 addOne() 方法，首先可以肯定，被 synchronized 修饰后，无论是单核 CPU 还是多核 CPU，只有一个线程能够执行 addOne() 方法，所以一定能保证原子操作。
+- 那是否有可见性问题呢？
+  - 综合 Happens-Before 的传递性原则，我们就能得出前一个线程在临界区修改的共享变量（该操作在解锁之前），对后续进入临界区（该操作在加锁之后）的线程是可见的。
+  - 按照这个规则，如果多个线程同时执行 addOne() 方法，可见性是可以保证的，也就说如果有 1000 个线程执行 addOne() 方法，最终结果一定是 value 的值增加了 1000。看到这个结果，我们长出一口气，问题终于解决了。
 
 
 
