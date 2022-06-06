@@ -1855,7 +1855,7 @@ public abstract class Person
 
 ## 2 常见异常
 
-Exception异常中主要包含IOException与 RuntimeException，并不只是这两种，只是这两种占比较大。
+Exception异常主要包含 IOException与 RuntimeException，并不只是这两种，只是这两种占比较大。
 
 -  java.lang.RuntimeException
    - ClassCastException
@@ -1868,7 +1868,7 @@ Exception异常中主要包含IOException与 RuntimeException，并不只是这�
 -  java.io.IOExeption
    - FileNotFoundException
    - EOFException
-   - java.lang.ClassN
+   - java.lang.ClassNotFound
 
 <br>
 
