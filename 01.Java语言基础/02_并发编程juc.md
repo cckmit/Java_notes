@@ -158,7 +158,7 @@ class MyCallable33 implements Callable<String>{
 
 
 
-ThreadPoolExecutor 是构建线程的核心方法，定义如下
+ThreadPoolExecutor 是构建线程池的核心方法，定义如下
 
 ```java
 // ThreadPoolExecutor 的构造方法
@@ -189,7 +189,21 @@ public ThreadPoolExecutor(int corePoolSize,
 
 
 
+
+
+
+
+
+
 ### 线程池的拒绝策略
+
+
+
+
+
+
+
+
 
 # 3 5种常用的线程池
 
@@ -1022,13 +1036,17 @@ AtomicInteger 为 提供原子操作的 Integer 的 类 ， 常 见的原子操�
 
 
 
+# 8 线程上下文切换
+
+# 9 Java阻塞队列
 
 
 
 
 
 
-# Java并发关键字
+
+# 10 Java并发关键字 ⭐️
 
 ## CountDownLatch
 
@@ -1040,7 +1058,23 @@ AtomicInteger 为 提供原子操作的 Integer 的 类 ， 常 见的原子操�
 
 
 
-# 进程调度算法
+
+
+
+
+
+
+
+
+# 11 多线程如何共享数据
+
+# 12 ConcurrentHashMap并发（JDK 1.7及之前的版本）
+
+# 13 Java中的线程调度
+
+
+
+# 14 进程调度算法
 
 ## 优先调度算法
 
@@ -1052,9 +1086,11 @@ AtomicInteger 为 提供原子操作的 Integer 的 类 ， 常 见的原子操�
 
 
 
-# 什么是CAS
+# 15 什么是CAS
 
-# 什么是AQS
+# 16 ABA问题
+
+# 17 什么是AQS
 
 AQS（Abstract Queued Synchronizer）是一个抽象的队列同步器，通过维护一个共享资源状态 （Volatile Int State）和一个先进先出（FIFO）的线程等待队列来实现一个多线程访问共享资源的同步框架。
 
