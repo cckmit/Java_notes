@@ -1075,6 +1075,17 @@ public Manager(String name, double salary, int year, int month, int day)
 
 
 
+### 受保护访问（4个访问控制修饰符）
+
+- 仅本类可见——private
+- 对外部完全可见——public
+- 对本包和所有子类可见——protected
+- 对本包可见——默认，不需要修饰符
+
+
+
+
+
 ### 作用（复用、扩展、多态前提）
 
 - 减少了代码冗余，提高了代码的复用性。
@@ -1132,7 +1143,7 @@ staff[0] = boss;
 
 
 
-## 9 Object类（所有Java类的根父类）的使用
+## 9 Object类（所有Java类的根父类）
 
 | NO.  | 方法名称                          | 类型 | 描述           |
 | ---- | --------------------------------- | ---- | -------------- |
@@ -1140,6 +1151,39 @@ staff[0] = boss;
 | 2    | public boolean equals(Object obj) | 普通 | 对象比较       |
 | 3    | public int hashCode()             | 普通 | 取得Hash码     |
 | 4    | public String toString()          | 普通 | 对象打印时调用 |
+
+
+
+### Object类型的变量
+
+- 可以使用Object 类型的变量引用任何类型的对象
+  - Java 中只有基本类型不是对象，如数值、字符和布尔类型的值
+  - 所有的数组，不管是对象数组还是基本类型的数组都扩展了Object 类
+
+
+
+### equals方法
+
+
+
+```java
+# java.util.Arrays
+// 如果两个数组长度相同，并且在对应位置上数据元素也相同，将返回 true  
+static boolean equals(xxx[] a, xxx[] b)  
+  
+# java.util.Objects
+// a和b都为null返回true,其中之一为null返回false,否则返回a.equals(b)
+static boolean equals(Object a, Object b)  
+```
+
+
+
+### toString方法
+
+- 返回表示对象的一个字符串。
+- 数组继承了Object类的toString方法，建议使用静态方法 Arrays.toString 打印字符串。多维数组则调用Arrays.deepToString
+
+- 建议为自定义的每一个类添加 toString 方法
 
 
 
@@ -1708,9 +1752,7 @@ public abstract class Person
 
 
 
-- 抽象类体现的是模板模式（TemplateMethod）的设计，抽象类作为多个子类的通用模板，子类在抽象类的基础上进行扩展、改
-
-造，但子类总体上会保留抽象类的行为方式。
+- 抽象类体现的是模板模式（TemplateMethod）的设计，抽象类作为多个子类的通用模板，子类在抽象类的基础上进行扩展、改造，但子类总体上会保留抽象类的行为方式。
 
 <br>
 
@@ -1720,7 +1762,7 @@ public abstract class Person
 - Junit单元测试
 - JavaWeb的Servlet中关于doGet/doPost方法调用
 - Hibernate中模板程序
-- Spring中JDBCTemlate、HibernateTemplate等
+- Spring中 JDBCTemlate、HibernateTemplate等
 
 
 
@@ -1796,38 +1838,24 @@ public abstract class Person
 
 ## 1 异常概述与异常体系结构（Throwable 顶级父类）
 
-Java程序在执行过程中所发生的异常事件可分为两类：
-
-- **Error**：Java虚拟机无法解决的严重问题。如：JVM系统内部错误、资源耗尽等严重情况。
-  - 比如：StackOverflowError和OOM。一般不编写针对性的代码进行处理。
-
-- **Exception**: 其它因编程错误或偶然的外在因素导致的一般性问题，可以使用针对性的代码进行处理。
-
-<br>
-
-运行时异常
-
-- 是指编译器不要求强制处置的异常。一般是指编程时的逻辑错误，是程序员应该积极避免其出现的异常。
-
-- **java.lang.RuntimeException**类及它的子类都是运行时异常。
-
-- 对于这类异常，可以不作处理，因为这类异常很普遍，若全处理可能会对程序的可读性和运行效率产生影响。
+- Throwable 顶级父类
+  - **Error**（Java虚拟机无法解决的严重问题，如 StackOverflowError 和 OOM）
+  - Exception（可以使用针对性的代码进行处理）
+    - **RuntimeException**（运行时异常，程序员应积极避免）
+    - 受检异常（编译器要求必须处置的异常）
 
 
 
-编译时异常（必须处置）
-
-- 是指编译器要求必须处置的异常。即程序在运行时由于外界因素造成的一般性异常。编译器要求Java程序必须捕获或声明所有编译时异常。
-
-- 对于这类异常，如果程序不处理，可能会带来意想不到的结果。
-
-
+- 异常可分为受检异常与非受检异常（Error 和 RuntimeException类及其子类 ）
+  - RuntimeException是非受检异常的子集
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220414205421838.png)
 
 
 
 ## 2 常见异常
+
+Exception异常中主要包含IOException与 RuntimeException，并不只是这两种，只是这两种占比较大。
 
 -  java.lang.RuntimeException
    - ClassCastException
@@ -1842,7 +1870,7 @@ Java程序在执行过程中所发生的异常事件可分为两类：
    - EOFException
    - java.lang.ClassN
 
-
+<br>
 
 - java.lang.ClassNotFoundException
 - java.lang.InterruptedException 
@@ -1915,16 +1943,6 @@ throw new String("want to throw");
 自定义的异常通过**throw抛出**。
 
 自定义异常最重要的是异常类的名字，当异常出现时，可以根据名字判断异常类型。
-
-
-
-
-
-
-
-
-
-
 
 
 
