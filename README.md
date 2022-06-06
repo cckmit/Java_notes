@@ -105,7 +105,11 @@
 
 - [尚硅谷宋红康JVM全套教程（详解java虚拟机）](https://www.bilibili.com/video/BV1PJ411n7xZ?p=94)
 
-
+```bash
+# 内存与垃圾回收篇
+# 字节码与类的加载篇
+# 性能监控与调优篇
+```
 
 
 
