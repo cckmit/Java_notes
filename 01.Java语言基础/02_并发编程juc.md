@@ -1750,9 +1750,24 @@ ReentrantLock不但提供了synchronized对锁的操作功能，还提供了诸�
 
 ### ReentrantLock用法
 
-ReentrantLock有显式的操作过程，何时加锁、何时释放锁都在程序员的控制之下。
+- ReentrantLock 是显式的操作过程，何时加锁、何时释放锁都在程序员的控制之下。
+- 具体的使用是定义一个ReentrantLock，通过`lock`方法加锁，`unlock`方法解锁。
+  - 由于加锁解锁两个操作是分开的，容易死锁，所以一般要搭配`finally`使用。
 
-具体的使用 流程是定义一个ReentrantLock，在需要加锁的地方通过lock方法加锁，等资源使用完成后再通过unlock方法释放锁。具体的实现代码如下：
+```java
+ReentrantLock lock = new ReentrantLock(); 
+//dosomething
+lock.lock();   
+try {    
+ 	// working    
+} finally {    
+ 	lock.unlock()    
+}
+```
+
+
+
+🌸 示例
 
 ```java
 public class ReentrantLockDemo implements Runnable {
@@ -1790,12 +1805,11 @@ public class ReentrantLockDemo implements Runnable {
 }
 ```
 
-ReentrantLock之所以**被称为可重入锁**，是因为ReentrantLock锁可以反复进入。即允许连续两次 获得同一把锁，两次释放同一把锁。
-
-将上述代码中的注释部分去掉后，程序仍然可以正常执行。注 意，获取锁和释放锁的次数要相同。
-
-- 如果释放锁的次数多于获取锁的次数，Java就会抛出java.lang.IllegalMonitorStateException异常；
-- 如果释放锁的次数少于获取锁的次数，该线程就会一直持有该锁，其他线程将无法获取锁资源。
+- ReentrantLock之所以**被称为可重入锁**，是因为ReentrantLock锁可以反复进入。
+  - 即允许连续两次 获得同一把锁，两次释放同一把锁。
+  - 将上述代码中的注释部分去掉后，程序仍然可以正常执行。注意，获取锁和释放锁的次数要相同。
+    - 如果释放锁的次数多于获取锁的次数，Java就会抛出java.lang.IllegalMonitorStateException异常；
+    - 如果释放锁的次数少于获取锁的次数，该线程就会一直持有该锁，其他线程将无法获取锁资源。
 
 
 
@@ -1843,16 +1857,28 @@ ReentrantLock通过在构造函数ReentrantLock(boolean fair)中传递不同的�
 
 ### 不同点
 
+|            | ReentrantLock                                             | synchronized               |
+| ---------- | --------------------------------------------------------- | -------------------------- |
+| 显式或隐式 | 通过`lock`方法加锁，`unlock`方法解锁。                    | 隐式获取和释放锁           |
+| 属于       | API级别的                                                 | JVM级别的                  |
+| 是否公平   | 可以指定fair参数来决定                                    | 非公平锁                   |
+| 出现锁竞争 | 竞争失败时可以阻塞等待，也可以通过trylock方法直接返回退出 | 竞争失败时只能阻塞等待     |
+| 等待机制   | `Condition`类                                             | `wait/notify`等待机制      |
+| 底层实现   | 同步非阻塞，采用乐观并发策略                              | 同步阻塞，采用悲观并发策略 |
+
+<br>
+
 - ReentrantLock 显式获取和释放锁，synchronized隐式获取和释放锁。
   - 为了避免程序出现异常而无法正常释放锁，使用ReentrantLock 时必须在 finally 语句块中执行释放锁操作。
 
 - ReentrantLock 可响应中断、可轮回，为处理锁提供了更多的灵活性。
-- ReentrantLock 是API级别的，synchronized 是JVM级别的。
+- ReentrantLock 是API级别的，是一个java标准类，是使用java代码实现的。`synchronized`是一个关键字，是基于JVM内部实现的，是C/C++代码。
 - ReentrantLock 可以定义公平锁。
+  - 构造实例对象时，可以指定fair参数来决定该锁对象是公平锁还是非公平锁。
 - ReentrantLock 通过Condition可以绑定多个条件。
 - 底层实现不同
-  - 同步阻塞，采用悲观并发策略。
-  - 同步非阻塞，采用乐观并发策略。
+  - synchronized 同步阻塞，采用悲观并发策略。
+  - ReentrantLock 同步非阻塞，采用乐观并发策略。
 
 
 
@@ -1923,9 +1949,9 @@ https://stackoverflow.com/questions/72528431/is-atomicinteger-and-countdownlatch
 
 # 8 线程上下文切换
 
+
+
 # 9 Java阻塞队列
-
-
 
 
 
@@ -1933,9 +1959,32 @@ https://stackoverflow.com/questions/72528431/is-atomicinteger-and-countdownlatch
 
 # 10 Java并发关键字 ⭐️
 
-## CountDownLatch
+## CountDownLatch 同步工具类
 
 CountDownLatch类位于java.util.concurrent包下，是一个同步工具类，允许一个或多个线程一直**等待其他线程的操作执行完后再执行相关操作**。
+
+打个比方，假设有一场跑步比赛，一共有5个远动员参赛，只有当最后一个远动员冲过终点线时，裁判才能宣布比赛结束。
+
+这里的运动员就相当于线程，裁判就相当于`CountDownLatch`类。
+
+🌸「常用方法：」
+
+| 序号 | 方法                                            | 方法类型 | 作用                                                  |
+| ---- | ----------------------------------------------- | -------- | ----------------------------------------------------- |
+| 1    | public CountDownLatch(int count)                | 构造方法 | 构造实例对象，count表示CountDownLatch对象中计数器的值 |
+| 2    | public void await() throws InterruptedException | 普通方法 | 使所处的线程进入阻塞等待，直到计数器的值清零          |
+| 3    | public void countDown()                         | 普通方法 | 将计数器的值减1                                       |
+| 4    | public long getCount()                          | 普通方法 | 获取计数器最初的值                                    |
+
+
+
+🌸「使用方式：」
+
+- 创建`CountDownLatch`对象，并初始化计数器的值。
+- 在每个线程执行的最后使用`countDown`方法，表示当前线程执行完毕，计数器的值减1。
+- 在主线程中使用`await`方法，等待`CountDownLatch`对象的计数器清零，表示所管理的线程全部执行完毕，起到线程同步的作用。
+
+🌸「参考代码：」
 
 ```java
 public class CountDownLatchTest {
@@ -1993,6 +2042,120 @@ public class CountDownLatchTest {
 
 主线程调用 **latch.await()** 阻塞等待，在所有线程都执行完成并调用了countDown函数时，表示所有线程均执行完成，这时程序会主动唤醒主线程并开始执行主线程的业务逻辑。
 
+🌸「参考代码：」
+
+```java
+import java.util.concurrent.*;
+public class Main {
+    public static final int COUNT = 5;
+    public static void main(String[] args) throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(COUNT);
+
+        for (int i = 0; i < COUNT; i++) {
+            Thread thread = new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                    System.out.println(Thread.currentThread().getName() + "任务执行完毕！");
+                    countDownLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            thread.start();
+        }
+        //等待计数器清零，清零前，线程处于阻塞等待状态，清零后，即全部任务执行完毕
+        countDownLatch.await();
+        System.out.println("任务全部完成！");
+    }
+}
+```
+
+
+
+这样的场景在实际开发当中，也是很常见的，**比如要下载一个较大的文件的时候，常常将文件拆分，使用多线程并发下载。**
+
+而在这样一个场景中，需要等待最后一个线程也下载完毕，才能说整个文件下载完毕，也就是使用CountDownLatch对象进行计数，等计数器清零了`await`方法就会返回，表示文件下载完成。
+
+
+
+
+
+## Semaphore类（信号量）
+
+这个概念比较抽象，我们来打个比方，有个停车场，停车场门口有一个灯牌，会显示停车位还剩余多少个，每进去一辆车，显示的停车位数量就减一，每出去一辆出，显示的停车位数量就加一。
+
+<br>
+
+
+
+上面显示停车位数量的灯牌其实就是信号量，信号量是一更加广义的锁，描述了可用资源的个数。
+
+每次申请一个可用资源，信号量中的计数器就减一（P操作）。
+
+每次释放一个可用资源，信号量中的计数器就加一（V操作）。
+
+当可用资源数量为0时，再次进行P操作，会陷入阻塞等待状态。
+
+<br>
+
+锁我们可以理解为“二元信号量”，因为计数器的取值不是0就是1，它的可用资源就一个。
+
+🌸Semaphore类的常用方法：
+
+| 序号 | 方法                                              | 方法类型 | 作用                                                  |
+| ---- | ------------------------------------------------- | -------- | ----------------------------------------------------- |
+| 1    | public Semaphore(int permits)                     | 构造方法 | 构造可用资源为permits个的信号量对象                   |
+| 2    | public Semaphore(int permits, boolean fair)       | 构造方法 | 相比于方法1，该构造方法还能指定信号量是否是公平性质的 |
+| 3    | public void acquire() throws InterruptedException | 普通方法 | 申请可用资源                                          |
+| 4    | public void release()                             | 普通方法 | 释放可用资源                                          |
+
+🌸代码演示：
+
+```java
+import java.util.concurrent.Semaphore;
+
+public class SemaphoreTest {
+    public static void main(String[] args) throws InterruptedException {
+        //构造方法中的permits参数表示可用资源的个数
+        Semaphore semaphore = new Semaphore(4);
+        //每次使用一个可用资源，信号量就会减少1
+        semaphore.acquire();
+        System.out.println("申请成功");
+        semaphore.acquire();
+        System.out.println("申请成功");
+        semaphore.acquire();
+        System.out.println("申请成功");
+        semaphore.acquire();
+        System.out.println("申请成功");
+
+        System.out.println("线程是否阻塞？" + "没有！");
+        ////此时可用资源为0，线程进入阻塞，需要使用release方法释放资源，线程才能继续执行
+        // 上面应该写的是：线程才能继续使用可用资源
+        semaphore.release();
+        System.out.println("释放成功");
+        semaphore.acquire();
+        System.out.println("线程是否阻塞？" + "没有！");
+        System.out.println("申请成功");
+    }
+}
+
+```
+
+🌸执行结果：
+
+```java
+申请成功
+申请成功
+申请成功
+申请成功
+释放成功
+申请成功
+
+Process finished with exit code 0
+```
+
+
+
 
 
 ## volatile关键字的作用
@@ -2019,7 +2182,43 @@ volatile在某些场景下可以代替synchronized，但是volatile不能完全�
 
 # 11 多线程如何共享数据
 
-# 12 ConcurrentHashMap并发（JDK 1.7及之前的版本）
+# 12 🍂有关数据结构的线程安全类
+
+## 🍁多线程使用顺序表
+
+ArrayList在多线程中是线程不安全的，多线程环境中使用基于写实拷贝实现的**CopyOnWriteArrayList**。
+
+所谓写实拷贝，就是写的时候会创建一个副本，再副本上进行修改，同时如果存在读操作会在原文件数进行查询，等修改完毕后就会将副本“转正”。
+
+## 🍁多线程使用队列
+
+🌸多线程情况下常常使用阻塞队列：
+
+- ArrayBlockingQueue 基于数组实现的阻塞队列
+
+- LinkedBlockingQueue 基于链表实现的阻塞队列
+- PriorityBlockingQueue 基于堆实现的带优先级的阻塞队列
+- TransferQueue 最多只包含一个元素的阻塞队列
+
+### 🍁多线程使用哈希表
+
+HashMap本身是线程不安全的，将HashMap中的重要方法使用`synchornized`加锁后，就得到了HashTable类。
+
+虽然HashTable类是线程安全的，但是由于是对方法进行无脑加锁，本质加锁的对象是HashTable类的实例对象，这样就会导致锁竞争概率加大，就相当于公司里所有的员工需要请假时都需要找老板签字批准，这样会导致老板非常地忙，这个老板就相当于加锁的哈希表对象，最终会造成哈希表的效率下降。
+
+
+![](./img/hashtable.png)
+
+
+
+为了解决这个问题，java提供了ConcurrentHashMap类，该类是基于哈希表中的每一个链表对象进行加锁。
+
+线程需要对哪个链表对象进行操作，就在哪里加锁，由于哈希表中链表数量很多，链表对象的元素个数较少，可以有效地降低锁竞争的概率，相当于公司中的老板将权力下放给各个部门，员工请假时只需向所在的部门领导请假即可。
+
+![](./img/concurrenthashmap.png)
+
+
+
 
 # 13 Java中的线程调度
 
