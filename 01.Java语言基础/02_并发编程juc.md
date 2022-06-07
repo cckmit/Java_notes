@@ -893,6 +893,113 @@ java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.Futur
 
 ![](./img/生命周期.png)
 
+但其实在操作系统层面，Java 线程中的 BLOCKED、WAITING、TIMED_WAITING 是一种状态，即前面我们提到的休眠状态。
+
+也就是说只要 Java 线程处于这三种状态之一，那么这个线程就永远没有 CPU 的使用权。
+
+
+
+## RUNNABLE 与 BLOCKED 的状态转换
+
+只有一种场景会触发这种转换，就是线程等待 synchronized 的隐式锁。
+
+而我们平时所谓的 Java 在调用阻塞式 API 时，线程会阻塞，指的是操作系统线程的状态，并不是 Java 线程的状态。
+
+## RUNNABLE 与 WAITING 的状态转换
+
+- 第一种场景，获得 synchronized 隐式锁的线程，调用无参数的 Object.wait() 方法。
+
+- 第二种场景，调用无参数的 Thread.join() 方法。
+  - 其中的 join() 是一种线程同步方法，例如有一个线程对象 thread A，当调用 A.join() 的时候，执行这条语句的线程会等待 thread A 执行完，而等待中的这个线程，其状态会从 RUNNABLE 转换到 WAITING。
+  - 当线程 thread A 执行完，原来等待它的线程又会从 WAITING 状态转换到 RUNNABLE。
+
+- 第三种场景，调用 LockSupport.park() 方法。
+  - 其中的 LockSupport 对象，也许你有点陌生，其实 Java 并发包中的锁，都是基于它实现的。
+  - 调用 LockSupport.park() 方法，当前线程会阻塞，线程的状态会从 RUNNABLE 转换到 WAITING。
+  - 调用 LockSupport.unpark(Thread thread) 可唤醒目标线程，目标线程的状态又会从 WAITING 状态转换到 RUNNABLE。
+
+## RUNNABLE 与 TIMED_WAITING 的状态转换
+
+- 调用带超时参数的 Thread.sleep(long millis) 方法；
+- 获得 synchronized 隐式锁的线程，调用带超时参数的 Object.wait(long timeout) 方法；
+- 调用带超时参数的 Thread.join(long millis) 方法；
+- 调用带超时参数的 LockSupport.parkNanos(Object blocker, long deadline) 方法；
+- 调用带超时参数的 LockSupport.parkUntil(long deadline) 方法。
+
+
+
+这里你会发现 TIMED_WAITING 和 WAITING 状态的区别，仅仅是触发条件多了超时参数。
+
+
+
+## 从 NEW 到 RUNNABLE 状态
+
+Java 刚创建出来的 Thread 对象就是 NEW 状态
+
+而创建 Thread 对象主要有两种方法。一种是继承 Thread 对象，重写 run() 方法。
+
+```java
+
+// 自定义线程对象
+class MyThread extends Thread {
+  public void run() {
+    // 线程需要执行的代码
+    ......
+  }
+}
+// 创建线程对象
+MyThread myThread = new MyThread();
+```
+
+另一种是实现 Runnable 接口，重写 run() 方法，并将该实现类作为创建 Thread 对象的参数。示例代码如下：
+
+```java
+
+// 实现Runnable接口
+class Runner implements Runnable {
+  @Override
+  public void run() {
+    // 线程需要执行的代码
+    ......
+  }
+}
+// 创建线程对象
+Thread thread = new Thread(new Runner());
+```
+
+NEW 状态的线程，不会被操作系统调度，因此不会执行。Java 线程要执行，就必须转换到 RUNNABLE 状态。从 NEW 状态转换到 RUNNABLE 状态很简单，只要调用线程对象的 start() 方法就可以了，示例代码如下：
+
+```java
+
+MyThread myThread = new MyThread();
+// 从NEW状态转换到RUNNABLE状态
+myThread.start()；
+```
+
+## 从 RUNNABLE 到 TERMINATED 状态
+
+线程执行完 run() 方法后，会自动转换到 TERMINATED 状态，当然如果执行 run() 方法的时候异常抛出，也会导致线程终止。
+
+有时候我们需要强制中断 run() 方法的执行，例如 run() 方法访问一个很慢的网络，我们等不下去了，想终止怎么办呢？
+
+Java 的 Thread 类里面倒是有个 stop() 方法，不过已经标记为 @Deprecated，所以不建议使用了。正确的姿势其实是调用 interrupt() 方法。
+
+### 那 stop() 和 interrupt() 方法的主要区别是什么呢？
+
+stop() 方法会真的杀死线程，不给线程喘息的机会，如果线程持有 ReentrantLock 锁，被 stop() 的线程并不会自动调用 ReentrantLock 的 unlock() 去释放锁，那其他线程就再也没机会获得 ReentrantLock 锁，这实在是太危险了。
+
+所以该方法就不建议使用了，类似的方法还有 suspend() 和 resume() 方法，这两个方法同样也都不建议使用了。
+
+<br>
+
+而 interrupt() 方法就温柔多了，interrupt() 方法仅仅是通知线程，线程有机会执行一些后续操作，同时也可以无视这个通知。被 interrupt 的线程，是怎么收到通知的呢？一种是异常，另一种是主动检测。
+
+
+
+<hr>
+
+
+
 
 
 线程的生命周期分为新建（New）、就绪（Runnable）、运行（Running）、阻塞（Blocked） 和死亡（Dead）这 5种状态。
@@ -1652,19 +1759,87 @@ AtomicInteger 为 提供原子操作的 Integer 的 类 ， 常 见的原子操�
 
 ## CountDownLatch
 
+CountDownLatch类位于java.util.concurrent包下，是一个同步工具类，允许一个或多个线程一直**等待其他线程的操作执行完后再执行相关操作**。
+
+```java
+public class CountDownLatchTest {
+    public static void main(String[] args) {
+
+        // 1、定义大小为2 的 CountDownLatch
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    System.out.println("子线程1正在执行");
+                    Thread.sleep(3000);
+                    System.out.println("子线程1执行完毕");
+                    // 2、子线程1执行完毕后调用countDown 方法
+                    countDownLatch.countDown();
+                } catch (Exception e){
+                }
+            }
+        }.start();
+
+        new Thread(() -> {
+            try {
+                System.out.println("子线程2正在执行");
+                Thread.sleep(3000);
+                System.out.println("子线程2执行完毕");
+                // 2、子线程2执行完毕后调用countDown 方法
+                countDownLatch.countDown();
+            } catch (Exception e){
+            }
+        }).start();
+
+
+        try {
+            System.out.println("等待2个子线程执行完毕...");
+            countDownLatch.await();// 3、countDownLatch 上等待子线程执行完毕
+
+            // 4、子线程执行完毕，开始执行主线程
+            System.out.println("2个子线程执行完毕，继续执行主线程");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+// 子线程1正在执行
+// 等待2个子线程执行完毕...
+// 子线程2正在执行
+// 子线程1执行完毕
+// 子线程2执行完毕
+// 2个子线程执行完毕，继续执行主线程
+```
+
+子线程执行完业务代码后再执行 **latch.countDown()** 时减少一个信号量，表示自己已经执行完成。
+
+主线程调用 **latch.await()** 阻塞等待，在所有线程都执行完成并调用了countDown函数时，表示所有线程均执行完成，这时程序会主动唤醒主线程并开始执行主线程的业务逻辑。
+
+
+
 
 
 ## volatile关键字的作用
 
+Java除了使用了synchronized保证变量的同步，还使用了稍弱的同步机制，即volatile变量。volatile也用于确保将变量的更新操作通知到其他线程。
+
+volatile变量具备两种特性：
+
+- 一种是保证该变量对所有线程可见，在一个线程修改了变量的值 后，新的值对于其他线程是可以立即获取的；
+- 一种是volatile禁止指令重排，即volatile变量不会被缓 存在寄存器中或者对其他处理器不可见的地方，因此在读取volatile类型的变量时总会返回最新写入的值。
+
+volatile主要适用于一个变量被多个线程共享，多个线程均可针对这个变量执行赋值或者读取的操作。
+
+![](./img/volatile.png)
 
 
 
+volatile在某些场景下可以代替synchronized，但是volatile不能完全取代synchronized的位置，只有在一些特殊场景下才适合使用volatile。比如，必须同时满足下面两个条件才能保证并发环境的线程安全。
 
-
-
-
-
-
+-  对变量的写操作不依赖于当前值（比如i++），或者说是单纯的变量赋值（booleanflag=true）。
+- 该变量没有被包含在具有其他变量的不变式中，也就是说在不同的volatile变量之间不能互相依赖，只有在状态真正独立于程序内的其他内容时才能使用volatile。
 
 
 
