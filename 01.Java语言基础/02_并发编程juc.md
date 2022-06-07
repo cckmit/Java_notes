@@ -4,12 +4,6 @@
 
 ## 推荐
 
-### 文章
-
-极客时间
-
-
-
 ### 视频
 
 黑马
@@ -25,6 +19,20 @@
 
 Java 通过提供对多线程的支持，在一个进程内并发执行多个线程，每个线程都并行执行不同的任务，以满足编写高并发程序的要求。
 ```
+
+### 博客
+
+极客时间
+
+[Java多线程之锁优化与JUC常用类](https://juejin.cn/post/7106118341970493476#heading-8)
+
+
+
+
+
+## 总结
+
+java中的 JUC 就是来自`java.util.concurrent`包下的一些标准类或者接口，都是有关并发或者有关多线程的一些类和接口。
 
 
 
@@ -72,7 +80,8 @@ class MyThread extends Thread{
 
 ## 实现Runnable接口
 
-如果子类已经继承了一个类，就无法再直接继承Thread类，此时可以通过实现Runnable接口创建线程。
+- 如果子类已经继承了一个类，就无法再直接继承Thread类，此时可以通过实现Runnable接口创建线程。
+- 用 Runnable 更容易与线程池等高级 API 配合
 
 ```java
 // 1,定义一个线程任务类MyRunnable实现 Runnable 接口，重写run()方法
@@ -100,9 +109,66 @@ public static void main(String[] args) {
 
 
 
+## 实现Callable接口
+
+- 通过 `Callable` 接口配合 `FutureTask` 类来创建线程，使用该方法创建线程能够支持带返回值的任务
+  - 前面的那两种方法是不支持带返回值的。
+  - 通过实现`Callable`接口的`call`方法来描述带有返回值的任务
+  - `FutureTask`就是对于具体的`Runnable`或者`Callable`任务的执行结果进行取消、查询是否完成、获取返回值。
+    - 必要时可以通过`get`方法获取执行结果（返回值），如果任务还没有执行完毕，该方法会阻塞直到任务返回结果。
+- 在创建线程的时候，传入的引用不能是`Callable`类型，而应该是`FutrueTask`类型
+  - `FutrueTask`类实现了`Runnable`类，所以在此之前我们需要把实现`Callable`接口的对象引用传给`FutrueTask`类的实例对象。
+
+<br>
+
+- 综上，`Callable`用来描述任务，`FutureTask`类用来管理`Callable`任务的执行结果。
+
+<br>
+
+🌸参考代码：
+
+```java
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+public class CallableTest {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        Callable<Integer> callable = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+
+                return 100 * (1 + 100) / 2;
+            }
+        };
+
+        FutureTask<Integer> futureTask = new FutureTask<>(callable);
+        Thread thread = new Thread(futureTask);
+        thread.start();
+
+        // 获取执行结果
+        System.out.println(futureTask.get());
+    }
+}
+```
+
+🌸运行结果：
+
+```java
+5050
+
+Process finished with exit code 0
+```
 
 
-## 通过ExecutorService和Callable`<Class>`实现有返回值的线程
+
+
+
+
+
+
+
+### 通过ExecutorService和Callable`<Class>`实现有返回值的线程（《offer来了》中内容）
 
 ```java
 public class ThreadDemo33 {
@@ -151,6 +217,34 @@ class MyCallable33 implements Callable<String>{
     }
 }
 ```
+
+
+
+### FutureTask 配合 Thread
+
+FutureTask 能够接收 Callable 类型的参数，用来处理有返回结果的情况
+
+```java
+// 创建任务对象
+FutureTask<Integer> task3 = new FutureTask<>(() -> {
+    log.debug("hello");
+    return 100;
+});
+// 参数1 是任务对象; 参数2 是线程名字，推荐
+new Thread(task3, "t3").start();
+// 主线程阻塞，同步等待 task 执行完毕的结果
+Integer result = task3.get();
+log.debug("结果是:{}", result);
+```
+
+输出：
+
+```bash
+19:22:27 [t3] c.ThreadStarter - hello
+19:22:27 [main] c.ThreadStarter - 结果是:100
+```
+
+
 
 
 
@@ -1439,6 +1533,33 @@ synchronized是一个重量级操作，需要调用操作系统的相关接口�
 
 JDK 1.6对synchronized做了很多优化，引入了适应自旋、锁消除、锁粗化、轻量级锁及偏向锁 等以提高锁的效率。锁可以从偏向锁升级到轻量级锁，再升级到重量级锁。这种升级过程叫作锁膨胀。在JDK 1.6中默认开启了偏向锁和轻量级锁，可通过-XX:UseBiasedLocking禁用偏向锁。
 
+### synchronized的优化手段
+
+#### 锁膨胀/升级
+
+synchronized关键字加的锁既是轻量级锁也是重量级锁，它是根据实际情况自适应加锁的，这种自适应是基于锁膨胀或者说是锁升级这样的优化手段来实现的。
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220607220239342.png)
+
+「🌸锁升级过程：」
+
+- 当没有线程加锁的时候，此时为无锁状态。
+- 当首个线程进行加锁的时候，此时进入偏向锁的状态，偏向锁不是真的加锁，而是在对象头做个标记而已，
+
+- 当有其他线程进行加锁，导致产生了锁竞争时，此时进入轻量级锁状态。
+- 如果竞争进一步加剧，进入重量级锁状态。
+
+#### 锁粗化
+
+- 所谓锁粗化就是将`synchronized`的加锁代码块范围增大，加锁的代码块中的内容越多，锁就越粗，否则锁就越细。
+
+- 一般我们认为，锁越细，多线程间的并发性越高，锁越粗，加锁解锁的开销就会更小。
+  - 编译器会对你加的锁做一个优化，如果编译器判定加的锁过细，就会自动粗化，从而提高程序运行效率。
+
+#### 锁消除
+
+有些代码，编译器认为没有加锁的必要，就会自动把你加的锁自动去除，像类似这样的优化，就是锁消除。
+
 
 
 ### 03 | 互斥锁（上）：解决原子性问题（极客时间专栏内容）
@@ -1714,11 +1835,24 @@ ReentrantLock通过在构造函数ReentrantLock(boolean fair)中传递不同的�
 
 ## 7.6 synchronized和ReentrantLock的比较
 
-共同点
+### 共同点
 
+- 都用于控制多线程对共享对象的访问。
+- 都是可重入锁。
+- 都保证了可见性和互斥性。
 
+### 不同点
 
-不同点
+- ReentrantLock 显式获取和释放锁，synchronized隐式获取和释放锁。
+  - 为了避免程序出现异常而无法正常释放锁，使用ReentrantLock 时必须在 finally 语句块中执行释放锁操作。
+
+- ReentrantLock 可响应中断、可轮回，为处理锁提供了更多的灵活性。
+- ReentrantLock 是API级别的，synchronized 是JVM级别的。
+- ReentrantLock 可以定义公平锁。
+- ReentrantLock 通过Condition可以绑定多个条件。
+- 底层实现不同
+  - 同步阻塞，采用悲观并发策略。
+  - 同步非阻塞，采用乐观并发策略。
 
 
 
@@ -1732,14 +1866,56 @@ ReentrantLock通过在构造函数ReentrantLock(boolean fair)中传递不同的�
 
 <br>
 
-AtomicInteger 为 提供原子操作的 Integer 的 类 ， 常 见的原子操作类还有 AtomicBoolean 、AtomicInteger、AtomicLong、AtomicReference等，它们的实现原理相同，区别在于运算对象的类型 不同。
+AtomicInteger 为提供原子操作的 Integer 的 类 ， 常见的原子操作类还有 AtomicBoolean 、AtomicInteger、AtomicLong、AtomicReference等，它们的实现原理相同，区别在于运算对象的类型 不同。
 
 还可以通过AtomicReference<V>将一个对象的所有操作都转化成原子操作。AtomicInteger的性能通常是synchronized和ReentrantLock的好几倍。具体用法如下：
 
 ```java
+public class CASTest3 {
+    AtomicInteger i = new AtomicInteger();
+    //int i = 0;
+
+    public static void main(String[] args) throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+
+        CASTest3 casTest = new CASTest3();
+
+        new Thread(() -> {
+            for (int j = 0; j < 100; j++) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //casTest.i++;
+                casTest.i.getAndIncrement();
+            }
+            countDownLatch.countDown();
+        }).start();
+
+        new Thread(() -> {
+            for (int j = 0; j < 100; j++) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //casTest.i++;
+                casTest.i.getAndIncrement();
+            }
+            countDownLatch.countDown();
+        }).start();
+
+        //Thread.sleep(900);
+        countDownLatch.await();
+        System.out.println(casTest.i.get());
+    }
+}
 ```
 
 
+
+https://stackoverflow.com/questions/72528431/is-atomicinteger-and-countdownlatch-used-correctly
 
 
 
@@ -1816,8 +1992,6 @@ public class CountDownLatchTest {
 子线程执行完业务代码后再执行 **latch.countDown()** 时减少一个信号量，表示自己已经执行完成。
 
 主线程调用 **latch.await()** 阻塞等待，在所有线程都执行完成并调用了countDown函数时，表示所有线程均执行完成，这时程序会主动唤醒主线程并开始执行主线程的业务逻辑。
-
-https://stackoverflow.com/questions/72528431/is-atomicinteger-and-countdownlatch-used-correctly
 
 
 
@@ -1910,35 +2084,11 @@ AQS（Abstract Queued Synchronizer）是一个抽象的队列同步器，通过�
 
 
 
+# 分割线
 
+# 分割线
 
-
-
-## 2. 进程与线程
-
-- 进程和线程的概念
-- 并行和并发的概念
-- 线程基本应用
-
-<hr>
-
-
-
-### 进程与线程
-
-### 并行与并发
-
-### 应用
-
-
-
-
-
-
-
-
-
-
+# 分割线
 
 ## 3. Java线程
 
@@ -1946,140 +2096,6 @@ AQS（Abstract Queued Synchronizer）是一个抽象的队列同步器，通过�
 - 查看线程
 - 线程 API
 - 线程状态
-
-<hr>
-
-### 3.1 创建和运行线程
-
-#### 方法一，直接使用 Thread
-
-```java
-// 创建线程对象
-Thread t = new Thread() {
-		public void run() {
-		// 要执行的任务
- 		}
-};
-// 启动线程
-t.start();
-```
-
-例如：
-
-```java
-// 构造方法的参数是给线程指定名字，推荐
-Thread t1 = new Thread("t1") {
-		@Override
-		// run 方法内实现了要执行的任务
-		public void run() {
-				log.debug("hello");
- 		}
-};
-t1.start();
-```
-
-输出：
-
-```java
-19:19:00 [t1] c.ThreadStarter - hello
-```
-
-
-
-
-
-#### 方法二，使用 Runnable 配合 Thread
-
-把【线程】和【任务】（要执行的代码）分开
-
-- Thread 代表线程
-
-- Runnable 可运行的任务（线程要执行的代码）
-
-```java
-Runnable runnable = new Runnable() {
-    public void run(){
-        // 要执行的任务
-    }
-};
-// 创建线程对象
-Thread t = new Thread( runnable );
-// 启动线程
-t.start();
-```
-
-例如：
-
-```java
-// 创建任务对象
-Runnable task2 = new Runnable() {
-    @Override
-    public void run() {
-        log.debug("hello");
-     }
-};
-// 参数1 是任务对象; 参数2 是线程名字，推荐
-Thread t2 = new Thread(task2, "t2");
-t2.start();
-```
-
-输出：
-
-```java
-19:19:00 [t2] c.ThreadStarter - hello
-```
-
-
-
-Java 8 以后可以使用 lambda 精简代码
-
-```java
-// 创建任务对象
-Runnable task2 = () -> log.debug("hello");
-// 参数1 是任务对象; 参数2 是线程名字，推荐
-Thread t2 = new Thread(task2, "t2");
-t2.start();
-```
-
-
-
-
-
-#### `*`原理之 Thread 与 Runnable 的关系
-
-分析 Thread 的源码，理清它与 Runnable 的关系
-
-- 方法1 是把线程和任务合并在了一起，方法2 是把线程和任务分开了
-- 用 Runnable 更容易与线程池等高级 API 配合
-- 用 Runnable 让任务类脱离了 Thread 继承体系，更灵活
-
-
-
-
-
-#### 方法三，FutureTask 配合 Thread
-
-FutureTask 能够接收 Callable 类型的参数，用来处理有返回结果的情况
-
-```java
-// 创建任务对象
-FutureTask<Integer> task3 = new FutureTask<>(() -> {
-    log.debug("hello");
-    return 100;
-});
-// 参数1 是任务对象; 参数2 是线程名字，推荐
-new Thread(task3, "t3").start();
-// 主线程阻塞，同步等待 task 执行完毕的结果
-Integer result = task3.get();
-log.debug("结果是:{}", result);
-```
-
-输出：
-
-```bash
-19:22:27 [t3] c.ThreadStarter - hello
-19:22:27 [main] c.ThreadStarter - 结果是:100
-```
 
 
 
