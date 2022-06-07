@@ -1958,12 +1958,6 @@ throw new String("want to throw");
 
 
 
-
-
-
-
-
-
 # 五、多线程
 
 ## 1 概述

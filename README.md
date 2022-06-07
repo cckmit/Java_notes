@@ -145,6 +145,20 @@
 
 ## 三、分布式&微服务
 
+### 推荐
+
+
+
+
+
+### 笔记
+
+
+
+### 总结
+
+
+
 
 
 ![](./img/微服务对比.png)
@@ -198,21 +212,11 @@
 
 ## 八、数据库
 
-- 01_MySQL笔记-总.md
-
-- 02_Redis笔记-总.md
-
-- 03_MyBatis笔记-总.md
-
-
-
-Jdbc
-
-
-
-MySQL
-
 ### 推荐
+
+
+
+
 
 - [手写几万行的Mybatis，把原理搞的透透的！（小傅哥）](https://www.bilibili.com/video/BV1nY4y1B7eT?from=search&seid=13067334712884217946&spm_id_from=333.337.0.0)
   - [仓库](https://github.com/fuzhengwei/small-mybatis)
@@ -226,6 +230,35 @@ MySQL
 在手写的过程中学习 Mybatis 从解析、绑定、反射、缓存，到回话和事务操作，以及如何与 Spring 进行关联注册 Bean 对象，完成整合部分功能逻辑。通过这些内容的拆解实现，读者伙伴就可以非常清楚的知道这些核心功能都是如何实现的了，以后再阅读 Mybatis 源码也就知道从哪开始到哪结束了。
 
 
+
+### 笔记
+
+- 01_MySQL笔记-总.md
+
+- 02_Redis笔记-总.md
+
+- 03_MyBatis笔记-总.md
+
+
+
+### 总结
+
+MySQL 隔离级别
+
+| 隔离级别                | 脏读 | 不可重复读 | 幻读 |
+| ----------------------- | ---- | ---------- | ---- |
+| Read uncommitted        | √    | √          | √    |
+| Read committed          | ×    | √          | √    |
+| Repeatable Read（默认） | ×    | ×          | √    |
+| Serializable            | ×    | ×          | ×    |
+
+
+
+Jdbc
+
+
+
+MySQL
 
 
 
