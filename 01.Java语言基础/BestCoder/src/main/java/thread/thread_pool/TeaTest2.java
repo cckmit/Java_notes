@@ -21,10 +21,12 @@ public class TeaTest2 {
         ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(2, 3, 3, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(2));
 
+        // 如果提交的任务不需要一个结果的话直接用execute()会提高性能 。
+        // https://blog.csdn.net/weixin_48321825/article/details/121406637
         poolExecutor.execute(ft1);
         poolExecutor.execute(ft2);
 
-        System.out.println(ft1.get());
+        System.out.println(ft1.get());//?
 
         // （2）基于手动创建子线程
         // 线程T1执行任务ft1

@@ -222,7 +222,7 @@ public ThreadPoolExecutor(int corePoolSize,
 | 6    | threadFactory   | 线程工厂，用于创建线程                           |
 | 7    | handler         | 任务拒绝策略                                     |
 
-### Java 线程池的工作流程
+## Java 线程池的工作流程
 
 
 
@@ -232,11 +232,15 @@ public ThreadPoolExecutor(int corePoolSize,
 
 
 
-### 线程池的拒绝策略
+## 线程池的拒绝策略
 
+- CallerRunsPolicy：提交任务的线程自己去执行该任务。
 
+- AbortPolicy：默认的拒绝策略，会 throws RejectedExecutionException。
+- DiscardPolicy：直接丢弃任务，没有任何异常抛出。
+- DiscardOldestPolicy：丢弃最老的任务，其实就是把最早进入工作队列的任务丢弃，然后把新任务加入到工作队列。
 
-
+- 自定义拒绝策略：自己扩展 RejectedExecutionException 接口来实现拒绝策略
 
 
 
@@ -560,7 +564,7 @@ Integer result = futureTask.get();
 
 烧水泡茶最优的工序应该是下面这样：
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220607100201042.png)
+![](./img/烧水泡茶.png)
 
 
 
@@ -886,6 +890,8 @@ java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.Futur
 
 
 # 5 线程的生命周期
+
+![](./img/生命周期.png)
 
 
 
