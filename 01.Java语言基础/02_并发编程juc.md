@@ -38,7 +38,7 @@ Java 通过提供对多线程的支持，在一个进程内并发执行多个线
 // 1, 为什么不直接调用了run方法，而是调用start启动线程。
 // 直接调用run方法会当成普通方法执行，此时相当于还是单线程执行。
 // 只有调用start方法才是启动一个新的线程执行。
-    
+
 public class ThreadDemo1 {
 
     public static void main(String[] args) {
@@ -71,6 +71,34 @@ class MyThread extends Thread{
 ```
 
 ## 实现Runnable接口
+
+如果子类已经继承了一个类，就无法再直接继承Thread类，此时可以通过实现Runnable接口创建线程。
+
+```java
+// 1,定义一个线程任务类MyRunnable实现 Runnable 接口，重写run()方法
+class ChildrenClassThread implements Runnable {
+
+    // 2,重写run()方法，定义线程的执行任务
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            System.out.println("子线程执行输出..." + i);
+        }
+    }
+}
+
+public static void main(String[] args) {
+  // 3, 创建一个任务对象
+  ChildrenClassThread childrenClassThread = new ChildrenClassThread();
+  // 4, 交给线程对象,并启动线程
+  new Thread(childrenClassThread).start();
+  for (int i = 0; i < 10; i++) {
+    System.out.println("主线程执行输出..." + i);
+  }
+}
+```
+
+
 
 
 
@@ -129,6 +157,13 @@ class MyCallable33 implements Callable<String>{
 ## 基于线程池
 
 创建一个线程池并用该线程池提交线程任务。
+
+```java
+```
+
+
+
+
 
 # 2 线程池的工作原理
 
@@ -282,16 +317,350 @@ ExecutorService singleThread = Executors.newSingleThreadExecutor();
 - 创建对象：仅仅是在 JVM 的堆里分配一块内存而已
 
 - 而创建一个线程，却需要调用操作系统内核的 API，然后操作系统要为线程分配一系列的资源，这个成本就很高了。
-  - 所以线程是一个重量级的对象，应该避免频繁创建和销毁。
+  - 所以**线程是一个重量级的对象，应该避免频繁创建和销毁**。
   - 如何避免呢？线程池
 
+#### （1）线程池是一种生产者 - 消费者模式
+
+- 线程池的设计，没有办法直接采用一般意义上池化资源的设计方法
+
+```java
+//采用一般意义上池化资源的设计方法
+class ThreadPool{
+  // 获取空闲线程
+  Thread acquire() {
+  }
+  // 释放线程
+  void release(Thread t){
+  }
+} 
+//期望的使用
+ThreadPool pool；
+Thread T1=pool.acquire();
+//传入Runnable对象
+T1.execute(()->{
+  //具体业务逻辑
+  ......
+});
+```
+
+- 目前业界线程池的设计，普遍采用的都是生产者 - 消费者模式。线程池的使用方是生产者，线程池本身是消费者。
+  - 下面的示例代码中，我们创建了一个非常简单的线程池 MyThreadPool，你可以通过它来理解线程池的工作原理。
+
+```java
+//简化的线程池，仅用来说明工作原理
+class MyThreadPool{
+  //利用阻塞队列实现生产者-消费者模式
+  BlockingQueue<Runnable> workQueue;
+  
+  //保存内部工作线程
+  List<WorkerThread> threads = new ArrayList<>();
+  // 构造方法
+  MyThreadPool(int poolSize, BlockingQueue<Runnable> workQueue){
+    this.workQueue = workQueue;
+    // 创建工作线程
+    for(int idx=0; idx<poolSize; idx++){
+      WorkerThread work = new WorkerThread();
+      work.start();
+      threads.add(work);
+    }
+  }
+  
+  // 提交任务
+  void execute(Runnable command){
+    workQueue.put(command);
+  }
+  
+  // 工作线程负责消费任务，并执行任务
+  class WorkerThread extends Thread{
+    public void run() {
+      //循环取任务并执行
+      while(true){ ①
+        Runnable task = workQueue.take();
+        task.run();
+      } 
+    }
+  }
+  
+}
+
+/** 下面是使用示例 **/
+// 创建有界阻塞队列
+BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>(2);
+// 创建线程池  
+MyThreadPool pool = new MyThreadPool(10, workQueue);
+
+// 提交任务  
+pool.execute(()->{
+    System.out.println("hello");
+});
+```
+
+- 线程池的工作原理
+  - 在 MyThreadPool 的内部，我们维护了一个阻塞队列 workQueue 和一组工作线程，工作线程的个数由构造函数中的 poolSize 来指定。
+  - 用户通过调用 execute() 方法来提交 Runnable 任务，execute() 方法的内部实现仅仅是将任务加入到 workQueue 中。
+  - MyThreadPool 内部维护的工作线程会消费 workQueue 中的任务并执行任务，相关的代码就是代码①处的 while 循环。
 
 
 
+#### （2）如何使用 Java 中的线程池
+
+Java 并发包里提供的线程池，远比我们上面的示例代码强大得多，当然也复杂得多。
+
+Java 提供的线程池相关的工具类中，最核心的是 **ThreadPoolExecutor**，通过名字你也能看出来，它强调的是 Executor，而不是一般意义上的池化资源。
+
+ThreadPoolExecutor 的构造函数非常复杂，如下面代码所示，这个最完备的构造函数有 7 个参数。
+
+```java
+
+ThreadPoolExecutor(
+  int corePoolSize,
+  int maximumPoolSize,
+  long keepAliveTime,
+  TimeUnit unit,
+  BlockingQueue<Runnable> workQueue,
+  ThreadFactory threadFactory,
+  RejectedExecutionHandler handler) 
+```
+
+你可以**把线程池类比为一个项目组，而线程就是项目组的成员**。
+
+- **corePoolSize**：表示线程池保有的最小线程数。有些项目很闲，但是也不能把人都撤了，至少要留 corePoolSize 个人坚守阵地。
+
+- **maximumPoolSize**：表示线程池创建的最大线程数。当项目很忙时，就需要加人，但是也不能无限制地加，最多就加到 maximumPoolSize 个人。当项目闲下来时，就要撤人了，最多能撤到 corePoolSize 个人。
+
+- **keepAliveTime & unit**：上面提到项目根据忙闲来增减人员，那在编程世界里，如何定义忙和闲呢？很简单，一个线程如果在一段时间内，都没有执行任务，说明很闲，keepAliveTime 和 unit 就是用来定义这个“一段时间”的参数。也就是说，如果一个线程空闲了keepAliveTime & unit这么久，而且线程池的线程数大于 corePoolSize ，那么这个空闲的线程就要被回收了。
+
+- **workQueue**：工作队列，和上面示例代码的工作队列同义。
+
+- **threadFactory**：通过这个参数你可以自定义如何创建线程，例如你可以给线程指定一个有意义的名字。
+
+- **handler**：通过这个参数你可以自定义任务的拒绝策略。如果线程池中所有的线程都在忙碌，并且工作队列也满了（前提是工作队列是有界队列），那么此时提交任务，线程池就会拒绝接收。至于拒绝的策略，你可以通过 handler 这个参数来指定。ThreadPoolExecutor 已经提供了以下 4 种策略。
+  - CallerRunsPolicy：提交任务的线程自己去执行该任务。
+  - AbortPolicy：默认的拒绝策略，会 throws RejectedExecutionException。
+  - DiscardPolicy：直接丢弃任务，没有任何异常抛出。
+  - DiscardOldestPolicy：丢弃最老的任务，其实就是把最早进入工作队列的任务丢弃，然后把新任务加入到工作队列。
+
+#### （3）使用线程池要注意些什么
+
+- 不建议使用 Executors
+  - Executors 提供的很多方法默认使用的都是无界的 LinkedBlockingQueue，高负载情境下，无界队列很容易导致 OOM，而 **OOM 会导致所有请求都无法处理，这是致命问题**。所以强烈建议使用有界队列。
+
+- 默认拒绝策略要慎重使用
+  - 对于运行时异常编译器并不强制 catch 它，所以开发人员很容易忽略。
+  - 如果线程池处理的任务非常重要，建议自定义自己的拒绝策略；并且在实际工作中，自定义的拒绝策略往往和降级策略配合使用。
+
+```bash
+# 老师你好，使用有界队列虽然避免了OOM  但是如果请求量太大，我又不想丢弃和异常的情况下一般怎么实践呢。我对降级这一块没经验，我能直观想到的就是存放在缓存，如果缓存内存也不够了就只能持久化了
+
+作者回复: 可以放数据库，放mq,redis，本地文件都可以，具体要看实际需求
+```
+
+## 23 | Future：如何用多线程实现最优的“烧水泡茶”程序？（极客时间内容）
+
+使用 ThreadPoolExecutor 的时候，如何获取任务执行结果。
+
+#### （1）如何获取任务执行结果
+
+Java 通过 ThreadPoolExecutor 提供的 3 个 submit() 方法和 1 个 FutureTask 工具类来支持获得任务执行结果的需求。
+
+```java
+
+// 提交Runnable任务
+Future<?> submit(Runnable task);
+
+// 提交Callable任务
+<T> Future<T> submit(Callable<T> task);
+
+// 提交Runnable任务及结果引用  
+<T> Future<T> submit(Runnable task, T result);
+```
+
+你会发现它们的返回值都是 Future 接口，Future 接口有 5 个方法
+
+- 取消任务的方法 cancel()
+- 判断任务是否已取消的方法 isCancelled()
+- 判断任务是否已结束的方法 isDone()以及
+- 2 个获得任务执行结果的 get() 和 get(timeout, unit)
+  - get(timeout, unit) 支持超时机制
+  - 不过需要注意的是：这两个 get() 方法都是阻塞式的，如果被调用的时候，任务还没有执行完，那么调用 get() 方法的线程会阻塞，直到任务执行完才会被唤醒。
+
+我们提交的任务不但能够获取任务执行结果，还可以取消任务。
+
+```java
+
+// 取消任务
+boolean cancel(boolean mayInterruptIfRunning);
+// 判断任务是否已取消  
+boolean isCancelled();
+// 判断任务是否已结束
+boolean isDone();
+
+// 获得任务执行结果
+get();
+// 获得任务执行结果，支持超时
+get(long timeout, TimeUnit unit);
+```
 
 
 
+前面我们提到的 Future 是一个接口，而 FutureTask 是一个实实在在的工具类，这个工具类有两个构造函数。
 
+```java
+
+FutureTask(Callable<V> callable);
+FutureTask(Runnable runnable, V result);
+```
+
+那如何使用 FutureTask 呢？
+
+- FutureTask 实现了 Runnable 和 Future 接口
+- 由于实现了 Runnable 接口，所以可以将 FutureTask 对象作为任务提交给 ThreadPoolExecutor 去执行，也可以直接被 Thread 执行
+
+```java
+
+// 创建FutureTask
+FutureTask<Integer> futureTask = new FutureTask<>(()-> 1+2);
+// 创建线程池
+ExecutorService es = Executors.newCachedThreadPool();
+// 提交FutureTask 
+es.submit(futureTask);
+// 获取计算结果
+Integer result = futureTask.get();
+```
+
+- 又因为实现了 Future 接口，所以也能用来获得任务的执行结果。
+
+```java
+
+// 创建FutureTask
+FutureTask<Integer> futureTask = new FutureTask<>(()-> 1+2);
+// 创建并启动线程
+Thread T1 = new Thread(futureTask);
+T1.start();
+// 获取计算结果
+Integer result = futureTask.get();
+```
+
+#### （2）实现最优的“烧水泡茶”程序
+
+烧水泡茶最优的工序应该是下面这样：
+
+![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220607100201042.png)
+
+
+
+并发编程可以总结为三个核心问题：分工、同步和互斥。
+
+下面我们用程序来模拟一下这个最优工序。
+
+编写并发程序，首先要做的就是分工，所谓分工指的是如何高效地拆解任务并分配给线程。
+
+- 用两个线程 T1 和 T2 来完成烧水泡茶程序，T1 负责洗水壶、烧开水、泡茶这三道工序，T2 负责洗茶壶、洗茶杯、拿茶叶三道工序
+
+- 其中 T1 在执行泡茶这道工序时需要等待 T2 完成拿茶叶的工序。对于 T1 的这个等待动作，你应该可以想出很多种办法，
+  - 例如 Thread.join()、CountDownLatch，甚至阻塞队列都可以解决，
+  - 不过今天我们用 Future 特性来实现。
+
+
+
+```java
+public class TeaTest {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+
+        // 创建任务T2的FutureTask
+        FutureTask<String> ft2 = new FutureTask<>(new T2Task());
+        // 创建任务T1的FutureTask
+        FutureTask<String> ft1 = new FutureTask<>(new T1Task(ft2));
+
+        // 线程T1执行任务ft1
+        Thread T1 = new Thread(ft1);
+        T1.start();
+        // 线程T2执行任务ft2
+        Thread T2 = new Thread(ft2);
+        T2.start();
+
+        // 等待线程T1执行结果
+        System.out.println(ft1.get());
+
+    }
+
+
+    // T1Task需要执行的任务：
+    // 洗水壶、烧开水、泡茶
+    static class T1Task implements Callable<String> {
+        FutureTask<String> ft2;
+
+        // T1任务需要T2任务的FutureTask
+        T1Task(FutureTask<String> ft2) {
+            this.ft2 = ft2;
+        }
+
+        @Override
+        public String call() throws Exception {
+            System.out.println("T1:洗水壶...");
+            TimeUnit.SECONDS.sleep(1);
+
+            System.out.println("T1:烧开水...");
+            TimeUnit.SECONDS.sleep(15);
+
+            // 获取T2线程的茶叶 ⭐️⭐️⭐️⭐️⭐️
+            String tf = ft2.get();
+            System.out.println("T1:拿到茶叶:" + tf);
+
+            System.out.println("T1:泡茶...");
+            return "上茶:" + tf;
+        }
+    }
+
+    // T2Task需要执行的任务:
+    // 洗茶壶、洗茶杯、拿茶叶
+    static class T2Task implements Callable<String> {
+        @Override
+        public String call() throws Exception {
+            System.out.println("T2:洗茶壶...");
+            TimeUnit.SECONDS.sleep(1);
+
+            System.out.println("T2:洗茶杯...");
+            TimeUnit.SECONDS.sleep(2);
+
+            System.out.println("T2:拿茶叶...");
+            TimeUnit.SECONDS.sleep(1);
+            return "龙井";
+        }
+    }
+}
+// 一次执行结果：
+//        T1:洗水壶...
+//        T2:洗茶壶...
+//        T1:烧开水...
+//        T2:洗茶杯...
+//        T2:拿茶叶...
+//        T1:拿到茶叶:龙井
+//        T1:泡茶...
+//        上茶:龙井
+```
+
+- 我们创建了两个 FutureTask——ft1 和 ft2，ft1 完成洗水壶、烧开水、泡茶的任务，ft2 完成洗茶壶、洗茶杯、拿茶叶的任务
+
+- 这里需要注意的是 ft1 这个任务在执行泡茶任务前，需要等待 ft2 把茶叶拿来，**所以 ft1 内部需要引用 ft2，并在执行泡茶之前，调用 ft2 的 get() 方法实现等待。** 
+
+
+
+#### （3）总结
+
+**利用 Java 并发包提供的 Future 可以很容易获得异步任务的执行结果**，无论异步任务是通过线程池 ThreadPoolExecutor 执行的，还是通过手工创建子线程来执行的。
+
+**利用多线程可以快速将一些串行的任务并行化，从而提高性能**；如果任务之间有依赖关系，比如当前任务依赖前一个任务的执行结果，这种问题基本上都可以用 Future 来解决。
+
+
+
+[深入理解并发编程之线程池FutureTask](https://blog.csdn.net/qq_19586549/article/details/122980971)
+
+
+
+<hr>
 
 通过三个生产事故，来看看使用线程池应该注意些什么。
 
