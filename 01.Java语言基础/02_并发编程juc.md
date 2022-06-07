@@ -1817,7 +1817,7 @@ public class CountDownLatchTest {
 
 主线程调用 **latch.await()** 阻塞等待，在所有线程都执行完成并调用了countDown函数时，表示所有线程均执行完成，这时程序会主动唤醒主线程并开始执行主线程的业务逻辑。
 
-
+https://stackoverflow.com/questions/72528431/is-atomicinteger-and-countdownlatch-used-correctly
 
 
 
@@ -1863,7 +1863,28 @@ volatile在某些场景下可以代替synchronized，但是volatile不能完全�
 
 
 
-# 15 什么是CAS
+# 15 什么是CAS（Compare And Swap）：比较并交换
+
+- CAS算法CAS(*V* ,*E* ,*N* )包含 3个参数
+  - *V* 表示要更新的变量
+  - *E* 表示预期的值
+  - *N* 表示新值
+
+- 在且仅在 *V* 值等于 *E* 值时，才会将*V* 值设为 *N* 。
+  - 如果 *V*值和 *E* 值不同，则说明已经有其他线程做了更新，当前线程什么都不做。最后，CAS返回当前*V* 的真实值。
+
+- CAS 的特性：乐观锁
+- CAS自旋等待
+  - JDK的原子包java.util.concurrent.atomic里面提供了一组原子类。这些原子类的基本特性就是在多线程环境下，在有多个线程同时执行这些类的实例包含的方法时，会有排他性。
+  - 其内部便是基于CAS算法实现的
+  - 相对于synchronized阻塞算法，CAS是非阻塞算法的一种常见实现。由于CPU的切换比CPU指令集的操作更加耗时，所以CAS的自旋操作在性能上有了很大的提升。
+
+```java
+```
+
+
+
+
 
 # 16 ABA问题
 
