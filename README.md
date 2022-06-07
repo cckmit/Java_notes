@@ -22,7 +22,7 @@
 
 [bugstack 虫洞栈（小傅哥）](https://bugstack.cn/)
 
-![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220601211357007.png)
+![](./img/小傅哥.png)
 
 
 
