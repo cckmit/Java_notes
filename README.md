@@ -123,6 +123,21 @@
 
 ### 总结
 
+#### JDK 中常用的包有哪些
+
+```java
+java.lang：这个是系统的基础类；
+java.io：这里面是所有输入输出有关的类，比如文件操作等；
+java.nio：为了完善 io 包中的功能，提高 io 包中性能而写的一个新包；
+java.net：这里面是与网络有关的类；
+java.util：这个是系统辅助类，特别是集合类；
+java.sql：这个是数据库操作的类。
+```
+
+
+
+#### 线程池
+
 Java 提供的线程池相关的工具类中，最核心的是 **ThreadPoolExecutor**，其构造函数如下（有 7 个参数）
 
 ```java
@@ -151,7 +166,7 @@ ThreadPoolExecutor(
 
 
 
-
+#### JVM
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220605131230324-20220605165328496.png)
 
