@@ -123,6 +123,34 @@
 
 ### 总结
 
+Java 提供的线程池相关的工具类中，最核心的是 **ThreadPoolExecutor**，其构造函数如下（有 7 个参数）
+
+```java
+
+ThreadPoolExecutor(
+  int corePoolSize,
+  int maximumPoolSize,
+  long keepAliveTime,
+  TimeUnit unit,
+  BlockingQueue<Runnable> workQueue,
+  ThreadFactory threadFactory,
+  RejectedExecutionHandler handler) 
+```
+
+<br>
+
+| 序号 | 参数            | 说明                                             |
+| ---- | --------------- | ------------------------------------------------ |
+| 1    | corePoolSize    | 核心线程数量                                     |
+| 2    | maximumPoolSize | 最大线程数量                                     |
+| 3    | keepAliveTime   | 当前线程数大于corePoolSize时，空闲线程的存活时间 |
+| 4    | unit            | keepAliveTime的时间单位                          |
+| 5    | workQueue       | 任务队列，被提交但尚未被执行的任务存放的地方     |
+| 6    | threadFactory   | 线程工厂，用于创建线程                           |
+| 7    | handler         | 任务拒绝策略                                     |
+
+
+
 
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220605131230324-20220605165328496.png)

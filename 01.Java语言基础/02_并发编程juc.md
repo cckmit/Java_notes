@@ -441,6 +441,20 @@ ThreadPoolExecutor(
   - DiscardPolicy：直接丢弃任务，没有任何异常抛出。
   - DiscardOldestPolicy：丢弃最老的任务，其实就是把最早进入工作队列的任务丢弃，然后把新任务加入到工作队列。
 
+
+
+[execute和submit的区别](https://blog.csdn.net/qq_50652600/article/details/123417584)
+
+execute只能提交**Runnable类型**的任务，无返回值。
+
+而submit既能提交**Runnable类型**的任务，返回值为null，也能提交**Callable**类型的任务，返回值为Future。
+
+
+
+
+
+
+
 #### （3）使用线程池要注意些什么
 
 - 不建议使用 Executors

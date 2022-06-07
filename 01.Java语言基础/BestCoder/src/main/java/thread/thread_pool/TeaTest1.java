@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * @description
  * @date 2022/6/7 上午10:03
  */
-public class TeaTest {
+public class TeaTest1 {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
 
