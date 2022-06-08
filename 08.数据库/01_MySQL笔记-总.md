@@ -10,8 +10,6 @@
 
 ## 推荐
 
-### 文章
-
 ### 视频
 
 
@@ -28,12 +26,18 @@
 
 
 
+### 博客
+
+
+
+[MySQL 实战 45 讲（极客时间专栏）](https://time.geekbang.org/column/article/68319)
+
+
+
 
 MySQL 是一款非常流行的数据库管理系统
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220330133909080.png?w=600)
-
-
 
 
 
@@ -220,17 +224,6 @@ MySQL查询优化器在执行查询前会判断是否有一个索引能执行覆
 
 ![](https://notes2021.oss-cn-beijing.aliyuncs.com/2021/image-20220330133948392.png)
 
-
-
-- 初级工程师
-- 中级工程师
-- 高级工程师
-
-
-
-
-
-<hr>
 
 
 
